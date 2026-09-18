@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { updateProposal } from "../../actions";
-
 export default async function EditUsulanPage({
   params,
 }: {

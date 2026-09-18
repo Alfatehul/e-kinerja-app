@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { submitProposal } from "../actions";
 import StatusBadge from "@/components/StatusBadge";
 import DeleteProposalButton from "@/components/DeleteProposalButton";
+import DocumentUploader from "@/components/DocumentUploader";
 
 export default async function UsulanDetailPage({
   params,
@@ -19,6 +20,13 @@ export default async function UsulanDetailPage({
     .eq("id", id)
     .single();
   if (!proposal) notFound();
+
+  // ...di dalam komponen, setelah query proposal:
+  const { data: documents } = await supabase
+    .from("budget_documents")
+    .select("*")
+    .eq("entity_type", "proposal")
+    .eq("entity_id", id);
 
   const { data: history } = await supabase
     .from("budget_history")
@@ -116,6 +124,14 @@ export default async function UsulanDetailPage({
           </div>
         ))}
       </div>
+
+      <DocumentUploader
+        entityType="proposal"
+        entityId={id}
+        facultyId={proposal.faculty_id}
+        documents={documents ?? []}
+        editable={true}
+      />
 
       {editable && (
         <form action={handleSubmit}>

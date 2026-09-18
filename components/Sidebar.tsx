@@ -124,8 +124,11 @@ const navFakultas = [
       </svg>
     ),
   },
+
   { href: "/fakultas/usulan-anggaran", label: "Usulan Anggaran" },
-  { href: "/fakultas/usulan-revisi", label: "Usulan Revisi" }, //baru ditambah
+
+  { href: "/fakultas/usulan-revisi", label: "Usulan Revisi" },
+
   {
     href: "/fakultas/indikator",
     label: "Daftar Indikator",

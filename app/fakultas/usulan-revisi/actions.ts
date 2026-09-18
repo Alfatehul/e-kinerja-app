@@ -56,3 +56,21 @@ export async function createRevision(formData: FormData) {
 
   redirect("/fakultas/usulan-revisi");
 }
+
+export async function updateRevision(id: string, formData: FormData) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("budget_revisions")
+    .update({
+      jenis_revisi: formData.get("jenis_revisi") as string,
+      after_uraian: formData.get("after_uraian") as string,
+      after_volume: Number(formData.get("after_volume")),
+      after_harga_satuan: Number(formData.get("after_harga_satuan")),
+      alasan_revisi: formData.get("alasan_revisi") as string,
+      status: "Diajukan",
+      catatan_verifikator: null,
+    })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  redirect(`/fakultas/usulan-revisi/${id}`);
+}

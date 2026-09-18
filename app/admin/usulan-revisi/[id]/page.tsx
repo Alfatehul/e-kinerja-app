@@ -2,6 +2,9 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { verifyRevision } from "../actions";
 import StatusBadge from "@/components/StatusBadge";
+import DeleteRevisionAdminButton from "@/components/DeleteRevisionAdminButton";
+import DocumentUploader from "@/components/DocumentUploader";
+// ...
 
 export default async function RevisiDetailAdminPage({
   params,
@@ -17,6 +20,13 @@ export default async function RevisiDetailAdminPage({
     .eq("id", id)
     .single();
   if (!revision) notFound();
+
+  // ...di dalam komponen, setelah query proposal:
+  const { data: documents } = await supabase
+    .from("budget_documents")
+    .select("*")
+    .eq("entity_type", "revision")
+    .eq("entity_id", id);
 
   const { data: history } = await supabase
     .from("budget_history")
@@ -57,7 +67,11 @@ export default async function RevisiDetailAdminPage({
       <div className="mb-4">
         <StatusBadge status={revision.status} />
       </div>
-
+      <div className="flex justify-between items-start">
+        <h1 className="font-serif text-xl font-semibold">{revision.number}</h1>
+        <DeleteRevisionAdminButton id={id} />
+      </div>
+      ;
       <div className="bg-white border border-[#E1DDCF] rounded-lg p-4 mb-4 text-sm">
         <div className="mb-2">
           <strong>Jenis Revisi:</strong> {revision.jenis_revisi}
@@ -66,7 +80,6 @@ export default async function RevisiDetailAdminPage({
           <strong>Alasan:</strong> {revision.alasan_revisi}
         </div>
       </div>
-
       <table className="w-full text-sm border-collapse mb-4">
         <thead>
           <tr className="bg-[#EEF0F5]">
@@ -87,7 +100,6 @@ export default async function RevisiDetailAdminPage({
           </tr>
         </tbody>
       </table>
-
       <div className="bg-white border border-[#E1DDCF] rounded-lg p-4 mb-4">
         <div className="font-semibold text-sm mb-2">Riwayat</div>
         {history?.map((h) => (
@@ -96,10 +108,16 @@ export default async function RevisiDetailAdminPage({
           </div>
         ))}
       </div>
-
       {canReview && (
         <div className="bg-white border border-[#E1DDCF] rounded-lg p-4">
           <div className="font-semibold text-sm mb-2">Tindakan Verifikasi</div>
+          <DocumentUploader
+            entityType="revision"
+            entityId={id}
+            facultyId={revision.faculty_id}
+            documents={documents ?? []}
+            editable={true}
+          />
           <form className="flex flex-col gap-3">
             <textarea
               name="note"

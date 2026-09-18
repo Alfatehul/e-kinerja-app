@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { addRealization, submitForVerification } from "../actions";
 import DeleteRealizationButton from "@/components/DeleteRealizationButton";
+import { updateDocumentLink } from "../actions";
 
 export default async function PengisianDetailPage({
   params,
@@ -42,7 +43,10 @@ export default async function PengisianDetailPage({
     "use server";
     await addRealization(id, formData);
   }
-
+  async function handleLinkSave(formData: FormData) {
+    "use server";
+    await updateDocumentLink(id, formData.get("document_link") as string);
+  }
   async function handleSubmit() {
     "use server";
     await submitForVerification(id);
@@ -120,6 +124,30 @@ export default async function PengisianDetailPage({
           </button>
         </form>
       )}
+
+      <form
+        action={handleLinkSave}
+        className="bg-white border border-[#E1DDCF] rounded-lg p-4 mb-4 flex gap-2 items-end"
+      >
+        <div className="flex-1">
+          <label className="block text-xs font-semibold mb-1">
+            Link Dokumen Pendukung (opsional)
+          </label>
+          <input
+            name="document_link"
+            type="url"
+            defaultValue={assignment.document_link ?? ""}
+            placeholder="https://drive.google.com/..."
+            className="w-full border border-[#E1DDCF] rounded-md p-2 text-sm"
+          />
+        </div>
+        <button
+          type="submit"
+          className="bg-[#1B2A4B] text-white text-sm px-4 py-2 rounded-md"
+        >
+          Simpan Link
+        </button>
+      </form>
 
       <div className="bg-white border border-[#E1DDCF] rounded-lg overflow-hidden mb-4">
         <div className="p-3 font-semibold text-sm border-b border-[#E1DDCF]">

@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import StatusBadge from "@/components/StatusBadge";
+import Link from "next/link";
+import DocumentUploader from "@/components/DocumentUploader";
 
 export default async function RevisiDetailPage({
   params,
@@ -17,6 +19,13 @@ export default async function RevisiDetailPage({
     .single();
   if (!revision) notFound();
 
+  // ...di dalam komponen, setelah query proposal:
+  const { data: documents } = await supabase
+    .from("budget_documents")
+    .select("*")
+    .eq("entity_type", "revision")
+    .eq("entity_id", id);
+
   const { data: history } = await supabase
     .from("budget_history")
     .select("*")
@@ -29,7 +38,18 @@ export default async function RevisiDetailPage({
 
   return (
     <div className="max-w-2xl">
-      <h1 className="font-serif text-xl font-semibold">{revision.number}</h1>
+      <div className="flex justify-between items-start mb-2">
+        <h1 className="font-serif text-xl font-semibold">{revision.number}</h1>
+        {(revision.status === "Perlu Perbaikan" ||
+          revision.status === "Ditolak") && (
+          <Link
+            href={`/fakultas/usulan-revisi/${id}/edit`}
+            className="text-[#1B2A4B] text-xs font-semibold hover:underline"
+          >
+            Edit & Ajukan Ulang
+          </Link>
+        )}
+      </div>
       <p className="text-sm text-[#5B5A55] mb-2">
         Terkait: {(revision as any).budget_proposals?.number}
       </p>
@@ -72,6 +92,14 @@ export default async function RevisiDetailPage({
           <strong>Catatan Verifikator:</strong> {revision.catatan_verifikator}
         </div>
       )}
+
+      <DocumentUploader
+        entityType="revision"
+        entityId={id}
+        facultyId={revision.faculty_id}
+        documents={documents ?? []}
+        editable={true}
+      />
 
       <div className="bg-white border border-[#E1DDCF] rounded-lg p-4">
         <div className="font-semibold text-sm mb-2">Riwayat</div>

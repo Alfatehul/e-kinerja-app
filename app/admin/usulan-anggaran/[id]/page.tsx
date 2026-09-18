@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { verifyProposal } from "../actions";
 import StatusBadge from "@/components/StatusBadge";
+import DeleteProposalAdminButton from "@/components/DeleteProposalAdminButton";
+import DocumentUploader from "@/components/DocumentUploader";
 
 export default async function UsulanDetailAdminPage({
   params,
@@ -17,6 +19,13 @@ export default async function UsulanDetailAdminPage({
     .eq("id", id)
     .single();
   if (!proposal) notFound();
+
+  // ...di dalam komponen, setelah query proposal:
+  const { data: documents } = await supabase
+    .from("budget_documents")
+    .select("*")
+    .eq("entity_type", "proposal")
+    .eq("entity_id", id);
 
   const { data: history } = await supabase
     .from("budget_history")
@@ -54,7 +63,12 @@ export default async function UsulanDetailAdminPage({
       <div className="mb-4">
         <StatusBadge status={proposal.status} />
       </div>
-
+      {/* baru ditambah */}
+      <div className="flex justify-between items-start">
+        <h1 className="font-serif text-xl font-semibold">{proposal.number}</h1>
+        <DeleteProposalAdminButton id={id} />
+      </div>
+      {/* baru ditambah */};
       <div className="grid grid-cols-2 gap-3 text-sm bg-white border border-[#E1DDCF] rounded-lg p-4 mb-4">
         <div>
           <div className="text-[#5B5A55] text-xs">Tahun</div>
@@ -73,7 +87,6 @@ export default async function UsulanDetailAdminPage({
           <div className="font-semibold">{proposal.kegiatan}</div>
         </div>
       </div>
-
       <div className="bg-[#F6F4EF] border border-[#E1DDCF] rounded-lg p-4 mb-4 text-sm">
         <div className="mb-2">{proposal.uraian}</div>
         <div className="flex gap-3 items-center">
@@ -93,7 +106,6 @@ export default async function UsulanDetailAdminPage({
           </span>
         </div>
       </div>
-
       <div className="bg-white border border-[#E1DDCF] rounded-lg p-4 mb-4">
         <div className="font-semibold text-sm mb-2">Riwayat</div>
         {history?.map((h) => (
@@ -102,9 +114,15 @@ export default async function UsulanDetailAdminPage({
           </div>
         ))}
       </div>
-
       {canReview && (
         <div className="bg-white border border-[#E1DDCF] rounded-lg p-4">
+          <DocumentUploader
+            entityType="proposal"
+            entityId={id}
+            facultyId={proposal.faculty_id}
+            documents={documents ?? []}
+            editable={true}
+          />
           <div className="font-semibold text-sm mb-2">Tindakan Verifikasi</div>
           <form className="flex flex-col gap-3">
             <textarea

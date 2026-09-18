@@ -70,3 +70,14 @@ export async function submitForVerification(assignmentId: string) {
   revalidatePath(`/fakultas/pengisian/${assignmentId}`);
   revalidatePath("/fakultas/pengisian");
 }
+
+export async function updateDocumentLink(assignmentId: string, link: string) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("indicator_assignments")
+    .update({ document_link: link || null })
+    .eq("id", assignmentId);
+  if (error) throw new Error(error.message);
+  revalidatePath(`/fakultas/pengisian/${assignmentId}`);
+  revalidatePath("/fakultas/pengisian");
+}

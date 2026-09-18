@@ -56,25 +56,36 @@ export default async function EditIndikatorPage({
 
   const supabase = await createClient();
 
-  const { data: indicator } = await supabase
+  // Ambil data indikator
+  const { data: indicator, error: indicatorError } = await supabase
     .from("indicators")
     .select("*")
     .eq("id", id)
     .single();
 
-  if (!indicator) notFound();
+  if (indicatorError || !indicator) {
+    notFound();
+  }
 
+  // Ambil semua fakultas
   const { data: faculties } = await supabase
     .from("faculties")
     .select("id, name, code")
     .order("name");
 
+  // Ambil fakultas yang sudah ditugaskan
   const { data: currentAssignments } = await supabase
     .from("indicator_assignments")
     .select("faculty_id")
     .eq("indicator_id", id);
 
   const currentFacultyIds = currentAssignments?.map((a) => a.faculty_id) ?? [];
+
+  // Ambil link dokumen dari masing-masing penugasan
+  const { data: assignmentLinks } = await supabase
+    .from("indicator_assignments")
+    .select("faculty_id, document_link")
+    .eq("indicator_id", id);
 
   async function updateIndicator(formData: FormData) {
     "use server";
@@ -83,6 +94,7 @@ export default async function EditIndikatorPage({
 
     const selectedFaculties = formData.getAll("faculties") as string[];
 
+    // Update indikator
     const { error } = await supabase
       .from("indicators")
       .update({
@@ -98,19 +110,29 @@ export default async function EditIndikatorPage({
       })
       .eq("id", id);
 
-    if (error) throw new Error(error.message);
+    if (error) {
+      throw new Error(error.message);
+    }
 
+    // Cari fakultas baru yang belum ditugaskan
     const newFacultyIds = selectedFaculties.filter(
-      (fid) => !currentFacultyIds.includes(fid),
+      (facultyId) => !currentFacultyIds.includes(facultyId),
     );
 
+    // Tambahkan penugasan baru
     if (newFacultyIds.length > 0) {
-      await supabase.from("indicator_assignments").insert(
-        newFacultyIds.map((facultyId) => ({
-          indicator_id: id,
-          faculty_id: facultyId,
-        })),
-      );
+      const { error: assignmentError } = await supabase
+        .from("indicator_assignments")
+        .insert(
+          newFacultyIds.map((facultyId) => ({
+            indicator_id: id,
+            faculty_id: facultyId,
+          })),
+        );
+
+      if (assignmentError) {
+        throw new Error(assignmentError.message);
+      }
     }
 
     redirect("/admin/indikator");
@@ -334,6 +356,10 @@ export default async function EditIndikatorPage({
             {faculties?.map((faculty) => {
               const already = currentFacultyIds.includes(faculty.id);
 
+              const link = assignmentLinks?.find(
+                (a) => a.faculty_id === faculty.id,
+              )?.document_link;
+
               return (
                 <label
                   key={faculty.id}
@@ -358,6 +384,23 @@ export default async function EditIndikatorPage({
                     </p>
 
                     <p className="text-xs text-gray-500">{faculty.name}</p>
+
+                    {/* Link dokumen fakultas */}
+                    {link ? (
+                      <a
+                        href={link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-[10px] text-[#1B2A4B] font-semibold hover:underline mt-1 inline-block"
+                      >
+                        Lihat dokumen fakultas ini
+                      </a>
+                    ) : already ? (
+                      <p className="text-[10px] text-gray-400 mt-1">
+                        Belum ada link
+                      </p>
+                    ) : null}
                   </div>
 
                   {already && (

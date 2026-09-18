@@ -16,9 +16,11 @@ export default async function PengisianPage() {
       <h1 className="font-serif text-xl font-semibold mb-4">
         Pengisian Indikator
       </h1>
+
       {error && (
         <p className="text-red-600 text-sm mb-4">Error: {error.message}</p>
       )}
+
       <div className="bg-white border border-[#E1DDCF] rounded-lg overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-[#EEF0F5] text-left">
@@ -28,23 +30,49 @@ export default async function PengisianPage() {
               <th className="p-3">Target</th>
               <th className="p-3">Realisasi</th>
               <th className="p-3">Status</th>
+              <th className="p-3">Link Dokumen</th>
               <th className="p-3">Aksi</th>
             </tr>
           </thead>
+
           <tbody>
             {assignments?.map((a: any) => (
               <tr key={a.id} className="border-t border-[#E1DDCF]">
                 <td className="p-3 font-semibold text-[#1B2A4B]">
-                  {a.indicators.code}
+                  {a.indicators?.code ?? "-"}
                 </td>
-                <td className="p-3">{a.indicators.name}</td>
+
+                <td className="p-3">{a.indicators?.name ?? "-"}</td>
+
                 <td className="p-3">
-                  {a.indicators.target} {a.indicators.unit}
+                  {a.indicators
+                    ? `${a.indicators.target} ${a.indicators.unit ?? ""}`
+                    : "-"}
                 </td>
+
                 <td className="p-3">
-                  {a.realization} {a.indicators.unit}
+                  {a.indicators
+                    ? `${a.realization ?? 0} ${a.indicators.unit ?? ""}`
+                    : "-"}
                 </td>
-                <td className="p-3">{a.status}</td>
+
+                <td className="p-3">{a.status ?? "-"}</td>
+
+                <td className="p-3">
+                  {a.document_link ? (
+                    <a
+                      href={a.document_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#1B2A4B] text-xs font-semibold hover:underline"
+                    >
+                      Buka Link
+                    </a>
+                  ) : (
+                    <span className="text-xs text-[#5B5A55]">-</span>
+                  )}
+                </td>
+
                 <td className="p-3">
                   <Link
                     href={`/fakultas/pengisian/${a.id}`}
@@ -55,9 +83,10 @@ export default async function PengisianPage() {
                 </td>
               </tr>
             ))}
+
             {assignments?.length === 0 && (
               <tr>
-                <td colSpan={6} className="p-6 text-center text-[#5B5A55]">
+                <td colSpan={7} className="p-6 text-center text-[#5B5A55]">
                   Belum ada indikator yang ditugaskan.
                 </td>
               </tr>
