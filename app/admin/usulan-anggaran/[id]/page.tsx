@@ -18,9 +18,9 @@ export default async function UsulanDetailAdminPage({
     .select("*, faculties(name)")
     .eq("id", id)
     .single();
+
   if (!proposal) notFound();
 
-  // ...di dalam komponen, setelah query proposal:
   const { data: documents } = await supabase
     .from("budget_documents")
     .select("*")
@@ -36,6 +36,10 @@ export default async function UsulanDetailAdminPage({
 
   const canReview =
     proposal.status === "Diajukan" || proposal.status === "Diverifikasi";
+  const totalAnggaran =
+    proposal.total_anggaran ?? proposal.volume * proposal.harga_satuan;
+  const facultyName =
+    (proposal.faculties as { name?: string } | null)?.name ?? "Fakultas / Unit";
 
   async function approve(formData: FormData) {
     "use server";
@@ -45,77 +49,124 @@ export default async function UsulanDetailAdminPage({
       (formData.get("note") as string) || "Disetujui.",
     );
   }
+
   async function reject(formData: FormData) {
     "use server";
     await verifyProposal(id, "Ditolak", formData.get("note") as string);
   }
+
   async function requestFix(formData: FormData) {
     "use server";
     await verifyProposal(id, "Perlu Perbaikan", formData.get("note") as string);
   }
 
   return (
-    <div className="max-w-2xl">
-      <h1 className="font-serif text-xl font-semibold">{proposal.number}</h1>
-      <p className="text-sm text-[#5B5A55] mb-2">
-        {(proposal as any).faculties.name}
-      </p>
-      <div className="mb-4">
-        <StatusBadge status={proposal.status} />
-      </div>
-      {/* baru ditambah */}
-      <div className="flex justify-between items-start">
-        <h1 className="font-serif text-xl font-semibold">{proposal.number}</h1>
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 pb-10">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0B5B35]">
+            Verifikasi usulan anggaran
+          </p>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#17231D]">
+            {proposal.number}
+          </h1>
+          <p className="mt-2 text-sm text-[#64736A]">{facultyName}</p>
+          <div className="mt-3">
+            <StatusBadge status={proposal.status} />
+          </div>
+        </div>
         <DeleteProposalAdminButton id={id} />
       </div>
-      {/* baru ditambah */};
-      <div className="grid grid-cols-2 gap-3 text-sm bg-white border border-[#E1DDCF] rounded-lg p-4 mb-4">
-        <div>
-          <div className="text-[#5B5A55] text-xs">Tahun</div>
-          <div className="font-semibold">{proposal.year}</div>
-        </div>
-        <div>
-          <div className="text-[#5B5A55] text-xs">Sumber Dana</div>
-          <div className="font-semibold">{proposal.sumber_dana}</div>
-        </div>
-        <div>
-          <div className="text-[#5B5A55] text-xs">Program</div>
-          <div className="font-semibold">{proposal.program}</div>
-        </div>
-        <div>
-          <div className="text-[#5B5A55] text-xs">Kegiatan</div>
-          <div className="font-semibold">{proposal.kegiatan}</div>
-        </div>
-      </div>
-      <div className="bg-[#F6F4EF] border border-[#E1DDCF] rounded-lg p-4 mb-4 text-sm">
-        <div className="mb-2">{proposal.uraian}</div>
-        <div className="flex gap-3 items-center">
-          <span>
-            {proposal.volume} {proposal.satuan}
-          </span>
-          <span>×</span>
-          <span>
-            Rp {Number(proposal.harga_satuan).toLocaleString("id-ID")}
-          </span>
-          <span>=</span>
-          <span className="font-bold text-[#1B2A4B]">
-            Rp{" "}
-            {Number(proposal.volume * proposal.harga_satuan).toLocaleString(
-              "id-ID",
-            )}
-          </span>
-        </div>
-      </div>
-      <div className="bg-white border border-[#E1DDCF] rounded-lg p-4 mb-4">
-        <div className="font-semibold text-sm mb-2">Riwayat</div>
-        {history?.map((h) => (
-          <div key={h.id} className="text-xs text-[#5B5A55] mb-1">
-            {new Date(h.created_at).toLocaleDateString("id-ID")} — {h.event}
+
+      <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
+        <section className="rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6">
+          <div className="mb-5 border-b border-[#EDF2EE] pb-4">
+            <h2 className="text-base font-bold text-[#17231D]">Informasi usulan</h2>
+            <p className="mt-1 text-xs text-[#849289]">
+              Ringkasan program dan unit pengusul anggaran.
+            </p>
           </div>
-        ))}
+          <dl className="grid gap-5 text-sm sm:grid-cols-2">
+            <div>
+              <dt className="text-xs text-[#849289]">Tahun anggaran</dt>
+              <dd className="mt-1 font-semibold text-[#334A3C]">{proposal.year}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-[#849289]">Program</dt>
+              <dd className="mt-1 font-semibold text-[#334A3C]">{proposal.program}</dd>
+            </div>
+            <div className="sm:col-span-2">
+              <dt className="text-xs text-[#849289]">Kegiatan</dt>
+              <dd className="mt-1 font-semibold text-[#334A3C]">{proposal.kegiatan || "—"}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section className="rounded-2xl border border-[#B9D7C1] bg-[#F1F8F3] p-5 shadow-sm sm:p-6">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#64736A]">
+            Total anggaran
+          </p>
+          <p className="mt-3 text-2xl font-bold tracking-tight text-[#0B5B35]">
+            Rp {Number(totalAnggaran).toLocaleString("id-ID")}
+          </p>
+          <p className="mt-2 text-xs leading-5 text-[#64736A]">
+            Nilai total pengajuan dari Fakultas / Unit.
+          </p>
+        </section>
       </div>
+
+      <section className="rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6">
+        <h2 className="text-base font-bold text-[#17231D]">Uraian kebutuhan</h2>
+        <p className="mt-3 whitespace-pre-line text-sm leading-7 text-[#52645A]">
+          {proposal.uraian}
+        </p>
+      </section>
+
+      {proposal.tor_link && (
+        <section className="rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6">
+          <h2 className="text-base font-bold text-[#17231D]">Dokumen TOR</h2>
+          <a
+            href={proposal.tor_link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex text-sm font-bold text-[#0B5B35] hover:underline"
+          >
+            Buka link dokumen TOR
+          </a>
+        </section>
+      )}
+
+      {proposal.catatan_verifikator && (
+        <div className="rounded-2xl border border-orange-200 bg-orange-50 p-5 text-sm text-orange-700">
+          <p className="font-bold">Catatan verifikator</p>
+          <p className="mt-1 leading-6">{proposal.catatan_verifikator}</p>
+        </div>
+      )}
+
+      <section className="rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6">
+        <h2 className="text-base font-bold text-[#17231D]">Riwayat pengajuan</h2>
+        <div className="mt-4 flex flex-col">
+          {history?.map((item) => (
+            <div
+              key={item.id}
+              className="flex gap-3 border-l-2 border-[#B9D7C1] pb-4 pl-4 last:pb-0"
+            >
+              <div>
+                <p className="text-sm font-semibold text-[#334A3C]">{item.event}</p>
+                <p className="mt-1 text-xs text-[#849289]">
+                  {new Date(item.created_at).toLocaleDateString("id-ID")}
+                </p>
+              </div>
+            </div>
+          ))}
+          {history?.length === 0 && (
+            <p className="text-sm text-[#849289]">Belum ada riwayat pengajuan.</p>
+          )}
+        </div>
+      </section>
+
       {canReview && (
-        <div className="bg-white border border-[#E1DDCF] rounded-lg p-4">
+        <section className="rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6">
           <DocumentUploader
             entityType="proposal"
             entityId={id}
@@ -123,35 +174,40 @@ export default async function UsulanDetailAdminPage({
             documents={documents ?? []}
             editable={true}
           />
-          <div className="font-semibold text-sm mb-2">Tindakan Verifikasi</div>
-          <form className="flex flex-col gap-3">
+          <div className="my-5 border-t border-[#EDF2EE] pt-5">
+            <h2 className="text-base font-bold text-[#17231D]">Tindakan verifikasi</h2>
+            <p className="mt-1 text-xs text-[#849289]">
+              Tambahkan catatan jika usulan ditolak atau perlu perbaikan.
+            </p>
+          </div>
+          <form className="flex flex-col gap-4">
             <textarea
               name="note"
               placeholder="Catatan verifikator (wajib untuk Tolak / Perlu Perbaikan)"
-              className="border border-[#E1DDCF] rounded-md p-2 text-sm min-h-[60px]"
+              className="form-input min-h-[100px] resize-y"
             />
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex flex-wrap gap-3">
               <button
                 formAction={approve}
-                className="bg-green-700 text-white text-sm px-4 py-2 rounded-md"
+                className="rounded-xl bg-[#0B5B35] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#073B25]"
               >
                 Setujui
               </button>
               <button
                 formAction={requestFix}
-                className="bg-amber-600 text-white text-sm px-4 py-2 rounded-md"
+                className="rounded-xl bg-amber-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-amber-700"
               >
                 Perlu Perbaikan
               </button>
               <button
                 formAction={reject}
-                className="bg-red-600 text-white text-sm px-4 py-2 rounded-md"
+                className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-red-700"
               >
                 Tolak
               </button>
             </div>
           </form>
-        </div>
+        </section>
       )}
     </div>
   );

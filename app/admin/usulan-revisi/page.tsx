@@ -30,7 +30,7 @@ export default async function UsulanRevisiAdminPage({
   let query = supabase
     .from("budget_revisions")
     .select("*, faculties(name), budget_proposals(number)")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: true });
   if (status) query = query.eq("status", status);
   if (faculty) query = query.eq("faculty_id", faculty);
   const { data: revisions } = await query;

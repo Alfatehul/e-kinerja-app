@@ -63,31 +63,34 @@ export default async function TambahIndikatorPage() {
   }
 
   return (
-    <div className="max-w-3xl">
+    <div className="mx-auto w-full max-w-4xl pb-10">
       {/* HEADER */}
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold text-[#1F2937]">
+      <div className="mb-8 text-center">
+        <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-[#0B5B35]">
+          Manajemen Kinerja
+        </p>
+        <h1 className="text-2xl font-bold tracking-tight text-[#17231D]">
           Tambah Indikator
         </h1>
 
-        <p className="mt-1 text-sm text-[#6B7280]">
-          Tambahkan indikator kinerja baru yang akan digunakan dalam sistem
-          E-Kinerja.
+        <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#64736A]">
+          Tambahkan indikator kinerja baru dan tentukan fakultas atau unit yang
+          wajib mengisi indikator tersebut.
         </p>
       </div>
 
       {/* FORM */}
       <form
         action={createIndicator}
-        className="bg-white border border-[#E5E7EB] rounded-xl shadow-sm overflow-hidden"
+        className="overflow-hidden rounded-2xl border border-[#DCE6DF] bg-white shadow-[0_12px_35px_rgba(23,35,29,0.06)]"
       >
         {/* FORM HEADER */}
-        <div className="px-6 py-4 border-b border-[#E5E7EB] bg-[#F8FAF8]">
-          <h2 className="text-sm font-semibold text-[#14532D]">
+        <div className="border-b border-[#DCE6DF] bg-[#F8FBF8] px-6 py-5">
+          <h2 className="text-base font-bold text-[#14532D]">
             Informasi Indikator
           </h2>
 
-          <p className="text-xs text-[#6B7280] mt-1">
+          <p className="mt-1 text-xs text-[#64736A]">
             Isi informasi indikator secara lengkap.
           </p>
         </div>
@@ -237,31 +240,45 @@ export default async function TambahIndikatorPage() {
               Pilih fakultas atau unit yang diwajibkan mengisi indikator ini.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-              {faculties?.map((f) => (
-                <label
-                  key={f.id}
-                  className="flex items-center gap-2 border border-[#E5E7EB] rounded-lg px-3 py-2.5 text-sm cursor-pointer hover:bg-[#F0FDF4] hover:border-[#86EFAC] transition-colors"
-                >
-                  <input
-                    type="checkbox"
-                    name="faculties"
-                    value={f.id}
-                    className="w-4 h-4 accent-[#16A34A]"
-                  />
-
-                  <span className="text-[#374151]">{f.code}</span>
-                </label>
-              ))}
+            <div className="overflow-hidden rounded-xl border border-[#DCE6DF]">
+              <div className="grid grid-cols-[52px_120px_1fr] items-center bg-[#F3F8F4] px-4 py-3 text-[11px] font-bold uppercase tracking-[0.12em] text-[#64736A]">
+                <span>Pilih</span>
+                <span>Kode</span>
+                <span>Nama Fakultas / Unit</span>
+              </div>
+              <div className="divide-y divide-[#E8EFEA]">
+                {faculties?.map((f) => (
+                  <label
+                    key={f.id}
+                    className="grid cursor-pointer grid-cols-[52px_120px_1fr] items-center px-4 py-3 text-sm transition-colors hover:bg-[#F8FBF8]"
+                  >
+                    <span>
+                      <input
+                        type="checkbox"
+                        name="faculties"
+                        value={f.id}
+                        className="h-4 w-4 accent-[#16A34A]"
+                      />
+                    </span>
+                    <span className="font-semibold text-[#14532D]">{f.code}</span>
+                    <span className="text-[#374151]">{f.name}</span>
+                  </label>
+                ))}
+                {faculties?.length === 0 && (
+                  <p className="px-4 py-6 text-center text-sm text-[#64736A]">
+                    Belum ada data Fakultas / Unit.
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
         {/* FOOTER */}
-        <div className="px-6 py-4 bg-[#F8FAF8] border-t border-[#E5E7EB] flex justify-end">
+        <div className="flex justify-end border-t border-[#DCE6DF] bg-[#F8FBF8] px-6 py-4">
           <button
             type="submit"
-            className="bg-[#14532D] hover:bg-[#166534] text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors cursor-pointer shadow-sm"
+            className="cursor-pointer rounded-lg bg-[#14532D] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#166534]"
           >
             Simpan Indikator
           </button>

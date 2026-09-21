@@ -1,9 +1,14 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { addRealization, submitForVerification } from "../actions";
+import {
+  addRealization,
+  cancelSubmission,
+  submitForVerification,
+} from "../actions";
 import DeleteRealizationButton from "@/components/DeleteRealizationButton";
 import { updateDocumentLink } from "../actions";
+import StatusBadge from "@/components/StatusBadge";
 
 export default async function PengisianDetailPage({
   params,
@@ -51,74 +56,91 @@ export default async function PengisianDetailPage({
     "use server";
     await submitForVerification(id);
   }
+  async function handleCancelSubmission() {
+    "use server";
+    await cancelSubmission(id);
+  }
 
   return (
-    <div className="max-w-2xl">
-      <h1 className="font-serif text-xl font-semibold mb-1">
-        {assignment.indicators.code} — {assignment.indicators.name}
-      </h1>
-      <p className="text-sm text-[#5B5A55] mb-4">
-        Target: {assignment.indicators.target} {assignment.indicators.unit} ·
-        Status: {assignment.status}
-      </p>
-
-      <div className="bg-white border border-[#E1DDCF] rounded-lg p-4 mb-4">
-        <div className="text-sm text-[#5B5A55] mb-1">
-          Total Realisasi Saat Ini
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 pb-10">
+      <div>
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0B5B35]">
+          Pengisian indikator
+        </p>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#17231D]">
+          {assignment.indicators.code}
+        </h1>
+        <p className="mt-2 text-sm text-[#64736A]">
+          {assignment.indicators.name}
+        </p>
+        <div className="mt-3">
+          <StatusBadge status={assignment.status} />
         </div>
-        <div className="font-serif text-2xl font-bold">
-          {assignment.realization} {assignment.indicators.unit}{" "}
-          <span className="text-sm font-normal text-[#5B5A55]">({pct}%)</span>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-wide text-[#849289]">Target</p>
+          <p className="mt-2 text-xl font-bold text-[#334A3C]">{assignment.indicators.target} {assignment.indicators.unit}</p>
+        </div>
+        <div className="rounded-2xl border border-[#B9D7C1] bg-[#F1F8F3] p-5 shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-wide text-[#64736A]">Realisasi</p>
+          <p className="mt-2 text-xl font-bold text-[#0B5B35]">{assignment.realization} {assignment.indicators.unit}</p>
+        </div>
+        <div className="rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-wide text-[#849289]">Capaian</p>
+          <p className="mt-2 text-xl font-bold text-[#334A3C]">{pct}%</p>
         </div>
       </div>
 
       {assignment.status === "Ditolak" && assignment.note && (
-        <div className="bg-red-50 text-red-700 text-sm p-3 rounded-md mb-4">
-          <strong>Ditolak Admin Biro:</strong> {assignment.note}
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+          <p className="font-bold">Ditolak Admin Biro</p>
+          <p className="mt-1 leading-6">{assignment.note}</p>
         </div>
       )}
 
       {editable && (
         <form
           action={handleAdd}
-          className="bg-white border border-[#E1DDCF] rounded-lg p-4 flex flex-col gap-3 mb-4"
+          className="flex flex-col gap-5 rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6"
         >
-          <div className="font-semibold text-sm">Tambah Realisasi</div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="border-b border-[#EDF2EE] pb-4">
+            <h2 className="text-base font-bold text-[#17231D]">Tambah realisasi</h2>
+            <p className="mt-1 text-xs text-[#849289]">Masukkan capaian terbaru indikator.</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-semibold mb-1">Jumlah</label>
+              <label className="mb-2 block text-sm font-semibold text-[#334A3C]">Jumlah</label>
               <input
                 name="amount"
                 type="number"
                 step="any"
                 required
-                className="w-full border border-[#E1DDCF] rounded-md p-2 text-sm"
+                className="form-input"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold mb-1">
-                Tanggal
-              </label>
+              <label className="mb-2 block text-sm font-semibold text-[#334A3C]">Tanggal</label>
               <input
                 name="date"
                 type="date"
                 required
-                className="w-full border border-[#E1DDCF] rounded-md p-2 text-sm"
+                className="form-input"
               />
             </div>
           </div>
           <div>
-            <label className="block text-xs font-semibold mb-1">
-              Keterangan
-            </label>
+            <label className="mb-2 block text-sm font-semibold text-[#334A3C]">Keterangan</label>
             <textarea
               name="note"
-              className="w-full border border-[#E1DDCF] rounded-md p-2 text-sm"
+              rows={3}
+              className="form-input resize-y"
             />
           </div>
           <button
             type="submit"
-            className="bg-[#B8862E] text-white text-sm px-4 py-2 rounded-md self-start"
+            className="self-start rounded-xl bg-[#0B5B35] px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#073B25]"
           >
             + Tambah Realisasi
           </button>
@@ -127,45 +149,43 @@ export default async function PengisianDetailPage({
 
       <form
         action={handleLinkSave}
-        className="bg-white border border-[#E1DDCF] rounded-lg p-4 mb-4 flex gap-2 items-end"
+        className="flex flex-col gap-4 rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:flex-row sm:items-end sm:p-6"
       >
         <div className="flex-1">
-          <label className="block text-xs font-semibold mb-1">
-            Link Dokumen Pendukung (opsional)
-          </label>
+          <label className="mb-2 block text-sm font-semibold text-[#334A3C]">Link Dokumen Pendukung <span className="font-normal text-[#849289]">(opsional)</span></label>
           <input
             name="document_link"
             type="url"
             defaultValue={assignment.document_link ?? ""}
             placeholder="https://drive.google.com/..."
-            className="w-full border border-[#E1DDCF] rounded-md p-2 text-sm"
+            className="form-input"
           />
         </div>
         <button
           type="submit"
-          className="bg-[#1B2A4B] text-white text-sm px-4 py-2 rounded-md"
+          className="rounded-xl bg-[#0B5B35] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#073B25]"
         >
           Simpan Link
         </button>
       </form>
 
-      <div className="bg-white border border-[#E1DDCF] rounded-lg overflow-hidden mb-4">
-        <div className="p-3 font-semibold text-sm border-b border-[#E1DDCF]">
-          Riwayat Penambahan Realisasi
+      <div className="overflow-hidden rounded-2xl border border-[#DCE6DF] bg-white shadow-sm">
+        <div className="border-b border-[#DCE6DF] bg-[#F8FBF8] px-5 py-4">
+          <h2 className="text-base font-bold text-[#17231D]">Riwayat realisasi</h2>
         </div>
         {logs?.length === 0 && (
-          <p className="p-4 text-sm text-[#5B5A55]">Belum ada riwayat.</p>
+          <p className="px-5 py-8 text-sm text-[#849289]">Belum ada riwayat.</p>
         )}
         {logs?.map((l) => (
           <div
             key={l.id}
-            className="flex justify-between items-center p-3 border-t border-[#E1DDCF] text-sm first:border-t-0"
+            className="flex items-center justify-between border-t border-[#E8EFEA] px-5 py-4 text-sm first:border-t-0"
           >
             <div>
-              <div className="font-semibold text-[#1B2A4B]">
+              <div className="font-semibold text-[#0B5B35]">
                 +{l.amount} {assignment.indicators.unit}
               </div>
-              <div className="text-xs text-[#5B5A55]">
+              <div className="text-xs text-[#849289]">
                 {l.date} {l.note && `· ${l.note}`}
               </div>
             </div>
@@ -173,7 +193,7 @@ export default async function PengisianDetailPage({
               <div className="flex gap-3">
                 <Link
                   href={`/fakultas/pengisian/${id}/log/${l.id}/edit`}
-                  className="text-[#1B2A4B] text-xs font-semibold hover:underline"
+                  className="text-xs font-bold text-[#0B5B35] hover:underline"
                 >
                   Edit
                 </Link>
@@ -184,16 +204,28 @@ export default async function PengisianDetailPage({
         ))}
       </div>
 
-      {editable && (
-        <form action={handleSubmit}>
-          <button
-            type="submit"
-            className="bg-[#1B2A4B] text-white text-sm px-4 py-2 rounded-md"
-          >
-            Ajukan Verifikasi
-          </button>
-        </form>
-      )}
+      <div className="flex justify-end gap-3">
+        {assignment.status === "Diajukan" && (
+          <form action={handleCancelSubmission}>
+            <button
+              type="submit"
+              className="rounded-xl border border-[#D5E1D8] bg-white px-5 py-3 text-sm font-bold text-[#52645A] shadow-sm hover:bg-[#F4F8F5]"
+            >
+              Batal Ajukan
+            </button>
+          </form>
+        )}
+        {editable && (
+          <form action={handleSubmit}>
+            <button
+              type="submit"
+              className="rounded-xl bg-[#0B5B35] px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#073B25]"
+            >
+              Ajukan Verifikasi
+            </button>
+          </form>
+        )}
+      </div>
     </div>
   );
 }

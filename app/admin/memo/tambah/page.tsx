@@ -1,6 +1,12 @@
 import { createMemo } from "../actions";
+import { createClient } from "@/lib/supabase/server";
 
-export default function TambahMemoPage() {
+export default async function TambahMemoPage() {
+  const { data: faculties } = await (await createClient())
+    .from("faculties")
+    .select("id, name, code")
+    .order("name");
+
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-6">
@@ -20,7 +26,15 @@ export default function TambahMemoPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="target_faculty" className="mb-2 block text-sm font-semibold text-[#334A3C]">Target penerima</label>
-            <input id="target_faculty" name="target_faculty" defaultValue="Semua Fakultas" className="w-full rounded-xl border border-[#DCE6DF] bg-[#F8FBF8] px-4 py-3 text-sm text-[#17231D]" />
+            <select id="target_faculty" name="target_faculty" defaultValue="Semua Fakultas" className="w-full rounded-xl border border-[#DCE6DF] bg-[#F8FBF8] px-4 py-3 text-sm text-[#17231D]">
+              <option value="Semua Fakultas">Semua Fakultas</option>
+              {faculties?.map((faculty) => (
+                <option key={faculty.id} value={faculty.name}>
+                  {faculty.code} — {faculty.name}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1.5 text-xs text-[#849289]">Memo hanya akan ditujukan kepada penerima yang dipilih.</p>
           </div>
           <div>
             <label htmlFor="publish_date" className="mb-2 block text-sm font-semibold text-[#334A3C]">Tanggal terbit</label>

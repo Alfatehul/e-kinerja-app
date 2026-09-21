@@ -7,6 +7,7 @@ type ProposalRow = {
   id: string;
   number: string;
   program: string;
+  total_anggaran: number | null;
   volume: number;
   harga_satuan: number;
   status: string;
@@ -28,7 +29,7 @@ export default async function UsulanAnggaranAdminPage({
   let query = supabase
     .from("budget_proposals")
     .select("*, faculties(name)")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: true });
   if (status) query = query.eq("status", status);
   if (faculty) query = query.eq("faculty_id", faculty);
   const { data: proposals } = await query;
@@ -89,7 +90,7 @@ export default async function UsulanAnggaranAdminPage({
             {(proposals as ProposalRow[] | null)?.map((p) => (
               <tr key={p.id} className="border-b border-[#EDF2EE] transition hover:bg-[#FAFCFA]">
                 <td className="px-4 py-4 font-bold text-[#0B5B35]">{p.number}</td><td className="px-4 py-4 font-medium text-[#44534B]">{p.faculties?.name ?? "—"}</td><td className="px-4 py-4 text-[#44534B]">{p.program}</td><td className="px-4 py-4 font-semibold text-[#17231D]">
-                  Rp {Number(p.volume * p.harga_satuan).toLocaleString("id-ID")}
+                  Rp {Number(p.total_anggaran ?? p.volume * p.harga_satuan).toLocaleString("id-ID")}
                 </td>
                 <td className="px-4 py-4">
                   <StatusBadge status={p.status} />

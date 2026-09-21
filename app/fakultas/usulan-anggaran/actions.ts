@@ -64,12 +64,13 @@ export async function createProposal(formData: FormData) {
       faculty_id: session!.profile.faculty_id,
       program: formData.get("program") as string,
       kegiatan: formData.get("kegiatan") as string,
-      subkegiatan: formData.get("subkegiatan") as string,
       uraian: formData.get("uraian") as string,
-      volume: Number(formData.get("volume")),
-      satuan: formData.get("satuan") as string,
-      harga_satuan: Number(formData.get("harga_satuan")),
-      sumber_dana: formData.get("sumber_dana") as string,
+      volume: 1,
+      satuan: "total",
+      harga_satuan: Number(formData.get("total_anggaran")),
+      tor_link: (formData.get("tor_link") as string) || null,
+      subkegiatan: null,
+      sumber_dana: null,
       pengusul_id: session!.user.id,
       status: "Draft",
     })
@@ -102,12 +103,13 @@ export async function updateProposal(id: string, formData: FormData) {
     .update({
       program: formData.get("program") as string,
       kegiatan: formData.get("kegiatan") as string,
-      subkegiatan: formData.get("subkegiatan") as string,
       uraian: formData.get("uraian") as string,
-      volume: Number(formData.get("volume")),
-      satuan: formData.get("satuan") as string,
-      harga_satuan: Number(formData.get("harga_satuan")),
-      sumber_dana: formData.get("sumber_dana") as string,
+      volume: 1,
+      satuan: "total",
+      harga_satuan: Number(formData.get("total_anggaran")),
+      tor_link: (formData.get("tor_link") as string) || null,
+      subkegiatan: null,
+      sumber_dana: null,
     })
     .eq("id", id);
   if (error) throw new Error(error.message);

@@ -18,7 +18,7 @@ export default async function FacultyPage() {
         .select(
           "id, faculty_id, realization, status, document_link, indicators(id, code, name, category, target, unit, deadline)",
         )
-        .order("created_at", { ascending: false }),
+        .order("created_at", { ascending: true }),
     ]);
 
   const facultyData = (faculties ?? []) as Faculty[];

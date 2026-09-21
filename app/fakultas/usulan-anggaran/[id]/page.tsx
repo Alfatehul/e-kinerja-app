@@ -43,22 +43,28 @@ export default async function UsulanDetailPage({
     await submitProposal(id);
   }
 
+  const totalAnggaran =
+    proposal.total_anggaran ?? proposal.volume * proposal.harga_satuan;
+
   return (
-    <div className="max-w-2xl">
-      <div className="flex justify-between items-start mb-4">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 pb-10">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="font-serif text-xl font-semibold">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0B5B35]">
+            Pengajuan anggaran
+          </p>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#17231D]">
             {proposal.number}
           </h1>
-          <div className="mt-2">
+          <div className="mt-3">
             <StatusBadge status={proposal.status} />
           </div>
         </div>
         {editable && (
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <Link
               href={`/fakultas/usulan-anggaran/${id}/edit`}
-              className="text-[#1B2A4B] text-xs font-semibold hover:underline self-center"
+              className="rounded-xl border border-[#B9D7C1] px-4 py-2 text-sm font-bold text-[#0B5B35] transition hover:bg-[#F0F8F2]"
             >
               Edit
             </Link>
@@ -67,77 +73,107 @@ export default async function UsulanDetailPage({
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-3 text-sm bg-white border border-[#E1DDCF] rounded-lg p-4 mb-4">
-        <div>
-          <div className="text-[#5B5A55] text-xs">Tahun</div>
-          <div className="font-semibold">{proposal.year}</div>
-        </div>
-        <div>
-          <div className="text-[#5B5A55] text-xs">Sumber Dana</div>
-          <div className="font-semibold">{proposal.sumber_dana}</div>
-        </div>
-        <div>
-          <div className="text-[#5B5A55] text-xs">Program</div>
-          <div className="font-semibold">{proposal.program}</div>
-        </div>
-        <div>
-          <div className="text-[#5B5A55] text-xs">Kegiatan</div>
-          <div className="font-semibold">{proposal.kegiatan}</div>
-        </div>
-        <div>
-          <div className="text-[#5B5A55] text-xs">Subkegiatan</div>
-          <div className="font-semibold">{proposal.subkegiatan}</div>
-        </div>
+      <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
+        <section className="rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6">
+          <div className="mb-5 border-b border-[#EDF2EE] pb-4">
+            <h2 className="text-base font-bold text-[#17231D]">
+              Informasi usulan
+            </h2>
+            <p className="mt-1 text-xs text-[#849289]">
+              Ringkasan program dan kebutuhan anggaran yang diajukan.
+            </p>
+          </div>
+          <dl className="grid gap-5 text-sm sm:grid-cols-2">
+            <div>
+              <dt className="text-xs text-[#849289]">Tahun anggaran</dt>
+              <dd className="mt-1 font-semibold text-[#334A3C]">{proposal.year}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-[#849289]">Program</dt>
+              <dd className="mt-1 font-semibold text-[#334A3C]">{proposal.program}</dd>
+            </div>
+            <div className="sm:col-span-2">
+              <dt className="text-xs text-[#849289]">Kegiatan</dt>
+              <dd className="mt-1 font-semibold text-[#334A3C]">{proposal.kegiatan || "—"}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section className="rounded-2xl border border-[#B9D7C1] bg-[#F1F8F3] p-5 shadow-sm sm:p-6">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#64736A]">
+            Total anggaran
+          </p>
+          <p className="mt-3 text-2xl font-bold tracking-tight text-[#0B5B35]">
+            Rp {Number(totalAnggaran).toLocaleString("id-ID")}
+          </p>
+          <p className="mt-2 text-xs leading-5 text-[#64736A]">
+            Nilai total pengajuan untuk program ini.
+          </p>
+        </section>
       </div>
 
-      <div className="bg-[#F6F4EF] border border-[#E1DDCF] rounded-lg p-4 mb-4 text-sm">
-        <div className="mb-2">{proposal.uraian}</div>
-        <div className="flex gap-3 items-center">
-          <span>
-            {proposal.volume} {proposal.satuan}
-          </span>
-          <span>×</span>
-          <span>
-            Rp {Number(proposal.harga_satuan).toLocaleString("id-ID")}
-          </span>
-          <span>=</span>
-          <span className="font-bold text-[#1B2A4B]">
-            Rp{" "}
-            {Number(proposal.volume * proposal.harga_satuan).toLocaleString(
-              "id-ID",
-            )}
-          </span>
-        </div>
-      </div>
+      <section className="rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6">
+        <h2 className="text-base font-bold text-[#17231D]">Uraian kebutuhan</h2>
+        <p className="mt-3 whitespace-pre-line text-sm leading-7 text-[#52645A]">
+          {proposal.uraian}
+        </p>
+      </section>
+
+      {proposal.tor_link && (
+        <section className="rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6">
+          <h2 className="text-base font-bold text-[#17231D]">Dokumen TOR</h2>
+          <a
+            href={proposal.tor_link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex text-sm font-bold text-[#0B5B35] hover:underline"
+          >
+            Buka link dokumen TOR
+          </a>
+        </section>
+      )}
 
       {proposal.catatan_verifikator && (
-        <div className="bg-orange-50 text-orange-700 text-sm p-3 rounded-md mb-4">
-          <strong>Catatan Verifikator:</strong> {proposal.catatan_verifikator}
+        <div className="rounded-2xl border border-orange-200 bg-orange-50 p-5 text-sm text-orange-700">
+          <p className="font-bold">Catatan verifikator</p>
+          <p className="mt-1 leading-6">{proposal.catatan_verifikator}</p>
         </div>
       )}
 
-      <div className="bg-white border border-[#E1DDCF] rounded-lg p-4 mb-4">
-        <div className="font-semibold text-sm mb-2">Riwayat</div>
-        {history?.map((h) => (
-          <div key={h.id} className="text-xs text-[#5B5A55] mb-1">
-            {new Date(h.created_at).toLocaleDateString("id-ID")} — {h.event}
-          </div>
-        ))}
+      <section className="rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6">
+        <h2 className="text-base font-bold text-[#17231D]">Riwayat pengajuan</h2>
+        <div className="mt-4 flex flex-col">
+          {history?.map((h) => (
+            <div key={h.id} className="flex gap-3 border-l-2 border-[#B9D7C1] pb-4 pl-4 last:pb-0">
+              <div>
+                <p className="text-sm font-semibold text-[#334A3C]">{h.event}</p>
+                <p className="mt-1 text-xs text-[#849289]">
+                  {new Date(h.created_at).toLocaleDateString("id-ID")}
+                </p>
+              </div>
+            </div>
+          ))}
+          {history?.length === 0 && (
+            <p className="text-sm text-[#849289]">Belum ada riwayat pengajuan.</p>
+          )}
+        </div>
+      </section>
+
+      <div className="rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6">
+        <DocumentUploader
+          entityType="proposal"
+          entityId={id}
+          facultyId={proposal.faculty_id}
+          documents={documents ?? []}
+          editable={true}
+        />
       </div>
 
-      <DocumentUploader
-        entityType="proposal"
-        entityId={id}
-        facultyId={proposal.faculty_id}
-        documents={documents ?? []}
-        editable={true}
-      />
-
       {editable && (
-        <form action={handleSubmit}>
+        <form action={handleSubmit} className="flex justify-end">
           <button
             type="submit"
-            className="bg-[#1B2A4B] text-white text-sm px-4 py-2 rounded-md"
+            className="rounded-xl bg-[#0B5B35] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#073B25]"
           >
             Ajukan ke Biro AUPK
           </button>

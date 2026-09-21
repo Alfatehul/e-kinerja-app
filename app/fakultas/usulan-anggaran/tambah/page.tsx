@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createProposal } from "../actions";
 
 export default function TambahUsulanPage() {
@@ -11,7 +12,7 @@ export default function TambahUsulanPage() {
           Usulan Anggaran Baru
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-[#64736A]">
-          Lengkapi rincian kebutuhan anggaran unit Anda. Data akan disimpan
+        Lengkapi kebutuhan anggaran unit Anda. Data akan disimpan
           sebagai draft dan dapat diajukan setelah ditinjau kembali.
         </p>
       </div>
@@ -43,7 +44,7 @@ export default function TambahUsulanPage() {
             className="form-input"
           />
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div>
           <div>
             <label htmlFor="kegiatan" className="mb-2 block text-sm font-semibold text-[#334A3C]">Kegiatan</label>
             <input
@@ -53,19 +54,10 @@ export default function TambahUsulanPage() {
               className="form-input"
             />
           </div>
-          <div>
-            <label htmlFor="subkegiatan" className="mb-2 block text-sm font-semibold text-[#334A3C]">Subkegiatan</label>
-            <input
-              id="subkegiatan"
-              name="subkegiatan"
-              placeholder="Nama subkegiatan"
-              className="form-input"
-            />
-          </div>
         </div>
         <div className="border-t border-[#EDF2EE] pt-6">
-          <h2 className="text-base font-bold text-[#17231D]">Rincian kebutuhan</h2>
-          <p className="mt-1 text-xs text-[#849289]">Jelaskan kebutuhan secara singkat, jelas, dan terukur.</p>
+          <h2 className="text-base font-bold text-[#17231D]">Kebutuhan anggaran</h2>
+          <p className="mt-1 text-xs text-[#849289]">Jelaskan kebutuhan dan masukkan total anggaran yang diajukan.</p>
         </div>
         <div>
           <label htmlFor="uraian" className="mb-2 block text-sm font-semibold text-[#334A3C]">Uraian Kebutuhan</label>
@@ -77,49 +69,32 @@ export default function TambahUsulanPage() {
             className="form-input min-h-[110px] resize-y"
           />
         </div>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div>
-            <label htmlFor="volume" className="mb-2 block text-sm font-semibold text-[#334A3C]">Volume</label>
+        <div>
+            <label htmlFor="total_anggaran" className="mb-2 block text-sm font-semibold text-[#334A3C]">Total Anggaran (Rp)</label>
             <input
-              id="volume"
-              name="volume"
-              type="number"
-              required
-              defaultValue={1}
-              min="1"
-              className="form-input"
-            />
-          </div>
-          <div>
-            <label htmlFor="satuan" className="mb-2 block text-sm font-semibold text-[#334A3C]">Satuan</label>
-            <input
-              id="satuan"
-              name="satuan"
-              placeholder="Unit / paket"
-              className="form-input"
-            />
-          </div>
-          <div>
-            <label htmlFor="harga_satuan" className="mb-2 block text-sm font-semibold text-[#334A3C]">Harga Satuan (Rp)</label>
-            <input
-              id="harga_satuan"
-              name="harga_satuan"
+              id="total_anggaran"
+              name="total_anggaran"
               type="number"
               required
               defaultValue={0}
               min="0"
               className="form-input"
             />
-          </div>
         </div>
         <div>
-          <label htmlFor="sumber_dana" className="mb-2 block text-sm font-semibold text-[#334A3C]">Sumber Dana</label>
+          <label htmlFor="tor_link" className="mb-2 block text-sm font-semibold text-[#334A3C]">
+            Link Dokumen TOR <span className="font-normal text-[#849289]">(opsional)</span>
+          </label>
           <input
-            id="sumber_dana"
-            name="sumber_dana"
-            placeholder="BOPTN / BLU / dsb."
+            id="tor_link"
+            name="tor_link"
+            type="url"
+            placeholder="https://drive.google.com/..."
             className="form-input"
           />
+          <p className="mt-2 text-xs text-[#849289]">
+            Masukkan tautan TOR yang dapat diakses oleh verifikator.
+          </p>
         </div>
         <div className="rounded-2xl border border-dashed border-[#B8D8C1] bg-[#F5FAF6] p-5">
           <label htmlFor="document" className="block text-sm font-bold text-[#173B27]">
@@ -137,7 +112,7 @@ export default function TambahUsulanPage() {
           />
         </div>
         <div className="flex flex-col-reverse gap-3 border-t border-[#EDF2EE] pt-5 sm:flex-row sm:justify-end">
-          <a href="/fakultas/usulan-anggaran" className="rounded-xl border border-[#DCE6DF] px-5 py-3 text-center text-sm font-semibold text-[#64736A] transition hover:bg-[#F5F8F5]">Batal</a>
+          <Link href="/fakultas/usulan-anggaran" className="rounded-xl border border-[#DCE6DF] px-5 py-3 text-center text-sm font-semibold text-[#64736A] transition hover:bg-[#F5F8F5]">Batal</Link>
           <button type="submit" className="rounded-xl bg-[#0B5B35] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#073B25]">Simpan sebagai draft</button>
         </div>
       </form>

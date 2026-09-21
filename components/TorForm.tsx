@@ -8,8 +8,8 @@ type Proposal = {
   program: string;
   kegiatan: string | null;
   uraian: string;
+  total_anggaran: number | null;
   volume: number;
-  satuan: string | null;
   harga_satuan: number;
   sumber_dana: string | null;
 };
@@ -33,7 +33,7 @@ export default function TorForm({ action, proposals, initial }: { action: (data:
     setProposalId(id);
     const p = proposals.find((item) => item.id === id);
     if (!p) return;
-    setBudget({ program: p.program, kegiatan: p.kegiatan ?? "", rincian_anggaran: `${p.uraian} (${p.volume} ${p.satuan ?? ""} x Rp ${Number(p.harga_satuan).toLocaleString("id-ID")})`, sumber_dana: p.sumber_dana ?? "" });
+    setBudget({ program: p.program, kegiatan: p.kegiatan ?? "", rincian_anggaran: `${p.uraian} (Total anggaran: Rp ${Number(p.total_anggaran ?? p.volume * p.harga_satuan).toLocaleString("id-ID")})`, sumber_dana: p.sumber_dana ?? "" });
   }
   return <form action={action} className="flex flex-col gap-5 rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-7">
     <div><label className="mb-2 block text-sm font-semibold">Usulan Anggaran (opsional)</label><select name="proposal_id" value={proposalId} onChange={(e) => choose(e.target.value)} className="form-input"><option value="">Tidak menghubungkan</option>{proposals.map((p) => <option key={p.id} value={p.id}>{p.number} — {p.program}</option>)}</select></div>

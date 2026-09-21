@@ -3,9 +3,41 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import {
+  BanknotesIcon,
+  BuildingOffice2Icon,
+  ChartBarIcon,
+  ClipboardDocumentCheckIcon,
+  ClockIcon,
+  DocumentChartBarIcon,
+  EnvelopeOpenIcon,
+  MegaphoneIcon,
+  PencilSquareIcon,
+  Squares2X2Icon,
+  UserCircleIcon,
+  UsersIcon,
+} from "@heroicons/react/24/outline";
+
+const heroIcons = {
+  Dashboard: Squares2X2Icon,
+  "Usulan Anggaran": BanknotesIcon,
+  "Usulan Revisi": PencilSquareIcon,
+  Indikator: ChartBarIcon,
+  "Daftar Indikator": ChartBarIcon,
+  "Monitoring & Verifikasi": ClipboardDocumentCheckIcon,
+  "Pengisian Indikator": ClipboardDocumentCheckIcon,
+  "Fakultas / Unit": BuildingOffice2Icon,
+  Pengumuman: MegaphoneIcon,
+  Memo: EnvelopeOpenIcon,
+  Laporan: DocumentChartBarIcon,
+  "Audit Log": ClockIcon,
+  "Manajemen User": UsersIcon,
+  Profil: UserCircleIcon,
+};
 
 const navBiro = [
   {
+    section: "Utama",
     href: "/admin/dashboard",
     label: "Dashboard",
     icon: (
@@ -18,6 +50,7 @@ const navBiro = [
     ),
   },
   {
+    section: "Perencanaan",
     href: "/admin/usulan-anggaran",
     label: "Usulan Anggaran",
     icon: (
@@ -29,6 +62,7 @@ const navBiro = [
     ),
   },
   {
+    section: "Perencanaan",
     href: "/admin/usulan-revisi",
     label: "Usulan Revisi",
     icon: (
@@ -40,17 +74,7 @@ const navBiro = [
     ),
   },
   {
-    href: "/admin/tor",
-    label: "TOR",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path d="M6 3h9l4 4v14H6z" />
-        <path d="M14 3v5h5" />
-        <path d="M9 13h6M9 17h5" />
-      </svg>
-    ),
-  },
-  {
+    section: "Kinerja",
     href: "/admin/indikator",
     label: "Indikator",
     icon: (
@@ -62,6 +86,7 @@ const navBiro = [
     ),
   },
   {
+    section: "Kinerja",
     href: "/admin/monitoring",
     label: "Monitoring & Verifikasi",
     icon: (
@@ -72,6 +97,7 @@ const navBiro = [
     ),
   },
   {
+    section: "Kinerja",
     href: "/admin/fakultas",
     label: "Fakultas / Unit",
     icon: (
@@ -86,6 +112,7 @@ const navBiro = [
     ),
   },
   {
+    section: "Komunikasi",
     href: "/admin/pengumuman",
     label: "Pengumuman",
     icon: (
@@ -96,6 +123,7 @@ const navBiro = [
     ),
   },
   {
+    section: "Komunikasi",
     href: "/admin/memo",
     label: "Memo",
     icon: (
@@ -108,6 +136,7 @@ const navBiro = [
     ),
   },
   {
+    section: "Pelaporan",
     href: "/admin/laporan",
     label: "Laporan",
     icon: (
@@ -120,6 +149,7 @@ const navBiro = [
     ),
   },
   {
+    section: "Pelaporan",
     href: "/admin/audit-log",
     label: "Audit Log",
     icon: (
@@ -130,6 +160,7 @@ const navBiro = [
     ),
   },
   {
+    section: "Manajemen User",
     href: "/admin/users",
     label: "Manajemen User",
     icon: (
@@ -145,6 +176,7 @@ const navBiro = [
 
 const navFakultas = [
   {
+    section: "Utama",
     href: "/fakultas/dashboard",
     label: "Dashboard",
     icon: (
@@ -158,6 +190,7 @@ const navFakultas = [
   },
 
   {
+    section: "Perencanaan",
     href: "/fakultas/usulan-anggaran",
     label: "Usulan Anggaran",
     icon: (
@@ -169,6 +202,7 @@ const navFakultas = [
     ),
   },
   {
+    section: "Perencanaan",
     href: "/fakultas/usulan-revisi",
     label: "Usulan Revisi",
     icon: (
@@ -180,18 +214,7 @@ const navFakultas = [
     ),
   },
   {
-    href: "/fakultas/tor",
-    label: "TOR",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path d="M6 3h9l4 4v14H6z" />
-        <path d="M14 3v5h5" />
-        <path d="M9 13h6M9 17h5" />
-      </svg>
-    ),
-  },
-
-  {
+    section: "Kinerja",
     href: "/fakultas/indikator",
     label: "Daftar Indikator",
     icon: (
@@ -203,6 +226,7 @@ const navFakultas = [
     ),
   },
   {
+    section: "Kinerja",
     href: "/fakultas/pengisian",
     label: "Pengisian Indikator",
     icon: (
@@ -215,6 +239,7 @@ const navFakultas = [
     ),
   },
   {
+    section: "Komunikasi",
     href: "/fakultas/pengumuman",
     label: "Pengumuman",
     icon: (
@@ -225,6 +250,7 @@ const navFakultas = [
     ),
   },
   {
+    section: "Komunikasi",
     href: "/fakultas/memo",
     label: "Memo",
     icon: (
@@ -237,6 +263,7 @@ const navFakultas = [
     ),
   },
   {
+    section: "Pelaporan",
     href: "/fakultas/laporan",
     label: "Laporan",
     icon: (
@@ -249,6 +276,7 @@ const navFakultas = [
     ),
   },
   {
+    section: "Akun",
     href: "/fakultas/profil",
     label: "Profil",
     icon: (
@@ -276,7 +304,7 @@ export default function Sidebar({
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 w-72 overflow-hidden bg-[#EAF3ED] text-[#294438] flex flex-col shadow-2xl transition-all duration-300 md:relative md:inset-auto md:z-auto md:shadow-none md:min-h-screen ${
+      className={`print-hidden fixed inset-y-0 left-0 z-40 h-screen w-72 overflow-hidden bg-[#EAF3ED] text-[#294438] flex flex-col shadow-2xl transition-all duration-300 md:sticky md:top-0 md:z-auto md:h-screen md:self-start md:min-h-0 md:shadow-none ${
         isOpen
           ? "translate-x-0 md:w-64"
           : "-translate-x-full md:w-0 md:overflow-hidden"
@@ -290,9 +318,13 @@ export default function Sidebar({
         <div className="flex items-center gap-3">
           <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-[#F2DFA9] via-[#D7B96C] to-[#B28A3D] shadow-md shadow-[#9D7B39]/20">
             <div className="absolute inset-[3px] rounded-[13px] border border-white/55" />
-            <span className="relative text-xl font-black tracking-tighter text-[#365443]">
-              EK
-            </span>
+            <Image
+              src="/logo uin.svg"
+              alt="Logo UIN Ar-Raniry"
+              width={34}
+              height={34}
+              className="relative h-8 w-8 object-contain"
+            />
           </div>
           <div>
             <div className="text-[17px] font-bold leading-tight tracking-tight text-[#1F3B2D]">
@@ -312,39 +344,44 @@ export default function Sidebar({
       </div>
 
       {/* NAVIGATION */}
-      <nav className="relative flex-1 overflow-y-auto px-3 py-5 whitespace-nowrap">
-        <div className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#80998A]">
-          Menu utama
-        </div>
-        {items.map((item) => {
+      <nav className="sidebar-scrollbar relative min-h-0 flex-1 overflow-y-auto px-3 py-5 whitespace-nowrap">
+        {items.map((item, index) => {
           const active = pathname === item.href;
 
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onNavigate}
-              className={`group relative mb-1 flex items-center gap-3 rounded-xl border px-3.5 py-3 text-sm transition-all ${
-                active
-                  ? "border-[#C8DED0] bg-white/85 font-semibold text-[#1F4B35] shadow-sm"
-                  : "border-transparent text-[#5F796A] hover:bg-white/65 hover:text-[#294438]"
-              }`}
-            >
-              {active && (
-                <span className="absolute -left-3 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r-full bg-[#C49A45]" />
-              )}
-              <span className="w-5 h-5 shrink-0 flex items-center justify-center">
-                {item.icon ? (
-                  <span className={`transition-transform group-hover:scale-110 ${active ? "text-[#B28638]" : ""}`}>
-                    {item.icon}
-                  </span>
-                ) : (
-                  <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70" />
+            <div key={item.href}>
+              {index === 0 || item.section !== items[index - 1].section ? (
+                <div className={`${index === 0 ? "" : "mt-6"} mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#80998A]`}>
+                  {item.section}
+                </div>
+              ) : null}
+              <Link
+                href={item.href}
+                onClick={onNavigate}
+                className={`group relative mb-1 flex items-center gap-3 rounded-xl border px-3.5 py-3 text-sm transition-all ${
+                  active
+                    ? "border-[#C8DED0] bg-white/85 font-semibold text-[#1F4B35] shadow-sm"
+                    : "border-transparent text-[#5F796A] hover:bg-white/65 hover:text-[#294438]"
+                }`}
+              >
+                {active && (
+                  <span className="absolute -left-3 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r-full bg-[#C49A45]" />
                 )}
-              </span>
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center">
+                  {(() => {
+                    const Icon = heroIcons[item.label as keyof typeof heroIcons];
+                    return Icon ? (
+                      <Icon
+                        aria-hidden="true"
+                        className={`h-5 w-5 transition-transform group-hover:scale-110 ${active ? "text-[#B28638]" : ""}`}
+                      />
+                    ) : null;
+                  })()}
+                </span>
 
-              <span>{item.label}</span>
-            </Link>
+                <span>{item.label}</span>
+              </Link>
+            </div>
           );
         })}
       </nav>

@@ -1,25 +1,34 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { createRevision } from "@/app/fakultas/usulan-revisi/actions";
 
-export default function RevisionForm({ proposals }: { proposals: any[] }) {
+type Proposal = {
+  id: string;
+  number: string;
+  program: string;
+  uraian: string;
+  total_anggaran: number | null;
+  volume: number;
+  harga_satuan: number;
+};
+
+export default function RevisionForm({ proposals }: { proposals: Proposal[] }) {
   const [proposalId, setProposalId] = useState(proposals[0]?.id ?? "");
   const proposal = proposals.find((p) => p.id === proposalId);
   const [afterUraian, setAfterUraian] = useState(proposal?.uraian ?? "");
-  const [afterVolume, setAfterVolume] = useState(proposal?.volume ?? 0);
-  const [afterHarga, setAfterHarga] = useState(proposal?.harga_satuan ?? 0);
+  const [afterHarga, setAfterHarga] = useState(proposal?.total_anggaran ?? (proposal?.volume ?? 0) * (proposal?.harga_satuan ?? 0));
 
   function pickProposal(id: string) {
     setProposalId(id);
     const p = proposals.find((x) => x.id === id);
     setAfterUraian(p?.uraian ?? "");
-    setAfterVolume(p?.volume ?? 0);
-    setAfterHarga(p?.harga_satuan ?? 0);
+    setAfterHarga(p?.total_anggaran ?? (p?.volume ?? 0) * (p?.harga_satuan ?? 0));
   }
 
   const selisih = proposal
-    ? afterVolume * afterHarga - proposal.volume * proposal.harga_satuan
+    ? afterHarga - (proposal.total_anggaran ?? proposal.volume * proposal.harga_satuan)
     : 0;
 
   return (
@@ -59,13 +68,10 @@ export default function RevisionForm({ proposals }: { proposals: any[] }) {
         <div className="rounded-2xl border border-[#E8DDBB] bg-[#FFFBEF] p-4 text-sm text-[#5F4A20]">
           <div className="text-xs text-[#5B5A55] mb-1">Data Sebelum Revisi</div>
           <div>
-            {proposal.uraian} — {proposal.volume} {proposal.satuan} × Rp{" "}
-            {Number(proposal.harga_satuan).toLocaleString("id-ID")} ={" "}
+            {proposal.uraian} — Total anggaran{" "}
             <strong>
               Rp{" "}
-              {Number(proposal.volume * proposal.harga_satuan).toLocaleString(
-                "id-ID",
-              )}
+              {Number(proposal.total_anggaran ?? proposal.volume * proposal.harga_satuan).toLocaleString("id-ID")}
             </strong>
           </div>
         </div>
@@ -87,26 +93,13 @@ export default function RevisionForm({ proposals }: { proposals: any[] }) {
           className="form-input min-h-[100px] resize-y"
         />
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div>
         <div>
           <label className="mb-2 block text-sm font-semibold text-[#334A3C]">
-            Volume Baru
+            Total Anggaran Baru (Rp)
           </label>
           <input
-            name="after_volume"
-            type="number"
-            required
-            value={afterVolume}
-            onChange={(e) => setAfterVolume(Number(e.target.value))}
-            className="form-input"
-          />
-        </div>
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-[#334A3C]">
-            Harga Satuan Baru (Rp)
-          </label>
-          <input
-            name="after_harga_satuan"
+            name="after_total_anggaran"
             type="number"
             required
             value={afterHarga}
@@ -154,7 +147,7 @@ export default function RevisionForm({ proposals }: { proposals: any[] }) {
       </div>
 
       <div className="flex flex-col-reverse gap-3 border-t border-[#EDF2EE] pt-5 sm:flex-row sm:justify-end">
-        <a href="/fakultas/usulan-revisi" className="rounded-xl border border-[#DCE6DF] px-5 py-3 text-center text-sm font-semibold text-[#64736A] transition hover:bg-[#F5F8F5]">Batal</a>
+        <Link href="/fakultas/usulan-revisi" className="rounded-xl border border-[#DCE6DF] px-5 py-3 text-center text-sm font-semibold text-[#64736A] transition hover:bg-[#F5F8F5]">Batal</Link>
         <button type="submit" className="rounded-xl bg-[#0B5B35] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#073B25]">Ajukan revisi</button>
       </div>
     </form>

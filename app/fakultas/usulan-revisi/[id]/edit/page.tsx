@@ -52,25 +52,13 @@ export default async function EditRevisiPage({
             className="w-full border border-[#E1DDCF] rounded-md p-2 text-sm min-h-[60px]"
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div>
           <div>
             <label className="block text-sm font-semibold mb-1">
-              Volume Baru
+              Total Anggaran Baru (Rp)
             </label>
             <input
-              name="after_volume"
-              type="number"
-              required
-              defaultValue={revision.after_volume}
-              className="w-full border border-[#E1DDCF] rounded-md p-2 text-sm"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold mb-1">
-              Harga Satuan Baru (Rp)
-            </label>
-            <input
-              name="after_harga_satuan"
+              name="after_total_anggaran"
               type="number"
               required
               defaultValue={revision.after_harga_satuan}

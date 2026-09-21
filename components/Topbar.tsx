@@ -69,7 +69,7 @@ export default function Topbar({
     .toUpperCase();
 
   return (
-    <header className="sticky top-0 z-20 border-b border-[#DCE6DF] bg-white/95 backdrop-blur">
+    <header className="print-hidden sticky top-0 z-20 border-b border-[#DCE6DF] bg-white/95 backdrop-blur">
       <div className="flex min-h-[72px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <button

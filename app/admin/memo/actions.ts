@@ -13,12 +13,24 @@ export async function createMemo(formData: FormData) {
 
   const title = String(formData.get("title") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
+  const targetFaculty = String(formData.get("target_faculty") ?? "Semua Fakultas").trim();
   if (!title || !body) throw new Error("Judul dan isi memo wajib diisi.");
+  if (!targetFaculty) throw new Error("Target penerima wajib dipilih.");
 
-  const { error } = await (await createClient()).from("memos").insert({
+  const supabase = await createClient();
+  if (targetFaculty !== "Semua Fakultas") {
+    const { data: faculty } = await supabase
+      .from("faculties")
+      .select("id")
+      .eq("name", targetFaculty)
+      .maybeSingle();
+    if (!faculty) throw new Error("Fakultas atau unit penerima tidak valid.");
+  }
+
+  const { error } = await supabase.from("memos").insert({
     title,
     body,
-    target_faculty: String(formData.get("target_faculty") ?? "Semua Fakultas").trim(),
+    target_faculty: targetFaculty,
     status: String(formData.get("status") ?? "Diterbitkan"),
     publish_date: String(formData.get("publish_date") ?? new Date().toISOString().slice(0, 10)),
     created_by: session.user.id,
