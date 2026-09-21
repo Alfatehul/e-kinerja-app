@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 const navBiro = [
   {
@@ -16,8 +17,39 @@ const navBiro = [
       </svg>
     ),
   },
-  { href: "/admin/usulan-anggaran", label: "Usulan Anggaran" },
-  { href: "/admin/usulan-revisi", label: "Usulan Revisi" },
+  {
+    href: "/admin/usulan-anggaran",
+    label: "Usulan Anggaran",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M4 7.5 12 4l8 3.5L12 11 4 7.5Z" />
+        <path d="M6 10v5.5c0 1.7 2.7 3 6 3s6-1.3 6-3V10" />
+        <path d="M20 8v6" />
+      </svg>
+    ),
+  },
+  {
+    href: "/admin/usulan-revisi",
+    label: "Usulan Revisi",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M5 5h10l4 4v10H5z" />
+        <path d="M14 5v5h5" />
+        <path d="m9 15 5-5 2 2-5 5-3 1 1-3Z" />
+      </svg>
+    ),
+  },
+  {
+    href: "/admin/tor",
+    label: "TOR",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M6 3h9l4 4v14H6z" />
+        <path d="M14 3v5h5" />
+        <path d="M9 13h6M9 17h5" />
+      </svg>
+    ),
+  },
   {
     href: "/admin/indikator",
     label: "Indikator",
@@ -125,9 +157,39 @@ const navFakultas = [
     ),
   },
 
-  { href: "/fakultas/usulan-anggaran", label: "Usulan Anggaran" },
-
-  { href: "/fakultas/usulan-revisi", label: "Usulan Revisi" },
+  {
+    href: "/fakultas/usulan-anggaran",
+    label: "Usulan Anggaran",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M4 7.5 12 4l8 3.5L12 11 4 7.5Z" />
+        <path d="M6 10v5.5c0 1.7 2.7 3 6 3s6-1.3 6-3V10" />
+        <path d="M20 8v6" />
+      </svg>
+    ),
+  },
+  {
+    href: "/fakultas/usulan-revisi",
+    label: "Usulan Revisi",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M5 5h10l4 4v10H5z" />
+        <path d="M14 5v5h5" />
+        <path d="m9 15 5-5 2 2-5 5-3 1 1-3Z" />
+      </svg>
+    ),
+  },
+  {
+    href: "/fakultas/tor",
+    label: "TOR",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M6 3h9l4 4v14H6z" />
+        <path d="M14 3v5h5" />
+        <path d="M9 13h6M9 17h5" />
+      </svg>
+    ),
+  },
 
   {
     href: "/fakultas/indikator",
@@ -201,42 +263,59 @@ const navFakultas = [
 interface SidebarProps {
   role: "biro" | "fakultas";
   isOpen?: boolean;
+  onNavigate?: () => void;
 }
 
-export default function Sidebar({ role, isOpen = true }: SidebarProps) {
+export default function Sidebar({
+  role,
+  isOpen = true,
+  onNavigate,
+}: SidebarProps) {
   const pathname = usePathname();
   const items = role === "biro" ? navBiro : navFakultas;
 
   return (
     <aside
-      className={`bg-[#094a26] text-white flex flex-col shrink-0 min-h-screen transition-all duration-300 ${
-        isOpen ? "w-60" : "w-0 -translate-x-full overflow-hidden"
+      className={`fixed inset-y-0 left-0 z-40 w-72 overflow-hidden bg-[#EAF3ED] text-[#294438] flex flex-col shadow-2xl transition-all duration-300 md:relative md:inset-auto md:z-auto md:shadow-none md:min-h-screen ${
+        isOpen
+          ? "translate-x-0 md:w-64"
+          : "-translate-x-full md:w-0 md:overflow-hidden"
       }`}
     >
-      {/* LOGO */}
-      <div className="px-5 py-5 border-b border-white/10 whitespace-nowrap">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 flex items-center justify-center shrink-0">
-            <img
-              src="/logo uin.svg"
-              alt="Logo UIN"
-              className="w-10 h-10 object-contain"
-            />
-          </div>
+      <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#B9D7C1]/45 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-16 -left-20 h-48 w-48 rounded-full bg-[#E7D6A8]/45 blur-3xl" />
 
+      {/* BRANDING */}
+      <div className="relative border-b border-[#D4E3D8] px-5 pb-5 pt-6 whitespace-nowrap">
+        <div className="flex items-center gap-3">
+          <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-[#F2DFA9] via-[#D7B96C] to-[#B28A3D] shadow-md shadow-[#9D7B39]/20">
+            <div className="absolute inset-[3px] rounded-[13px] border border-white/55" />
+            <span className="relative text-xl font-black tracking-tighter text-[#365443]">
+              EK
+            </span>
+          </div>
           <div>
-            <div className="font-serif text-lg font-bold leading-tight">
+            <div className="text-[17px] font-bold leading-tight tracking-tight text-[#1F3B2D]">
               E-Kinerja
             </div>
-            <div className="text-[10px] text-white/50 tracking-wide">
-              UNIVERSITAS
+            <div className="mt-1 text-[10px] font-medium uppercase tracking-[0.18em] text-[#6E8B78]">
+              UIN Ar-Raniry
             </div>
           </div>
+        </div>
+        <div className="mt-5 flex items-center gap-2 rounded-xl border border-[#D4E3D8] bg-white/60 px-3 py-2">
+          <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-white p-1 shadow-sm">
+            <Image src="/logo uin.svg" alt="" width={20} height={20} className="h-full w-full object-contain" />
+          </div>
+          <span className="text-[11px] text-[#6E8476]">Sistem kinerja universitas</span>
         </div>
       </div>
 
       {/* NAVIGATION */}
-      <nav className="flex-1 px-2.5 py-3 overflow-y-auto whitespace-nowrap">
+      <nav className="relative flex-1 overflow-y-auto px-3 py-5 whitespace-nowrap">
+        <div className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#80998A]">
+          Menu utama
+        </div>
         {items.map((item) => {
           const active = pathname === item.href;
 
@@ -244,13 +323,25 @@ export default function Sidebar({ role, isOpen = true }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm mb-0.5 border-l-[3px] transition-colors ${
+              onClick={onNavigate}
+              className={`group relative mb-1 flex items-center gap-3 rounded-xl border px-3.5 py-3 text-sm transition-all ${
                 active
-                  ? "bg-[#B8862E]/20 text-[#F3E4C3] border-[#B8862E] font-semibold"
-                  : "text-white/70 border-transparent hover:bg-white/5 hover:text-white"
+                  ? "border-[#C8DED0] bg-white/85 font-semibold text-[#1F4B35] shadow-sm"
+                  : "border-transparent text-[#5F796A] hover:bg-white/65 hover:text-[#294438]"
               }`}
             >
-              <span className="w-5 h-5 shrink-0">{item.icon}</span>
+              {active && (
+                <span className="absolute -left-3 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r-full bg-[#C49A45]" />
+              )}
+              <span className="w-5 h-5 shrink-0 flex items-center justify-center">
+                {item.icon ? (
+                  <span className={`transition-transform group-hover:scale-110 ${active ? "text-[#B28638]" : ""}`}>
+                    {item.icon}
+                  </span>
+                ) : (
+                  <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70" />
+                )}
+              </span>
 
               <span>{item.label}</span>
             </Link>
@@ -259,11 +350,19 @@ export default function Sidebar({ role, isOpen = true }: SidebarProps) {
       </nav>
 
       {/* ROLE */}
-      <div className="px-5 py-4 border-t border-white/10">
-        <div className="text-[10px] uppercase tracking-wider text-white/40">
-          Sistem
+      <div className="relative border-t border-[#D4E3D8] px-4 py-4">
+        <div className="flex items-center gap-3 rounded-xl border border-[#D4E3D8] bg-white/55 px-3 py-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F2E8C9] text-[#A47A2D]">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="h-4 w-4" strokeWidth="1.8">
+              <path d="M12 3 4 7v5c0 4.6 3.4 7.7 8 9 4.6-1.3 8-4.4 8-9V7l-8-4Z" />
+              <path d="m9 12 2 2 4-4" />
+            </svg>
+          </div>
+          <div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#80998A]">Sistem</div>
+            <div className="mt-0.5 text-xs text-[#5F796A]">E-Kinerja Universitas</div>
+          </div>
         </div>
-        <div className="text-xs text-white/60 mt-1">E-Kinerja Universitas</div>
       </div>
     </aside>
   );

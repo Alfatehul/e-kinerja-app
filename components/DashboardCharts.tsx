@@ -17,20 +17,21 @@ export default function DashboardCharts({
   data: { name: string; capaian: number }[];
 }) {
   return (
-    <div className="bg-white border border-[#E1DDCF] rounded-lg p-4">
-      <div className="font-serif text-[15px] font-semibold mb-3">
+    <div className="overflow-hidden rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm">
+      <div className="mb-1 text-base font-bold text-[#17231D]">
         Capaian Rata-Rata per Fakultas
       </div>
+      <p className="mb-3 text-xs text-[#849289]">Perbandingan capaian indikator unit kerja aktif</p>
       <ResponsiveContainer width="100%" height={260}>
         <BarChart
           data={data}
           margin={{ top: 6, right: 10, left: -18, bottom: 0 }}
         >
-          <CartesianGrid stroke="#E1DDCF" vertical={false} />
+          <CartesianGrid stroke="#E5EEE8" vertical={false} />
           <XAxis
             dataKey="name"
             tick={{ fontSize: 12, fill: "#5B5A55" }}
-            axisLine={{ stroke: "#E1DDCF" }}
+            axisLine={{ stroke: "#DCE6DF" }}
             tickLine={false}
           />
           <YAxis
@@ -42,8 +43,8 @@ export default function DashboardCharts({
           <Tooltip
             contentStyle={{
               fontSize: 12.5,
-              borderRadius: 6,
-              border: "1px solid #E1DDCF",
+              border: "1px solid #DCE6DF",
+              borderRadius: 12,
             }}
           />
           <Bar dataKey="capaian" radius={[4, 4, 0, 0]}>

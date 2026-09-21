@@ -9,25 +9,19 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   const router = useRouter();
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     const supabase = createClient();
-
     const { data: signInData, error: signInError } =
-      await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      await supabase.auth.signInWithPassword({ email, password });
 
     if (signInError || !signInData.user) {
       setLoading(false);
-      setError("Email atau password salah.");
+      setError("Email atau password salah. Silakan coba lagi.");
       return;
     }
 
@@ -36,254 +30,64 @@ export default function LoginPage() {
       .select("role")
       .eq("id", signInData.user.id)
       .single();
-
     setLoading(false);
-
-    if (profile?.role === "admin_biro") {
-      router.push("/admin/dashboard");
-    } else {
-      router.push("/fakultas/dashboard");
-    }
-
+    router.push(profile?.role === "admin_biro" ? "/admin/dashboard" : "/fakultas/dashboard");
     router.refresh();
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background:
-          "linear-gradient(135deg, #eef7f0 0%, #f8fafc 50%, #e8f1ea 100%)",
-        padding: "24px",
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: 440,
-        }}
-      >
-        {/* Logo / Header */}
-        <div
-          style={{
-            textAlign: "center",
-            marginBottom: 24,
-          }}
-        >
-          <div
-            style={{
-              width: 80,
-              height: 80,
-              margin: "0 auto 14px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <img
-              src="/logo uin.svg"
-              alt="Logo UIN Ar-Raniry"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "contain",
-              }}
-            />
-          </div>
-
-          <h1
-            style={{
-              margin: 0,
-              color: "#14532D",
-              fontSize: 26,
-              fontWeight: 700,
-            }}
-          >
-            E-Kinerja
-          </h1>
-
-          <p
-            style={{
-              margin: "6px 0 0",
-              color: "#64748b",
-              fontSize: 14,
-            }}
-          >
-            Sistem Rekapitulasi Capaian Kinerja
-          </p>
-
-          <p
-            style={{
-              margin: "2px 0 0",
-              color: "#64748b",
-              fontSize: 13,
-            }}
-          >
-            UIN Ar-Raniry Banda Aceh
-          </p>
-        </div>
-
-        {/* Login Card */}
-        <form
-          onSubmit={handleLogin}
-          style={{
-            background: "white",
-            padding: 32,
-            borderRadius: 18,
-            boxShadow: "0 12px 35px rgba(15, 23, 42, 0.10)",
-            border: "1px solid #e5e7eb",
-          }}
-        >
-          <div style={{ marginBottom: 24 }}>
-            <h2
-              style={{
-                margin: 0,
-                fontSize: 21,
-                color: "#1e293b",
-              }}
-            >
-              Selamat Datang
-            </h2>
-
-            <p
-              style={{
-                margin: "6px 0 0",
-                fontSize: 14,
-                color: "#64748b",
-              }}
-            >
-              Silakan masuk ke akun Anda
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f2f7f3] px-4 py-10">
+      <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#b8d9c2]/50 blur-3xl" />
+      <div className="absolute -bottom-32 -right-24 h-96 w-96 rounded-full bg-[#e8d4a2]/40 blur-3xl" />
+      <div className="relative grid w-full max-w-5xl overflow-hidden rounded-3xl border border-white/80 bg-white shadow-[0_24px_80px_rgba(7,59,37,0.12)] md:grid-cols-[0.9fr_1.1fr]">
+        <section className="hidden bg-[#073b25] p-10 text-white md:flex md:flex-col md:justify-between">
+          <div>
+            <img src="/logo uin.svg" alt="Logo UIN Ar-Raniry" className="h-16 w-16 object-contain" />
+            <p className="mt-10 text-sm font-medium uppercase tracking-[0.25em] text-emerald-100/70">Portal resmi</p>
+            <h1 className="mt-3 text-4xl font-bold leading-tight">Kelola kinerja dengan lebih terarah.</h1>
+            <p className="mt-5 max-w-sm text-sm leading-6 text-emerald-50/70">
+              Satu ruang kerja untuk memantau indikator, mengelola usulan, dan melihat capaian unit kerja.
             </p>
           </div>
+          <p className="text-xs text-emerald-100/50">UIN Ar-Raniry Banda Aceh</p>
+        </section>
 
-          {/* Email */}
-          <div style={{ marginBottom: 18 }}>
-            <label
-              style={{
-                display: "block",
-                fontSize: 13,
-                fontWeight: 600,
-                color: "#334155",
-                marginBottom: 7,
-              }}
-            >
-              Email
-            </label>
-
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="Masukkan email Anda"
-              style={{
-                boxSizing: "border-box",
-                width: "100%",
-                padding: "12px 14px",
-                border: "1px solid #d1d5db",
-                borderRadius: 9,
-                outline: "none",
-                fontSize: 14,
-                color: "#1e293b",
-              }}
-            />
-          </div>
-
-          {/* Password */}
-          <div style={{ marginBottom: 18 }}>
-            <label
-              style={{
-                display: "block",
-                fontSize: 13,
-                fontWeight: 600,
-                color: "#334155",
-                marginBottom: 7,
-              }}
-            >
-              Password
-            </label>
-
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="Masukkan password Anda"
-              style={{
-                boxSizing: "border-box",
-                width: "100%",
-                padding: "12px 14px",
-                border: "1px solid #d1d5db",
-                borderRadius: 9,
-                outline: "none",
-                fontSize: 14,
-                color: "#1e293b",
-              }}
-            />
-          </div>
-
-          {/* Error */}
-          {error && (
-            <div
-              style={{
-                background: "#fef2f2",
-                border: "1px solid #fecaca",
-                color: "#dc2626",
-                padding: "10px 12px",
-                borderRadius: 8,
-                fontSize: 13,
-                marginBottom: 16,
-              }}
-            >
-              {error}
+        <section className="p-6 sm:p-10">
+          <div className="mb-8 flex items-center gap-3 md:hidden">
+            <img src="/logo uin.svg" alt="Logo UIN Ar-Raniry" className="h-12 w-12 object-contain" />
+            <div>
+              <p className="font-bold text-[#073b25]">E-Kinerja</p>
+              <p className="text-xs text-slate-500">UIN Ar-Raniry</p>
             </div>
-          )}
-
-          {/* Login Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: "100%",
-              padding: "13px 16px",
-              background: loading ? "#64748b" : "#14532D",
-              color: "white",
-              border: "none",
-              borderRadius: 9,
-              cursor: loading ? "not-allowed" : "pointer",
-              fontSize: 14,
-              fontWeight: 600,
-              transition: "0.2s",
-              boxShadow: "0 4px 10px rgba(20, 83, 45, 0.18)",
-            }}
-          >
-            {loading ? "Memproses..." : "Masuk"}
-          </button>
-
-          {/* Footer */}
-          <div
-            style={{
-              textAlign: "center",
-              marginTop: 22,
-              paddingTop: 18,
-              borderTop: "1px solid #eef0f3",
-            }}
-          >
-            <p
-              style={{
-                margin: 0,
-                fontSize: 11,
-                color: "#94a3b8",
-              }}
-            >
-              E-Kinerja UIN Ar-Raniry Banda Aceh
-            </p>
           </div>
-        </form>
+          <div className="mb-8">
+            <p className="text-sm font-semibold text-[#0b5b35]">Selamat datang kembali</p>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Masuk ke akun Anda</h2>
+            <p className="mt-2 text-sm text-slate-500">Gunakan akun resmi untuk melanjutkan ke dashboard.</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-5">
+            <div>
+              <label htmlFor="email" className="mb-2 block text-sm font-semibold text-slate-700">Email</label>
+              <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                required placeholder="nama@uinarraniry.ac.id"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-emerald-600 focus:bg-white" />
+            </div>
+            <div>
+              <label htmlFor="password" className="mb-2 block text-sm font-semibold text-slate-700">Password</label>
+              <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+                required placeholder="Masukkan password"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-emerald-600 focus:bg-white" />
+            </div>
+            {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+            <button type="submit" disabled={loading}
+              className="w-full rounded-xl bg-[#0b5b35] px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-900/15 transition hover:bg-[#073b25] disabled:cursor-not-allowed disabled:bg-slate-400">
+              {loading ? "Memproses..." : "Masuk ke dashboard"}
+            </button>
+          </form>
+          <p className="mt-8 border-t border-slate-100 pt-5 text-center text-xs text-slate-400">E-Kinerja UIN Ar-Raniry Banda Aceh</p>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }

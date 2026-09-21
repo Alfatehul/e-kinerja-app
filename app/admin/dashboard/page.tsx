@@ -1,178 +1,259 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import DashboardCharts from "@/components/DashboardCharts";
+import {
+  DashboardPanel,
+  DashboardStatCard,
+  EmptyDashboardState,
+} from "@/components/DashboardCard";
 
-function StatCard({
-  label,
-  value,
-  accent,
-}: {
-  label: string;
-  value: string | number;
-  accent: string;
-}) {
-  return (
-    <div
-      className="bg-white border border-[#E1DDCF] rounded-lg p-4 flex-1 min-w-[180px]"
-      style={{ borderLeft: `3px solid ${accent}` }}
-    >
-      <div className="text-xs text-[#5B5A55] mb-1">{label}</div>
-      <div className="font-serif text-2xl font-bold text-[#1E2027]">
-        {value}
-      </div>
-    </div>
-  );
-}
+type Indicator = {
+  id: string;
+  target: number;
+  deadline: string | null;
+  code: string;
+  name: string;
+};
+type Assignment = {
+  id: string;
+  indicator_id: string;
+  faculty_id: string;
+  realization: number;
+  status: string;
+};
 
 export default async function AdminDashboardPage() {
   const supabase = await createClient();
+  const [
+    { data: indicators },
+    { data: assignments },
+    { data: faculties },
+    { data: proposals },
+    { data: revisions },
+    { data: announcements },
+  ] = await Promise.all([
+    supabase.from("indicators").select("id, target, deadline, code, name"),
+    supabase
+      .from("indicator_assignments")
+      .select("id, indicator_id, faculty_id, realization, status"),
+    supabase.from("faculties").select("id, name, code").eq("status", "Aktif"),
+    supabase
+      .from("budget_proposals")
+      .select("id, status, number, program, created_at")
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("budget_revisions")
+      .select("id, status, number, created_at")
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("announcements")
+      .select("id, title, publish_date")
+      .order("publish_date", { ascending: false })
+      .limit(4),
+  ]);
 
-  const { data: indicators } = await supabase
-    .from("indicators")
-    .select("id, target, deadline, code, name");
-  const { data: assignments } = await supabase
-    .from("indicator_assignments")
-    .select("*");
-  const { data: faculties } = await supabase
-    .from("faculties")
-    .select("id, name, code")
-    .eq("status", "Aktif");
-  const { count: pendingProposals } = await supabase
-    .from("budget_proposals")
-    .select("*", { count: "exact", head: true })
-    .eq("status", "Diajukan");
-  const { count: pendingTors } = await supabase
-    .from("tors")
-    .select("*", { count: "exact", head: true })
-    .eq("status", "Diajukan");
-  const { data: announcements } = await supabase
-    .from("announcements")
-    .select("*")
-    .order("publish_date", { ascending: false })
-    .limit(3);
-
-  const pct = (real: number, target: number) =>
-    target ? Math.min(100, Math.round((real / target) * 1000) / 10) : 0;
-
-  const totalIndicators = indicators?.length ?? 0;
+  const indicatorData = (indicators ?? []) as Indicator[];
+  const assignmentData = (assignments ?? []) as Assignment[];
+  const pct = (realization: number, target: number) =>
+    target ? Math.min(100, Math.round((realization / target) * 1000) / 10) : 0;
+  const totalIndicators = indicatorData.length;
   const avgCapaian =
-    assignments && assignments.length > 0
+    assignmentData.length > 0
       ? Math.round(
-          assignments.reduce((s, a: any) => {
-            const ind = indicators?.find((i) => i.id === a.indicator_id);
-            return s + pct(a.realization, ind?.target ?? 0);
-          }, 0) / assignments.length,
-        )
+          (assignmentData.reduce((total, assignment) => {
+            const indicator = indicatorData.find(
+              (item) => item.id === assignment.indicator_id,
+            );
+            return (
+              total + pct(assignment.realization ?? 0, indicator?.target ?? 0)
+            );
+          }, 0) /
+            assignmentData.length) *
+            10,
+        ) / 10
       : 0;
-
-  const facultyPerf = (faculties ?? []).map((f) => {
-    const rel = (assignments ?? []).filter((a: any) => a.faculty_id === f.id);
-    const avg =
-      rel.length > 0
-        ? Math.round(
-            rel.reduce((s: number, a: any) => {
-              const ind = indicators?.find((i) => i.id === a.indicator_id);
-              return s + pct(a.realization, ind?.target ?? 0);
-            }, 0) / rel.length,
-          )
-        : 0;
-    return { name: f.code, capaian: avg };
-  });
-
+  const proposalCounts = ["Diajukan", "Disetujui", "Ditolak"].map((status) => ({
+    status,
+    count: (proposals ?? []).filter((proposal) => proposal.status === status)
+      .length,
+  }));
+  const revisionWaiting = (revisions ?? []).filter(
+    (revision) => revision.status === "Diajukan",
+  ).length;
+  const pendingProposals =
+    proposalCounts.find((item) => item.status === "Diajukan")?.count ?? 0;
   const today = new Date();
-  const deadlineSoon = (indicators ?? [])
-    .filter((i) => i.deadline)
-    .map((i) => ({
-      ...i,
+  const deadlineSoon = indicatorData
+    .filter((indicator) => indicator.deadline)
+    .map((indicator) => ({
+      ...indicator,
       days: Math.ceil(
-        (new Date(i.deadline as string).getTime() - today.getTime()) / 86400000,
+        (new Date(indicator.deadline as string).getTime() - today.getTime()) /
+          86400000,
       ),
     }))
-    .filter((i) => i.days >= 0 && i.days <= 14)
+    .filter((indicator) => indicator.days >= 0 && indicator.days <= 14)
     .sort((a, b) => a.days - b.days)
     .slice(0, 5);
+  const facultyPerf = (faculties ?? []).map((faculty) => {
+    const related = assignmentData.filter(
+      (assignment) => assignment.faculty_id === faculty.id,
+    );
+    const average =
+      related.length > 0
+        ? Math.round(
+            (related.reduce((total, assignment) => {
+              const indicator = indicatorData.find(
+                (item) => item.id === assignment.indicator_id,
+              );
+              return (
+                total + pct(assignment.realization ?? 0, indicator?.target ?? 0)
+              );
+            }, 0) /
+              related.length) *
+              10,
+          ) / 10
+        : 0;
+    return { name: faculty.code ?? faculty.name.slice(0, 8), capaian: average };
+  });
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="flex gap-4 flex-wrap">
-        <StatCard
-          label="Total Indikator"
+    <div className="mx-auto flex max-w-7xl flex-col gap-6">
+      <div className="flex flex-col gap-1">
+        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#0B5B35]">
+          Ringkasan universitas
+        </p>
+        <h1 className="text-2xl font-bold tracking-tight text-[#17231D]">
+          Dashboard Admin Biro
+        </h1>
+        <p className="text-sm text-[#64736A]">
+          Pantau kesehatan kinerja, pengajuan, dan aktivitas seluruh unit kerja.
+        </p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <DashboardStatCard
+          label="Indikator aktif"
           value={totalIndicators}
-          accent="#1B2A4B"
+          hint="Total indikator terdaftar"
         />
-        <StatCard
-          label="Capaian Rata-Rata Universitas"
+        <DashboardStatCard
+          label="Capaian universitas"
           value={`${avgCapaian}%`}
-          accent="#B8862E"
+          hint="Rata-rata seluruh assignment"
+          accent="gold"
         />
-        <StatCard
-          label="Jumlah Fakultas Aktif"
+        <DashboardStatCard
+          label="Fakultas / unit"
           value={faculties?.length ?? 0}
-          accent="#7A2331"
+          hint="Unit kerja aktif"
+          accent="blue"
         />
-        <StatCard
-          label="Usulan Anggaran Menunggu"
-          value={pendingProposals ?? 0}
-          accent="#4A6FA5"
+        <DashboardStatCard
+          label="Menunggu biro"
+          value={pendingProposals}
+          hint="Usulan anggaran diajukan"
+          accent="red"
         />
-        <StatCard
-          label="TOR Menunggu Verifikasi"
-          value={pendingTors ?? 0}
-          accent="#3F6E52"
+        <DashboardStatCard
+          label="Revisi masuk"
+          value={revisionWaiting}
+          hint="Perlu ditinjau"
+          accent="gold"
         />
       </div>
 
       <DashboardCharts data={facultyPerf} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div className="bg-white border border-[#E1DDCF] rounded-lg p-4">
-          <div className="font-serif text-[15px] font-semibold mb-3">
-            Indikator Mendekati Deadline
-          </div>
-          {deadlineSoon.length === 0 && (
-            <p className="text-sm text-[#5B5A55]">
-              Tidak ada indikator yang mendekati deadline.
-            </p>
-          )}
-          <div className="flex flex-col gap-2">
-            {deadlineSoon.map((i: any) => (
-              <div
-                key={i.id}
-                className="flex justify-between text-sm border-b border-[#E1DDCF] pb-2 last:border-0"
+      <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
+        <DashboardPanel
+          title="Status pengajuan"
+          description="Distribusi status usulan anggaran terbaru"
+          href="/admin/usulan-anggaran"
+        >
+          <div className="grid gap-3 sm:grid-cols-3">
+            {proposalCounts.map((item) => (
+              <Link
+                key={item.status}
+                href={`/admin/usulan-anggaran?status=${encodeURIComponent(item.status)}`}
+                className="rounded-xl border border-[#E5EEE8] bg-[#F8FBF8] p-4 transition hover:border-[#B8D8C1]"
               >
-                <div>
-                  <span className="font-semibold text-[#1B2A4B]">{i.code}</span>{" "}
-                  — {i.name}
-                </div>
-                <span
-                  className={`font-semibold ${i.days <= 3 ? "text-red-600" : "text-amber-600"}`}
-                >
-                  {i.days === 0 ? "Hari ini" : `${i.days} hari lagi`}
-                </span>
-              </div>
+                <p className="text-xs text-[#718078]">{item.status}</p>
+                <p className="mt-2 text-2xl font-bold text-[#173B27]">
+                  {item.count}
+                </p>
+              </Link>
             ))}
           </div>
-        </div>
+          <div className="mt-4 rounded-xl bg-[#F7F4EA] px-4 py-3 text-xs text-[#80662E]">
+            {revisionWaiting > 0
+              ? `${revisionWaiting} usulan revisi menunggu pemeriksaan.`
+              : "Tidak ada revisi yang menunggu pemeriksaan."}
+          </div>
+        </DashboardPanel>
 
-        <div className="bg-white border border-[#E1DDCF] rounded-lg p-4">
-          <div className="font-serif text-[15px] font-semibold mb-3">
-            Pengumuman Terbaru
-          </div>
-          {announcements?.length === 0 && (
-            <p className="text-sm text-[#5B5A55]">Belum ada pengumuman.</p>
+        <DashboardPanel
+          title="Deadline terdekat"
+          description="Indikator yang perlu mendapat perhatian"
+        >
+          {deadlineSoon.length === 0 ? (
+            <EmptyDashboardState>
+              Tidak ada deadline dalam 14 hari ke depan.
+            </EmptyDashboardState>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {deadlineSoon.map((indicator) => (
+                <div
+                  key={indicator.id}
+                  className="flex items-start justify-between gap-3 border-b border-[#EDF2EE] pb-3 last:border-0 last:pb-0"
+                >
+                  <div className="min-w-0">
+                    <p className="font-bold text-[#0B5B35]">{indicator.code}</p>
+                    <p className="truncate text-sm text-[#44534B]">
+                      {indicator.name}
+                    </p>
+                  </div>
+                  <span
+                    className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold ${indicator.days <= 3 ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"}`}
+                  >
+                    {indicator.days === 0
+                      ? "Hari ini"
+                      : `${indicator.days} hari`}
+                  </span>
+                </div>
+              ))}
+            </div>
           )}
-          <div className="flex flex-col gap-2">
-            {announcements?.map((a) => (
+        </DashboardPanel>
+      </div>
+
+      <DashboardPanel
+        title="Aktivitas terbaru"
+        description="Informasi penting untuk admin biro"
+        href="/admin/pengumuman"
+      >
+        {announcements?.length === 0 ? (
+          <EmptyDashboardState>
+            Belum ada pengumuman terbaru.
+          </EmptyDashboardState>
+        ) : (
+          <div className="grid gap-3 md:grid-cols-2">
+            {announcements?.map((announcement) => (
               <div
-                key={a.id}
-                className="text-sm border-b border-[#E1DDCF] pb-2 last:border-0"
+                key={announcement.id}
+                className="rounded-xl border border-[#EDF2EE] p-4"
               >
-                <div className="font-semibold">{a.title}</div>
-                <div className="text-xs text-[#5B5A55]">{a.publish_date}</div>
+                <p className="text-sm font-semibold text-[#17231D]">
+                  {announcement.title}
+                </p>
+                <p className="mt-2 text-xs text-[#849289]">
+                  {announcement.publish_date}
+                </p>
               </div>
             ))}
           </div>
-        </div>
-      </div>
+        )}
+      </DashboardPanel>
     </div>
   );
 }

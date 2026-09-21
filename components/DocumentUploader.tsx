@@ -18,7 +18,7 @@ export default function DocumentUploader({
   documents,
   editable,
 }: {
-  entityType: "proposal" | "revision";
+  entityType: "proposal" | "revision" | "tor";
   entityId: string;
   facultyId: string;
   documents: Doc[];

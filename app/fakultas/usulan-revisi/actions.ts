@@ -4,6 +4,46 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth";
 
+const allowedDocumentTypes = new Set([
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+]);
+
+async function saveUploadedDocument(
+  formData: FormData,
+  entityId: string,
+  facultyId: string,
+  supabase: Awaited<ReturnType<typeof createClient>>,
+) {
+  const document = formData.get("document");
+  if (!(document instanceof File) || document.size === 0) return;
+  if (!allowedDocumentTypes.has(document.type)) {
+    throw new Error("Dokumen harus berformat PDF, Word, atau Excel.");
+  }
+  if (document.size > 10 * 1024 * 1024) {
+    throw new Error("Ukuran dokumen maksimal 10 MB.");
+  }
+
+  const safeFileName = document.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const path = `${facultyId}/revision/${entityId}/${Date.now()}-${safeFileName}`;
+  const { error: uploadError } = await supabase.storage
+    .from("budget-documents")
+    .upload(path, document, { contentType: document.type, upsert: false });
+  if (uploadError) throw new Error(`Gagal mengunggah dokumen: ${uploadError.message}`);
+
+  const { error: documentError } = await supabase.from("budget_documents").insert({
+    entity_type: "revision",
+    entity_id: entityId,
+    file_name: document.name,
+    file_path: path,
+    file_size: `${(document.size / 1024).toFixed(0)} KB`,
+  });
+  if (documentError) throw new Error(`Gagal menyimpan dokumen: ${documentError.message}`);
+}
+
 export async function createRevision(formData: FormData) {
   const session = await getCurrentProfile();
   const supabase = await createClient();
@@ -46,6 +86,13 @@ export async function createRevision(formData: FormData) {
     .single();
 
   if (error) throw new Error(error.message);
+
+  await saveUploadedDocument(
+    formData,
+    data.id,
+    session!.profile.faculty_id,
+    supabase,
+  );
 
   await supabase.from("budget_history").insert({
     entity_type: "revision",

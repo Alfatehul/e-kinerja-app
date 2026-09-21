@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCurrentProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import StatusBadge from "@/components/StatusBadge";
+import TableActionLink from "@/components/TableActionLink";
 
 export default async function UsulanRevisiFakultasPage() {
   const session = await getCurrentProfile();
@@ -14,25 +15,26 @@ export default async function UsulanRevisiFakultasPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="font-serif text-xl font-semibold">Usulan Revisi</h1>
+    <div className="mx-auto flex max-w-7xl flex-col gap-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#0B5B35]">Pengajuan</p>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#17231D]">Usulan Revisi</h1>
+          <p className="mt-2 text-sm text-[#64736A]">Ajukan perubahan dan pantau hasil verifikasi usulan Anda.</p>
+        </div>
         <Link
           href="/fakultas/usulan-revisi/tambah"
-          className="bg-[#1B2A4B] text-white text-sm px-4 py-2 rounded-md"
+          className="inline-flex items-center justify-center rounded-xl bg-[#0B5B35] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#073B25]"
         >
           + Ajukan Revisi
         </Link>
       </div>
-      <div className="bg-white border border-[#E1DDCF] rounded-lg overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-[#EEF0F5] text-left">
+      <div className="overflow-hidden rounded-2xl border border-[#DCE6DF] bg-white shadow-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[780px] text-sm">
+          <thead className="border-b border-[#DCE6DF] bg-[#F5F8F5] text-left text-xs uppercase tracking-wide text-[#64736A]">
             <tr>
-              <th className="p-3">No. Revisi</th>
-              <th className="p-3">Usulan Terkait</th>
-              <th className="p-3">Selisih</th>
-              <th className="p-3">Status</th>
-              <th className="p-3">Aksi</th>
+              <th className="px-4 py-3">No. Revisi</th><th className="px-4 py-3">Usulan Terkait</th><th className="px-4 py-3">Selisih</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -41,40 +43,36 @@ export default async function UsulanRevisiFakultasPage() {
                 r.after_volume * r.after_harga_satuan -
                 r.before_volume * r.before_harga_satuan;
               return (
-                <tr key={r.id} className="border-t border-[#E1DDCF]">
-                  <td className="p-3 font-semibold text-[#1B2A4B]">
+                <tr key={r.id} className="border-b border-[#EDF2EE] transition hover:bg-[#FAFCFA]">
+                  <td className="px-4 py-4 font-bold text-[#0B5B35]">
                     {r.number}
                   </td>
-                  <td className="p-3">{r.budget_proposals?.number}</td>
+                  <td className="px-4 py-4 font-medium text-[#44534B]">{r.budget_proposals?.number ?? "—"}</td>
                   <td
-                    className={`p-3 font-semibold ${selisih >= 0 ? "text-green-700" : "text-red-600"}`}
+                    className={`px-4 py-4 font-semibold ${selisih >= 0 ? "text-emerald-700" : "text-red-600"}`}
                   >
                     {selisih >= 0 ? "+" : ""}Rp{" "}
                     {Number(selisih).toLocaleString("id-ID")}
                   </td>
-                  <td className="p-3">
+                  <td className="px-4 py-4">
                     <StatusBadge status={r.status} />
                   </td>
-                  <td className="p-3">
-                    <Link
-                      href={`/fakultas/usulan-revisi/${r.id}`}
-                      className="text-[#1B2A4B] text-xs font-semibold hover:underline"
-                    >
-                      Detail
-                    </Link>
+                  <td className="px-4 py-4">
+                    <TableActionLink href={`/fakultas/usulan-revisi/${r.id}`} />
                   </td>
                 </tr>
               );
             })}
             {revisions?.length === 0 && (
               <tr>
-                <td colSpan={5} className="p-6 text-center text-[#5B5A55]">
+                <td colSpan={5} className="px-4 py-12 text-center text-[#64736A]">
                   Belum ada usulan revisi.
                 </td>
               </tr>
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

@@ -20,15 +20,27 @@ export default function DashboardShell({
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   return (
-    <div className="flex min-h-screen bg-[#F6F4EF]">
-      <Sidebar role={role} isOpen={isSidebarOpen} />
+    <div className="flex min-h-screen bg-[#F5F7F5]">
+      <Sidebar
+        role={role}
+        isOpen={isSidebarOpen}
+        onNavigate={() => setIsSidebarOpen(false)}
+      />
+      {isSidebarOpen && (
+        <button
+          type="button"
+          aria-label="Tutup navigasi"
+          onClick={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 z-30 bg-slate-950/40 backdrop-blur-[2px] md:hidden"
+        />
+      )}
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar
           userName={userName}
           roleLabel={roleLabel}
           onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
         />
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );
