@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth";
+import { notifyAllBiro } from "@/lib/notifications";
 
 const allowedDocumentTypes = new Set([
   "application/pdf",
@@ -47,21 +48,27 @@ async function saveUploadedDocument(
 
 export async function createProposal(formData: FormData) {
   const session = await getCurrentProfile();
+  const facultyId = session?.profile.faculty_id;
+  if (!session || !facultyId) {
+    throw new Error(
+      "Profil Fakultas/Unit belum terhubung. Hubungi Admin Biro untuk melengkapi faculty_id.",
+    );
+  }
   const supabase = await createClient();
 
   const { count } = await supabase
     .from("budget_proposals")
     .select("*", { count: "exact", head: true })
-    .eq("faculty_id", session!.profile.faculty_id);
+    .eq("faculty_id", facultyId);
 
-  const number = `USUL-2026-${String((count ?? 0) + 1).padStart(3, "0")}-${session!.profile.faculty_id.slice(0, 4).toUpperCase()}`;
+  const number = `USUL-2026-${String((count ?? 0) + 1).padStart(3, "0")}-${facultyId.slice(0, 4).toUpperCase()}`;
 
   const { data, error } = await supabase
     .from("budget_proposals")
     .insert({
       number,
       year: formData.get("year") as string,
-      faculty_id: session!.profile.faculty_id,
+      faculty_id: facultyId,
       program: formData.get("program") as string,
       kegiatan: formData.get("kegiatan") as string,
       uraian: formData.get("uraian") as string,
@@ -82,7 +89,7 @@ export async function createProposal(formData: FormData) {
   await saveUploadedDocument(
     formData,
     data.id,
-    session!.profile.faculty_id,
+    facultyId,
     supabase,
   );
 
@@ -129,6 +136,11 @@ export async function deleteProposal(id: string) {
 export async function submitProposal(id: string) {
   const session = await getCurrentProfile();
   const supabase = await createClient();
+  const { data: proposal } = await supabase
+    .from("budget_proposals")
+    .select("number, faculties(name)")
+    .eq("id", id)
+    .single();
   const { error } = await supabase
     .from("budget_proposals")
     .update({
@@ -137,6 +149,14 @@ export async function submitProposal(id: string) {
     })
     .eq("id", id);
   if (error) throw new Error(error.message);
+  if (proposal) {
+    const faculty = Array.isArray(proposal.faculties)
+      ? proposal.faculties[0]
+      : proposal.faculties;
+    await notifyAllBiro(
+      `Usulan anggaran baru dari ${faculty?.name ?? "Fakultas / Unit"}: ${proposal.number}`,
+    );
+  }
 
   await supabase.from("budget_history").insert({
     entity_type: "proposal",

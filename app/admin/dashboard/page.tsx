@@ -6,6 +6,9 @@ import {
   DashboardStatCard,
   EmptyDashboardState,
 } from "@/components/DashboardCard";
+import DashboardAnnouncements, {
+  type DashboardAnnouncement,
+} from "@/components/DashboardAnnouncements";
 
 type Indicator = {
   id: string;
@@ -47,7 +50,8 @@ export default async function AdminDashboardPage() {
       .order("created_at", { ascending: false }),
     supabase
       .from("announcements")
-      .select("id, title, publish_date")
+      .select("id, title, body, publish_date, pinned")
+      .order("pinned", { ascending: false })
       .order("publish_date", { ascending: false })
       .limit(4),
   ]);
@@ -163,6 +167,11 @@ export default async function AdminDashboardPage() {
         />
       </div>
 
+      <DashboardAnnouncements
+        announcements={(announcements ?? []) as DashboardAnnouncement[]}
+        href="/admin/pengumuman"
+      />
+
       <DashboardCharts data={facultyPerf} />
 
       <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
@@ -227,33 +236,6 @@ export default async function AdminDashboardPage() {
         </DashboardPanel>
       </div>
 
-      <DashboardPanel
-        title="Aktivitas terbaru"
-        description="Informasi penting untuk admin biro"
-        href="/admin/pengumuman"
-      >
-        {announcements?.length === 0 ? (
-          <EmptyDashboardState>
-            Belum ada pengumuman terbaru.
-          </EmptyDashboardState>
-        ) : (
-          <div className="grid gap-3 md:grid-cols-2">
-            {announcements?.map((announcement) => (
-              <div
-                key={announcement.id}
-                className="rounded-xl border border-[#EDF2EE] p-4"
-              >
-                <p className="text-sm font-semibold text-[#17231D]">
-                  {announcement.title}
-                </p>
-                <p className="mt-2 text-xs text-[#849289]">
-                  {announcement.publish_date}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-      </DashboardPanel>
     </div>
   );
 }

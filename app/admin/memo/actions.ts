@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth";
+import { notifyFacultyAdmin } from "@/lib/notifications";
 
 export async function createMemo(formData: FormData) {
   const session = await getCurrentProfile();
@@ -36,6 +37,12 @@ export async function createMemo(formData: FormData) {
     created_by: session.user.id,
   });
   if (error) throw new Error(error.message);
+  const { data: faculties } = targetFaculty === "Semua Fakultas"
+    ? await supabase.from("faculties").select("id")
+    : await supabase.from("faculties").select("id").eq("name", targetFaculty);
+  await Promise.all((faculties ?? []).map((faculty) =>
+    notifyFacultyAdmin(faculty.id, `Memo baru: ${title}`),
+  ));
   redirect("/admin/memo");
 }
 

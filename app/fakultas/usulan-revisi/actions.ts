@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth";
+import { notifyAllBiro } from "@/lib/notifications";
 
 const allowedDocumentTypes = new Set([
   "application/pdf",
@@ -46,6 +47,12 @@ async function saveUploadedDocument(
 
 export async function createRevision(formData: FormData) {
   const session = await getCurrentProfile();
+  const facultyId = session?.profile.faculty_id;
+  if (!session || !facultyId) {
+    throw new Error(
+      "Profil Fakultas/Unit belum terhubung. Hubungi Admin Biro untuk melengkapi faculty_id.",
+    );
+  }
   const supabase = await createClient();
 
   const proposalId = formData.get("proposal_id") as string;
@@ -59,9 +66,9 @@ export async function createRevision(formData: FormData) {
   const { count } = await supabase
     .from("budget_revisions")
     .select("*", { count: "exact", head: true })
-    .eq("faculty_id", session!.profile.faculty_id);
+    .eq("faculty_id", facultyId);
 
-  const number = `REV-2026-${String((count ?? 0) + 1).padStart(3, "0")}-${session!.profile.faculty_id.slice(0, 4).toUpperCase()}`;
+  const number = `REV-2026-${String((count ?? 0) + 1).padStart(3, "0")}-${facultyId.slice(0, 4).toUpperCase()}`;
 
   const { data, error } = await supabase
     .from("budget_revisions")
@@ -69,7 +76,7 @@ export async function createRevision(formData: FormData) {
       number,
       proposal_id: proposalId,
       year: proposal.year,
-      faculty_id: session!.profile.faculty_id,
+      faculty_id: facultyId,
       jenis_revisi: formData.get("jenis_revisi") as string,
       before_uraian: proposal.uraian,
       before_volume: 1,
@@ -86,11 +93,19 @@ export async function createRevision(formData: FormData) {
     .single();
 
   if (error) throw new Error(error.message);
+  const { data: faculty } = await supabase
+    .from("faculties")
+    .select("name")
+    .eq("id", facultyId)
+    .single();
+  await notifyAllBiro(
+    `Usulan revisi baru dari ${faculty?.name ?? "Fakultas / Unit"}: ${data.number}`,
+  );
 
   await saveUploadedDocument(
     formData,
     data.id,
-    session!.profile.faculty_id,
+    facultyId,
     supabase,
   );
 

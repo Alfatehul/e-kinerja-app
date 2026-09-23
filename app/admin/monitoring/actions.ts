@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { notifyFacultyAdmin } from "@/lib/notifications";
 
 export async function verifyAssignment(
   id: string,
@@ -9,6 +10,11 @@ export async function verifyAssignment(
   note?: string,
 ) {
   const supabase = await createClient();
+  const { data: assignment } = await supabase
+    .from("indicator_assignments")
+    .select("faculty_id, indicators(code)")
+    .eq("id", id)
+    .single();
 
   const { error } = await supabase
     .from("indicator_assignments")
@@ -19,6 +25,15 @@ export async function verifyAssignment(
     .eq("id", id);
 
   if (error) throw new Error(error.message);
+  const indicator = Array.isArray(assignment?.indicators)
+    ? assignment.indicators[0]
+    : assignment?.indicators;
+  if (assignment) {
+    await notifyFacultyAdmin(
+      assignment.faculty_id,
+      `Indikator ${indicator?.code ?? ""} telah ${action === "approve" ? "Diverifikasi" : "Ditolak"}`,
+    );
+  }
 
   revalidatePath("/admin/monitoring");
   revalidatePath(`/admin/monitoring/${id}`);

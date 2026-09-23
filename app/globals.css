@@ -91,6 +91,25 @@ textarea:focus {
   box-shadow: 0 0 0 3px rgb(126 180 147 / 15%);
 }
 
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.ticker-track {
+  display: inline-block;
+  min-width: 100%;
+  animation: ticker-scroll 28s linear infinite;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
 @media print {
   .print-hidden {
     display: none !important;

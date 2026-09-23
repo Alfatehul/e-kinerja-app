@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth";
+import { notifyFacultyAdmin } from "@/lib/notifications";
 import { redirect } from "next/dist/client/components/redirect";
 
 export async function verifyRevision(
@@ -12,6 +13,11 @@ export async function verifyRevision(
 ) {
   const session = await getCurrentProfile();
   const supabase = await createClient();
+  const { data: revision } = await supabase
+    .from("budget_revisions")
+    .select("number, faculty_id")
+    .eq("id", id)
+    .single();
 
   const { error } = await supabase
     .from("budget_revisions")
@@ -22,6 +28,9 @@ export async function verifyRevision(
     .eq("id", id);
 
   if (error) throw new Error(error.message);
+  if (revision) {
+    await notifyFacultyAdmin(revision.faculty_id, `Revisi ${revision.number} telah ${status}`);
+  }
 
   await supabase.from("budget_history").insert({
     entity_type: "revision",

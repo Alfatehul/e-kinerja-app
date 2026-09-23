@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { deleteMemo, toggleMemoPin } from "./actions";
+import ConfirmSubmitButton from "@/components/ConfirmSubmitButton";
 
 type Memo = {
   id: string;
@@ -51,7 +52,7 @@ export default async function AdminMemoPage() {
                   <button type="submit" className="text-[#0B5B35] hover:underline">{memo.pinned ? "Lepas pin" : "Sematkan"}</button>
                 </form>
                 <form action={deleteMemo.bind(null, memo.id)}>
-                  <button type="submit" className="text-red-600 hover:underline">Hapus</button>
+                  <ConfirmSubmitButton className="text-red-600 hover:underline" />
                 </form>
               </div>
             </div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { sendHelpdeskMessage } from "@/app/fakultas/helpdesk/actions";
 
 export type HelpdeskMessage = {
   id: string;
@@ -64,24 +65,11 @@ export default function HelpdeskChat({
     if (!trimmedText || sending) return;
 
     setSending(true);
-    const { data, error: userError } = await supabase.auth.getUser();
-    if (userError || !data.user) {
-      setSending(false);
-      alert("Sesi pengguna tidak ditemukan. Silakan masuk kembali.");
-      return;
-    }
-
-    const { error } = await supabase.from("helpdesk_messages").insert({
-      thread_id: threadId,
-      sender_id: data.user.id,
-      from_role: currentRole,
-      text: trimmedText,
-    });
-
-    if (error) {
-      alert(`Gagal mengirim pesan: ${error.message}`);
-    } else {
+    try {
+      await sendHelpdeskMessage(threadId, trimmedText, currentRole);
       setText("");
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Gagal mengirim pesan.");
     }
     setSending(false);
   }

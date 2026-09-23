@@ -180,6 +180,12 @@ const navBiro = [
       </svg>
     ),
   },
+  {
+    section: "Akun",
+    href: "/admin/profil",
+    label: "Profil",
+    icon: <UserCircleIcon className="h-5 w-5" />,
+  },
 ];
 
 const navFakultas = [

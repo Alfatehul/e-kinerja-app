@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { deleteRealization } from "@/app/fakultas/pengisian/actions";
+import ConfirmActionButton from "./ConfirmActionButton";
 
 export default function DeleteRealizationButton({
   assignmentId,
@@ -13,17 +14,11 @@ export default function DeleteRealizationButton({
   const router = useRouter();
 
   async function handleDelete() {
-    if (!confirm("Hapus entri realisasi ini?")) return;
     await deleteRealization(assignmentId, logId);
     router.refresh();
   }
 
   return (
-    <button
-      onClick={handleDelete}
-      className="text-red-600 text-xs font-semibold hover:underline"
-    >
-      Hapus
-    </button>
+    <ConfirmActionButton onConfirm={handleDelete} message="Entri realisasi ini akan dihapus. Lanjutkan?" className="text-red-600 text-xs font-semibold hover:underline" />
   );
 }

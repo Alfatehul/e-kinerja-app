@@ -3,17 +3,27 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { notifyFacultyAdmin } from "@/lib/notifications";
 
 export async function createAnnouncement(formData: FormData) {
   const supabase = await createClient();
+  const endDate = String(formData.get("end_date") ?? "").trim();
+  const targetFaculty = String(formData.get("target_faculty") ?? "Semua Fakultas").trim();
+  const title = String(formData.get("title") ?? "").trim();
   const { error } = await supabase.from("announcements").insert({
-    title: formData.get("title") as string,
-    body: formData.get("body") as string,
-    target_faculty: formData.get("target_faculty") as string,
-    publish_date: formData.get("publish_date") as string,
-    end_date: formData.get("end_date") as string,
+    title,
+    body: String(formData.get("body") ?? "").trim(),
+    target_faculty: targetFaculty,
+    publish_date: String(formData.get("publish_date") ?? "").trim(),
+    end_date: endDate || null,
   });
   if (error) throw new Error(error.message);
+  const { data: faculties } = targetFaculty === "Semua Fakultas"
+    ? await supabase.from("faculties").select("id")
+    : await supabase.from("faculties").select("id").eq("name", targetFaculty);
+  await Promise.all((faculties ?? []).map((faculty) =>
+    notifyFacultyAdmin(faculty.id, `Pengumuman baru: ${title}`),
+  ));
   redirect("/admin/pengumuman");
 }
 

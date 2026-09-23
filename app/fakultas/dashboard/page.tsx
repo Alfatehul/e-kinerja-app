@@ -6,6 +6,9 @@ import {
   DashboardStatCard,
   EmptyDashboardState,
 } from "@/components/DashboardCard";
+import DashboardAnnouncements, {
+  type DashboardAnnouncement,
+} from "@/components/DashboardAnnouncements";
 
 type Assignment = {
   id: string;
@@ -43,7 +46,7 @@ export default async function FakultasDashboardPage() {
       .select("id, status, number, created_at")
       .eq("faculty_id", session!.profile.faculty_id)
       .order("created_at", { ascending: false }),
-    supabase.from("announcements").select("id, title, publish_date").order("publish_date", { ascending: false }).limit(4),
+    supabase.from("announcements").select("id, title, body, publish_date, pinned").order("pinned", { ascending: false }).order("publish_date", { ascending: false }).limit(4),
   ]);
 
   const assignmentData = (assignments ?? []).map((assignment) => ({
@@ -98,6 +101,11 @@ export default async function FakultasDashboardPage() {
         <DashboardStatCard label="Revisi berjalan" value={pendingRevision} hint="Revisi diajukan" accent="gold" />
       </div>
 
+      <DashboardAnnouncements
+        announcements={(announcements ?? []) as DashboardAnnouncement[]}
+        href="/fakultas/pengumuman"
+      />
+
       <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
         <DashboardPanel title="Progres indikator" description="Ringkasan status indikator unit Anda" href="/fakultas/indikator">
           <div className="mb-5 flex items-end justify-between">
@@ -137,13 +145,6 @@ export default async function FakultasDashboardPage() {
               </Link>
             ))}
             {(!proposals || proposals.length === 0) && <EmptyDashboardState>Belum ada usulan anggaran.</EmptyDashboardState>}
-          </div>
-          <div className="rounded-xl bg-[#F7F4EA] p-4">
-            <p className="text-xs font-bold uppercase tracking-[0.1em] text-[#8A6B2E]">Pengumuman terbaru</p>
-            <div className="mt-3 space-y-3">
-              {announcements?.slice(0, 3).map((announcement) => <div key={announcement.id} className="border-b border-[#E8DDBB] pb-3 last:border-0 last:pb-0"><p className="text-sm font-semibold text-[#5F4A20]">{announcement.title}</p><p className="mt-1 text-xs text-[#9A8250]">{announcement.publish_date}</p></div>)}
-              {(!announcements || announcements.length === 0) && <p className="text-sm text-[#80662E]">Belum ada pengumuman.</p>}
-            </div>
           </div>
         </div>
       </DashboardPanel>

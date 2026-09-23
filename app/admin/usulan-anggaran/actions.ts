@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth";
+import { notifyFacultyAdmin } from "@/lib/notifications";
 import { redirect } from "next/navigation";
 
 export async function verifyProposal(
@@ -12,6 +13,11 @@ export async function verifyProposal(
 ) {
   const session = await getCurrentProfile();
   const supabase = await createClient();
+  const { data: proposal } = await supabase
+    .from("budget_proposals")
+    .select("number, faculty_id")
+    .eq("id", id)
+    .single();
 
   const { error } = await supabase
     .from("budget_proposals")
@@ -22,6 +28,9 @@ export async function verifyProposal(
     .eq("id", id);
 
   if (error) throw new Error(error.message);
+  if (proposal) {
+    await notifyFacultyAdmin(proposal.faculty_id, `Usulan ${proposal.number} telah ${status}`);
+  }
 
   await supabase.from("budget_history").insert({
     entity_type: "proposal",

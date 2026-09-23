@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createThreadForFaculty, deleteThread } from "./actions";
+import ConfirmSubmitButton from "@/components/ConfirmSubmitButton";
 
 export default async function AdminHelpdeskPage() {
   const supabase = await createClient();
@@ -46,7 +47,7 @@ export default async function AdminHelpdeskPage() {
                 </div>
               </Link>
               <form action={deleteThread.bind(null, thread.id)}>
-                <button type="submit" className="rounded-lg px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50">Hapus</button>
+                <ConfirmSubmitButton className="rounded-lg px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50" />
               </form>
             </div>
           );

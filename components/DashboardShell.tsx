@@ -3,12 +3,17 @@
 import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
+import AnnouncementTicker, { type AnnouncementSummary } from "@/components/AnnouncementTicker";
+import type { Notification } from "@/lib/notifications";
 
 interface DashboardShellProps {
   children: React.ReactNode;
   userName: string;
   role: "biro" | "fakultas";
   roleLabel: string;
+  announcements?: AnnouncementSummary[];
+  userId: string;
+  initialNotifications?: Notification[];
 }
 
 export default function DashboardShell({
@@ -16,6 +21,9 @@ export default function DashboardShell({
   userName,
   role,
   roleLabel,
+  announcements = [],
+  initialNotifications = [],
+  userId,
 }: DashboardShellProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -39,6 +47,12 @@ export default function DashboardShell({
           userName={userName}
           roleLabel={roleLabel}
           onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
+          userId={userId}
+          initialNotifications={initialNotifications}
+        />
+        <AnnouncementTicker
+          announcements={announcements}
+          href={role === "biro" ? "/admin/pengumuman" : "/fakultas/pengumuman"}
         />
         <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
       </div>

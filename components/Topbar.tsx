@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import LogoutButton from "@/components/LogoutButton";
+import NotificationBell from "@/components/NotificationBell";
+import type { Notification } from "@/lib/notifications";
 
 const pageNames: Record<string, string> = {
   dashboard: "Dashboard",
@@ -48,15 +50,18 @@ export default function Topbar({
   userName,
   roleLabel,
   onToggleSidebar,
+  userId,
+  initialNotifications = [],
 }: {
   userName: string;
   roleLabel: string;
   onToggleSidebar?: () => void;
+  userId: string;
+  initialNotifications?: Notification[];
 }) {
   const pathname = usePathname();
   const isFaculty = pathname.startsWith("/fakultas");
   const dashboardHref = isFaculty ? "/fakultas/dashboard" : "/admin/dashboard";
-  const announcementHref = isFaculty ? "/fakultas/pengumuman" : "/admin/pengumuman";
   const segments = pathname.split("/").filter(Boolean);
   const currentSegment = segments[segments.length - 1] ?? "dashboard";
   const currentPage = pageNames[currentSegment] ?? roleLabel;
@@ -104,15 +109,7 @@ export default function Topbar({
             <Icon className="h-4 w-4"><path d="m3 11 9-8 9 8" /><path d="M5 10v10h14V10" /><path d="M9 20v-6h6v6" /></Icon>
             Dashboard
           </Link>
-          <Link
-            href={announcementHref}
-            aria-label="Buka pengumuman"
-            title="Pengumuman"
-            className="relative rounded-xl p-2.5 text-[#496056] transition hover:bg-[#EAF3ED] hover:text-[#0B5B35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0B5B35]"
-          >
-            <Icon><path d="M4 11a1 1 0 0 1 1-1h3l8-4v12l-8-4H5a1 1 0 0 1-1-1v-2Z" /><path d="M16 9a4 4 0 0 1 0 6" /></Icon>
-            <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-[#C49A45]" />
-          </Link>
+          <NotificationBell userId={userId} initialNotifications={initialNotifications} />
           <div className="mx-1 hidden h-8 w-px bg-[#E5EEE8] sm:block" />
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#DCEDE1] text-xs font-bold text-[#0B5B35] shadow-sm">
