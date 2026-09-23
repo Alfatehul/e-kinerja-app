@@ -11,6 +11,7 @@ import {
   ClockIcon,
   DocumentChartBarIcon,
   EnvelopeOpenIcon,
+  ChatBubbleLeftRightIcon,
   MegaphoneIcon,
   PencilSquareIcon,
   Squares2X2Icon,
@@ -29,6 +30,7 @@ const heroIcons = {
   "Fakultas / Unit": BuildingOffice2Icon,
   Pengumuman: MegaphoneIcon,
   Memo: EnvelopeOpenIcon,
+  Helpdesk: ChatBubbleLeftRightIcon,
   Laporan: DocumentChartBarIcon,
   "Audit Log": ClockIcon,
   "Manajemen User": UsersIcon,
@@ -134,6 +136,12 @@ const navBiro = [
         <path d="M9 17h5" />
       </svg>
     ),
+  },
+  {
+    section: "Komunikasi",
+    href: "/admin/helpdesk",
+    label: "Helpdesk",
+    icon: <ChatBubbleLeftRightIcon className="h-5 w-5" />,
   },
   {
     section: "Pelaporan",
@@ -261,6 +269,12 @@ const navFakultas = [
         <path d="M9 17h5" />
       </svg>
     ),
+  },
+  {
+    section: "Komunikasi",
+    href: "/fakultas/helpdesk",
+    label: "Helpdesk",
+    icon: <ChatBubbleLeftRightIcon className="h-5 w-5" />,
   },
   {
     section: "Pelaporan",
