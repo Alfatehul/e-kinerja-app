@@ -98,7 +98,7 @@ const navBiro = [
   },
   {
     section: "Kinerja",
-    href: "/admin/fakultas",
+    href: "/admin/fakultas-unit",
     label: "Fakultas / Unit",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -337,9 +337,17 @@ export default function Sidebar({
         </div>
         <div className="mt-5 flex items-center gap-2 rounded-xl border border-[#D4E3D8] bg-white/60 px-3 py-2">
           <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-white p-1 shadow-sm">
-            <Image src="/logo uin.svg" alt="" width={20} height={20} className="h-full w-full object-contain" />
+            <Image
+              src="/logo uin.svg"
+              alt=""
+              width={20}
+              height={20}
+              className="h-full w-full object-contain"
+            />
           </div>
-          <span className="text-[11px] text-[#6E8476]">Sistem kinerja universitas</span>
+          <span className="text-[11px] text-[#6E8476]">
+            Sistem kinerja universitas
+          </span>
         </div>
       </div>
 
@@ -351,7 +359,9 @@ export default function Sidebar({
           return (
             <div key={item.href}>
               {index === 0 || item.section !== items[index - 1].section ? (
-                <div className={`${index === 0 ? "" : "mt-6"} mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#80998A]`}>
+                <div
+                  className={`${index === 0 ? "" : "mt-6"} mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#80998A]`}
+                >
                   {item.section}
                 </div>
               ) : null}
@@ -369,7 +379,8 @@ export default function Sidebar({
                 )}
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center">
                   {(() => {
-                    const Icon = heroIcons[item.label as keyof typeof heroIcons];
+                    const Icon =
+                      heroIcons[item.label as keyof typeof heroIcons];
                     return Icon ? (
                       <Icon
                         aria-hidden="true"
@@ -390,14 +401,24 @@ export default function Sidebar({
       <div className="relative border-t border-[#D4E3D8] px-4 py-4">
         <div className="flex items-center gap-3 rounded-xl border border-[#D4E3D8] bg-white/55 px-3 py-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F2E8C9] text-[#A47A2D]">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="h-4 w-4" strokeWidth="1.8">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              className="h-4 w-4"
+              strokeWidth="1.8"
+            >
               <path d="M12 3 4 7v5c0 4.6 3.4 7.7 8 9 4.6-1.3 8-4.4 8-9V7l-8-4Z" />
               <path d="m9 12 2 2 4-4" />
             </svg>
           </div>
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#80998A]">Sistem</div>
-            <div className="mt-0.5 text-xs text-[#5F796A]">E-Kinerja Universitas</div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#80998A]">
+              Sistem
+            </div>
+            <div className="mt-0.5 text-xs text-[#5F796A]">
+              E-Kinerja Universitas
+            </div>
           </div>
         </div>
       </div>
