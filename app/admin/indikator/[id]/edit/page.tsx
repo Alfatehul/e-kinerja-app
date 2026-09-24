@@ -62,6 +62,7 @@ export default async function EditIndikatorPage({
         unit: formData.get("unit") as string,
         weight: Number(formData.get("weight")),
         period: formData.get("period") as string,
+        quarter: formData.get("quarter") as string,
         deadline: formData.get("deadline") as string,
       })
       .eq("id", id);
@@ -272,6 +273,24 @@ export default async function EditIndikatorPage({
                 placeholder="Contoh: 2026"
                 className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg outline-none focus:border-[#1B2A4B] focus:ring-2 focus:ring-[#1B2A4B]/10"
               />
+            </div>
+
+            {/* TRIWULAN */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Triwulan
+              </label>
+              <select
+                name="quarter"
+                required
+                defaultValue={indicator.quarter ?? "1"}
+                className="w-full h-10 px-3 text-sm bg-white border border-gray-300 rounded-lg outline-none focus:border-[#1B2A4B] focus:ring-2 focus:ring-[#1B2A4B]/10"
+              >
+                <option value="1">Triwulan I (Januari - Maret)</option>
+                <option value="2">Triwulan II (April - Juni)</option>
+                <option value="3">Triwulan III (Juli - September)</option>
+                <option value="4">Triwulan IV (Oktober - Desember)</option>
+              </select>
             </div>
 
             {/* DEADLINE */}

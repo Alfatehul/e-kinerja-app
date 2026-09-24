@@ -12,16 +12,17 @@ type Assignment = {
     target: number;
     unit: string | null;
     deadline: string;
+    quarter: string | null;
   };
 };
 
 export default async function FakultasIndikatorPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; quarter?: string }>;
 }) {
   const session = await getCurrentProfile();
-  const { q, status } = await searchParams;
+  const { q, status, quarter } = await searchParams;
   const supabase = await createClient();
 
   const { data: assignments, error } = await supabase
@@ -38,7 +39,8 @@ export default async function FakultasIndikatorPage({
         assignment.indicators.code.toLowerCase().includes(search) ||
         assignment.indicators.name.toLowerCase().includes(search);
       const matchesStatus = !status || assignment.status === status;
-      return matchesSearch && matchesStatus;
+      const matchesQuarter = !quarter || assignment.indicators.quarter === quarter;
+      return matchesSearch && matchesStatus && matchesQuarter;
     },
   );
 
@@ -60,10 +62,61 @@ export default async function FakultasIndikatorPage({
         </p>
       </div>
 
+      <div>
+        <div className="mb-3 flex items-center justify-between">
+          <div>
+            <h2 className="text-sm font-bold text-[#334A3C]">Periode pelaporan</h2>
+            <p className="mt-1 text-xs text-[#849289]">
+              Pilih triwulan berdasarkan deadline indikator
+            </p>
+          </div>
+          {quarter && (
+            <a
+              href={`/fakultas/indikator${q || status ? `?${new URLSearchParams({ ...(q ? { q } : {}), ...(status ? { status } : {}) })}` : ""}`}
+              className="text-xs font-semibold text-[#64736A] hover:text-[#0B5B35] hover:underline"
+            >
+              Semua periode
+            </a>
+          )}
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {[
+            { value: "1", label: "Triwulan I", months: "Januari – Maret", color: "bg-[#EEF5F0] text-[#527160]" },
+            { value: "2", label: "Triwulan II", months: "April – Juni", color: "bg-[#F5F2E9] text-[#806F43]" },
+            { value: "3", label: "Triwulan III", months: "Juli – September", color: "bg-[#EEF2F5] text-[#557083]" },
+            { value: "4", label: "Triwulan IV", months: "Oktober – Desember", color: "bg-[#F5EEEE] text-[#86615D]" },
+          ].map((item) => {
+            const count = (assignments ?? []).filter((assignment) => {
+              return assignment.indicators?.quarter === item.value;
+            }).length;
+            const hrefParams = new URLSearchParams();
+            if (q) hrefParams.set("q", q);
+            if (status) hrefParams.set("status", status);
+            hrefParams.set("quarter", item.value);
+            return (
+              <a
+                key={item.value}
+                href={`/fakultas/indikator?${hrefParams.toString()}`}
+                className={`rounded-2xl border border-[#DCE6DF] p-4 transition hover:-translate-y-0.5 hover:border-[#B9D7C1] hover:shadow-sm ${quarter === item.value ? "ring-2 ring-[#8FB49A] ring-offset-2" : "bg-white"}`}
+              >
+                <div className={`mb-4 flex h-9 w-9 items-center justify-center rounded-xl text-sm font-bold ${item.color}`}>
+                  Q{item.value}
+                </div>
+                <p className="text-sm font-bold text-[#334A3C]">{item.label}</p>
+                <p className="mt-1 text-[11px] text-[#849289]">{item.months}</p>
+                <p className="mt-3 text-2xl font-bold text-[#17231D]">{count}</p>
+                <p className="text-[11px] text-[#849289]">indikator</p>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+
       <form
         method="get"
         className="grid gap-3 rounded-2xl border border-[#DCE6DF] bg-white p-4 shadow-sm md:grid-cols-[1.5fr_1fr_auto]"
       >
+        {quarter && <input type="hidden" name="quarter" value={quarter} />}
         <div>
           <label htmlFor="q" className="mb-1.5 block text-xs font-semibold text-[#334A3C]">
             Cari indikator
@@ -91,7 +144,7 @@ export default async function FakultasIndikatorPage({
           <button type="submit" className="rounded-xl bg-[#0B5B35] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#073B25]">
             Filter
           </button>
-          {(q || status) && (
+          {(q || status || quarter) && (
             <a href="/fakultas/indikator" className="rounded-xl border border-[#DCE6DF] px-4 py-2.5 text-sm font-semibold text-[#64736A] hover:bg-[#F5F8F5]">
               Reset
             </a>

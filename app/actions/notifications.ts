@@ -12,10 +12,12 @@ export async function dismissNotification(notificationId: string) {
   if (!normalizedId) throw new Error("ID notifikasi tidak valid.");
 
   const supabase = await createClient();
-  const { error } = await supabase.from("notification_dismissals").upsert(
-    { user_id: session.user.id, notification_id: normalizedId },
-    { onConflict: "user_id,notification_id" },
-  );
+  const { error } = await supabase
+    .from("notification_dismissals")
+    .upsert(
+      { user_id: session.user.id, notification_id: normalizedId },
+      { onConflict: "user_id,notification_id" },
+    );
 
   if (error) throw new Error(error.message);
   revalidatePath("/admin", "layout");

@@ -74,7 +74,14 @@ export default async function PengisianDetailPage({
           {assignment.indicators.name}
         </p>
         <div className="mt-3">
-          <StatusBadge status={assignment.status} />
+          <div className="flex flex-wrap items-center gap-2">
+            <StatusBadge status={assignment.status} />
+            {assignment.indicators.quarter && (
+              <span className="rounded-full bg-[#EEF2F5] px-3 py-1 text-xs font-bold text-[#557083]">
+                Triwulan {assignment.indicators.quarter}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 

@@ -41,6 +41,7 @@ export default async function TambahIndikatorPage() {
         unit: formData.get("unit") as string,
         weight: Number(formData.get("weight")),
         period: formData.get("period") as string,
+        quarter: formData.get("quarter") as string,
         deadline: formData.get("deadline") as string,
       })
       .select()
@@ -201,8 +202,8 @@ export default async function TambahIndikatorPage() {
             </div>
           </div>
 
-          {/* PERIODE + DEADLINE */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* PERIODE + TRIWULAN + DEADLINE */}
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             <div>
               <label className="block text-sm font-medium text-[#374151] mb-1.5">
                 Periode
@@ -213,6 +214,24 @@ export default async function TambahIndikatorPage() {
                 className="w-full border border-[#D1D5DB] rounded-lg px-3 py-2.5 text-sm text-[#1F2937] outline-none transition focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/10"
                 placeholder="Contoh: Tahunan 2026"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[#374151] mb-1.5">
+                Triwulan
+                <span className="text-red-500 ml-1">*</span>
+              </label>
+              <select
+                name="quarter"
+                required
+                defaultValue="1"
+                className="w-full border border-[#D1D5DB] rounded-lg px-3 py-2.5 text-sm text-[#1F2937] bg-white outline-none transition focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/10"
+              >
+                <option value="1">Triwulan I (Januari - Maret)</option>
+                <option value="2">Triwulan II (April - Juni)</option>
+                <option value="3">Triwulan III (Juli - September)</option>
+                <option value="4">Triwulan IV (Oktober - Desember)</option>
+              </select>
             </div>
 
             <div>
