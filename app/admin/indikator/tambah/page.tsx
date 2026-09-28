@@ -15,6 +15,29 @@ const categories = [
   "Akreditasi",
 ];
 
+const units = [
+  "tahun",
+  "orang",
+  "OB",
+  "OLT",
+  "OH",
+  "LS",
+  "paket",
+  "meter",
+  "unit",
+  "OM",
+  "SKS",
+  "TM",
+  "buah",
+  "semester",
+  "prodi",
+  "bulan",
+  "artikel",
+  "index",
+  "judul",
+  "%",
+];
+
 export default async function TambahIndikatorPage() {
   const supabase = await createClient();
 
@@ -163,11 +186,21 @@ export default async function TambahIndikatorPage() {
                 Satuan
               </label>
 
-              <input
+              <select
                 name="unit"
-                className="w-full border border-[#D1D5DB] rounded-lg px-3 py-2.5 text-sm text-[#1F2937] outline-none transition focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/10"
-                placeholder="%, publikasi, orang, dll."
-              />
+                required
+                defaultValue=""
+                className="w-full border border-[#D1D5DB] rounded-lg px-3 py-2.5 text-sm text-[#1F2937] bg-white outline-none transition focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/10"
+              >
+                <option value="" disabled>
+                  Pilih satuan
+                </option>
+                {units.map((unit) => (
+                  <option key={unit} value={unit}>
+                    {unit}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 

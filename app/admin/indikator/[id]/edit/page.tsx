@@ -15,6 +15,29 @@ const categories = [
   "Akreditasi",
 ];
 
+const units = [
+  "tahun",
+  "orang",
+  "OB",
+  "OLT",
+  "OH",
+  "LS",
+  "paket",
+  "meter",
+  "unit",
+  "OM",
+  "SKS",
+  "TM",
+  "buah",
+  "semester",
+  "prodi",
+  "bulan",
+  "artikel",
+  "index",
+  "judul",
+  "%",
+];
+
 export default async function EditIndikatorPage({
   params,
 }: {
@@ -218,12 +241,23 @@ export default async function EditIndikatorPage({
                 Satuan
               </label>
 
-              <input
+              <select
                 name="unit"
                 defaultValue={indicator.unit ?? ""}
-                placeholder="Contoh: Persen, Orang, Dokumen"
-                className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg outline-none focus:border-[#1B2A4B] focus:ring-2 focus:ring-[#1B2A4B]/10"
-              />
+                className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg bg-white outline-none focus:border-[#1B2A4B] focus:ring-2 focus:ring-[#1B2A4B]/10"
+              >
+                <option value="" disabled>
+                  Pilih satuan
+                </option>
+                {indicator.unit && !units.includes(indicator.unit) && (
+                  <option value={indicator.unit}>{indicator.unit}</option>
+                )}
+                {units.map((unit) => (
+                  <option key={unit} value={unit}>
+                    {unit}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* TARGET */}

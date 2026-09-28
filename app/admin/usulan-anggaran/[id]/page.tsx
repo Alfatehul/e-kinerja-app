@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { verifyProposal } from "../actions";
 import StatusBadge from "@/components/StatusBadge";
 import DeleteProposalAdminButton from "@/components/DeleteProposalAdminButton";
-import DocumentUploader from "@/components/DocumentUploader";
 
 export default async function UsulanDetailAdminPage({
   params,
@@ -20,12 +19,6 @@ export default async function UsulanDetailAdminPage({
     .single();
 
   if (!proposal) notFound();
-
-  const { data: documents } = await supabase
-    .from("budget_documents")
-    .select("*")
-    .eq("entity_type", "proposal")
-    .eq("entity_id", id);
 
   const { data: history } = await supabase
     .from("budget_history")
@@ -116,6 +109,70 @@ export default async function UsulanDetailAdminPage({
       </div>
 
       <section className="rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6">
+        <div className="mb-5 border-b border-[#EDF2EE] pb-4">
+          <h2 className="text-base font-bold text-[#17231D]">
+            Klasifikasi anggaran dan keluaran
+          </h2>
+          <p className="mt-1 text-xs text-[#849289]">
+            Rincian struktur kegiatan dan target keluaran usulan.
+          </p>
+        </div>
+        <dl className="grid gap-5 text-sm sm:grid-cols-2">
+          {[
+            ["Kementerian Negara / Lembaga", proposal.kementerian_lembaga],
+            ["Unit Eselon I / II", proposal.unit_eselon],
+            ["Satker", proposal.satker],
+            ["Sasaran Kegiatan", proposal.sasaran_kegiatan],
+            ["Klasifikasi Rincian Output", proposal.klasifikasi_rincian_output],
+            ["Rincian Output", proposal.rincian_output],
+            ["Indikator RO", proposal.indikator_ro],
+            ["Volume Keluaran", proposal.volume_keluaran],
+            ["Satuan Ukuran Keluaran", proposal.satuan_ukuran_keluaran],
+          ].map(([label, value]) => (
+            <div key={label as string}>
+              <dt className="text-xs text-[#849289]">{label}</dt>
+              <dd className="mt-1 font-semibold text-[#334A3C]">{value || "—"}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <section className="rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6">
+        <div className="mb-5 border-b border-[#EDF2EE] pb-4">
+          <h2 className="text-base font-bold text-[#17231D]">
+            Rincian kebutuhan anggaran
+          </h2>
+          <p className="mt-1 text-xs text-[#849289]">
+            Detail kebutuhan yang diisi Fakultas / Unit (opsional).
+          </p>
+        </div>
+        <dl className="grid gap-5 text-sm sm:grid-cols-2">
+          {[
+            ["Sumber Dana", proposal.sumber_dana],
+            ["Volume", proposal.volume],
+            ["Satuan", proposal.satuan],
+            [
+              "Harga Satuan",
+              proposal.harga_satuan != null
+                ? `Rp ${Number(proposal.harga_satuan).toLocaleString("id-ID")}`
+                : null,
+            ],
+            [
+              "Jumlah",
+              proposal.jumlah != null
+                ? `Rp ${Number(proposal.jumlah).toLocaleString("id-ID")}`
+                : null,
+            ],
+          ].map(([label, value]) => (
+            <div key={label as string}>
+              <dt className="text-xs text-[#849289]">{label}</dt>
+              <dd className="mt-1 font-semibold text-[#334A3C]">{value || "—"}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <section className="rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6">
         <h2 className="text-base font-bold text-[#17231D]">Uraian kebutuhan</h2>
         <p className="mt-3 whitespace-pre-line text-sm leading-7 text-[#52645A]">
           {proposal.uraian}
@@ -132,6 +189,20 @@ export default async function UsulanDetailAdminPage({
             className="mt-3 inline-flex text-sm font-bold text-[#0B5B35] hover:underline"
           >
             Buka link dokumen TOR
+          </a>
+        </section>
+      )}
+
+      {proposal.rab_link && (
+        <section className="rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6">
+          <h2 className="text-base font-bold text-[#17231D]">Dokumen RAB</h2>
+          <a
+            href={proposal.rab_link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex text-sm font-bold text-[#0B5B35] hover:underline"
+          >
+            Buka link dokumen RAB
           </a>
         </section>
       )}
@@ -167,13 +238,6 @@ export default async function UsulanDetailAdminPage({
 
       {canReview && (
         <section className="rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6">
-          <DocumentUploader
-            entityType="proposal"
-            entityId={id}
-            facultyId={proposal.faculty_id}
-            documents={documents ?? []}
-            editable={true}
-          />
           <div className="my-5 border-t border-[#EDF2EE] pt-5">
             <h2 className="text-base font-bold text-[#17231D]">Tindakan verifikasi</h2>
             <p className="mt-1 text-xs text-[#849289]">

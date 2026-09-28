@@ -6,44 +6,9 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth";
 import { notifyAllBiro } from "@/lib/notifications";
 
-const allowedDocumentTypes = new Set([
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.ms-excel",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-]);
-
-async function saveUploadedDocument(
-  formData: FormData,
-  entityId: string,
-  facultyId: string,
-  supabase: Awaited<ReturnType<typeof createClient>>,
-) {
-  const document = formData.get("document");
-  if (!(document instanceof File) || document.size === 0) return;
-  if (!allowedDocumentTypes.has(document.type)) {
-    throw new Error("Dokumen harus berformat PDF, Word, atau Excel.");
-  }
-  if (document.size > 10 * 1024 * 1024) {
-    throw new Error("Ukuran dokumen maksimal 10 MB.");
-  }
-
-  const safeFileName = document.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-  const path = `${facultyId}/proposal/${entityId}/${Date.now()}-${safeFileName}`;
-  const { error: uploadError } = await supabase.storage
-    .from("budget-documents")
-    .upload(path, document, { contentType: document.type, upsert: false });
-  if (uploadError) throw new Error(`Gagal mengunggah dokumen: ${uploadError.message}`);
-
-  const { error: documentError } = await supabase.from("budget_documents").insert({
-    entity_type: "proposal",
-    entity_id: entityId,
-    file_name: document.name,
-    file_path: path,
-    file_size: `${(document.size / 1024).toFixed(0)} KB`,
-  });
-  if (documentError) throw new Error(`Gagal menyimpan dokumen: ${documentError.message}`);
+function optionalNumber(formData: FormData, name: string) {
+  const value = String(formData.get(name) ?? "").trim();
+  return value === "" ? null : Number(value);
 }
 
 export async function createProposal(formData: FormData) {
@@ -69,15 +34,26 @@ export async function createProposal(formData: FormData) {
       number,
       year: formData.get("year") as string,
       faculty_id: facultyId,
+      kementerian_lembaga: formData.get("kementerian_lembaga") as string,
+      unit_eselon: formData.get("unit_eselon") as string,
+      satker: formData.get("satker") as string,
+      sasaran_kegiatan: formData.get("sasaran_kegiatan") as string,
+      klasifikasi_rincian_output: formData.get("klasifikasi_rincian_output") as string,
+      rincian_output: formData.get("rincian_output") as string,
+      indikator_ro: formData.get("indikator_ro") as string,
+      volume_keluaran: Number(formData.get("volume_keluaran")),
+      satuan_ukuran_keluaran: formData.get("satuan_ukuran_keluaran") as string,
       program: formData.get("program") as string,
       kegiatan: formData.get("kegiatan") as string,
       uraian: formData.get("uraian") as string,
-      volume: 1,
-      satuan: "total",
-      harga_satuan: Number(formData.get("total_anggaran")),
+      volume: optionalNumber(formData, "volume"),
+      satuan: (formData.get("satuan") as string) || null,
+      harga_satuan: optionalNumber(formData, "harga_satuan"),
+      jumlah: optionalNumber(formData, "jumlah"),
       tor_link: (formData.get("tor_link") as string) || null,
+      rab_link: (formData.get("rab_link") as string) || null,
       subkegiatan: null,
-      sumber_dana: null,
+      sumber_dana: (formData.get("sumber_dana") as string) || null,
       pengusul_id: session!.user.id,
       status: "Draft",
     })
@@ -85,13 +61,6 @@ export async function createProposal(formData: FormData) {
     .single();
 
   if (error) throw new Error(error.message);
-
-  await saveUploadedDocument(
-    formData,
-    data.id,
-    facultyId,
-    supabase,
-  );
 
   await supabase.from("budget_history").insert({
     entity_type: "proposal",
@@ -108,15 +77,26 @@ export async function updateProposal(id: string, formData: FormData) {
   const { error } = await supabase
     .from("budget_proposals")
     .update({
+      kementerian_lembaga: formData.get("kementerian_lembaga") as string,
+      unit_eselon: formData.get("unit_eselon") as string,
+      satker: formData.get("satker") as string,
+      sasaran_kegiatan: formData.get("sasaran_kegiatan") as string,
+      klasifikasi_rincian_output: formData.get("klasifikasi_rincian_output") as string,
+      rincian_output: formData.get("rincian_output") as string,
+      indikator_ro: formData.get("indikator_ro") as string,
+      volume_keluaran: Number(formData.get("volume_keluaran")),
+      satuan_ukuran_keluaran: formData.get("satuan_ukuran_keluaran") as string,
       program: formData.get("program") as string,
       kegiatan: formData.get("kegiatan") as string,
       uraian: formData.get("uraian") as string,
-      volume: 1,
-      satuan: "total",
-      harga_satuan: Number(formData.get("total_anggaran")),
+      volume: optionalNumber(formData, "volume"),
+      satuan: (formData.get("satuan") as string) || null,
+      harga_satuan: optionalNumber(formData, "harga_satuan"),
+      jumlah: optionalNumber(formData, "jumlah"),
       tor_link: (formData.get("tor_link") as string) || null,
+      rab_link: (formData.get("rab_link") as string) || null,
       subkegiatan: null,
-      sumber_dana: null,
+      sumber_dana: (formData.get("sumber_dana") as string) || null,
     })
     .eq("id", id);
   if (error) throw new Error(error.message);

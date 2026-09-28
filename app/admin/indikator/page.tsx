@@ -5,27 +5,37 @@ import DeleteIndicatorButton from "@/components/DeleteIndicatorButton";
 export default async function IndikatorListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string; status?: string; quarter?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; status?: string; quarter?: string; faculty?: string }>;
 }) {
-  const { q, category, status, quarter } = await searchParams;
+  const { q, category, status, quarter, faculty } = await searchParams;
   const supabase = await createClient();
   const indicatorsQuery = supabase
     .from("indicators")
     .select("*")
     .order("created_at", { ascending: true });
   const categoriesQuery = supabase.from("indicators").select("category").order("category");
+  const facultiesQuery = supabase.from("faculties").select("id, name, code").eq("status", "Aktif").order("name");
+  const assignmentsQuery = faculty
+    ? supabase.from("indicator_assignments").select("indicator_id").eq("faculty_id", faculty)
+    : null;
   if (q) indicatorsQuery.or(`code.ilike.%${q}%,name.ilike.%${q}%`);
   if (category) indicatorsQuery.eq("category", category);
   if (status) indicatorsQuery.eq("status", status);
-  const [{ data: indicators, error }, { data: categoryRows }] = await Promise.all([
+  const [{ data: indicators, error }, { data: categoryRows }, { data: faculties }, assignmentResult] = await Promise.all([
     indicatorsQuery,
     categoriesQuery,
+    facultiesQuery,
+    assignmentsQuery ?? Promise.resolve({ data: null, error: null }),
   ]);
 
   const categories = Array.from(
     new Set((categoryRows ?? []).map((row) => row.category).filter(Boolean)),
   ).sort();
-  const filteredIndicators = (indicators ?? []).filter((indicator) =>
+  const assignedIndicatorIds = new Set((assignmentResult.data ?? []).map((item) => item.indicator_id));
+  const facultyFilteredIndicators = (indicators ?? []).filter((indicator) =>
+    !faculty || assignedIndicatorIds.has(indicator.id),
+  );
+  const filteredIndicators = facultyFilteredIndicators.filter((indicator) =>
     !quarter || indicator.quarter === quarter,
   );
 
@@ -61,7 +71,7 @@ export default async function IndikatorListPage({
           </div>
           {quarter && (
             <Link
-              href={`/admin/indikator${q || category || status ? `?${new URLSearchParams({ ...(q ? { q } : {}), ...(category ? { category } : {}), ...(status ? { status } : {}) })}` : ""}`}
+              href={`/admin/indikator${q || category || status || faculty ? `?${new URLSearchParams({ ...(q ? { q } : {}), ...(category ? { category } : {}), ...(status ? { status } : {}), ...(faculty ? { faculty } : {}) })}` : ""}`}
               className="text-xs font-semibold text-[#64736A] hover:text-[#0B5B35] hover:underline"
             >
               Semua periode
@@ -75,13 +85,14 @@ export default async function IndikatorListPage({
             { value: "3", label: "Triwulan III", months: "Juli – September", color: "bg-[#EEF2F5] text-[#557083]" },
             { value: "4", label: "Triwulan IV", months: "Oktober – Desember", color: "bg-[#F5EEEE] text-[#86615D]" },
           ].map((item) => {
-            const count = (indicators ?? []).filter((indicator) => {
+            const count = facultyFilteredIndicators.filter((indicator) => {
               return indicator.quarter === item.value;
             }).length;
             const params = new URLSearchParams();
             if (q) params.set("q", q);
             if (category) params.set("category", category);
             if (status) params.set("status", status);
+            if (faculty) params.set("faculty", faculty);
             params.set("quarter", item.value);
             return (
               <Link
@@ -104,9 +115,27 @@ export default async function IndikatorListPage({
 
       <form
         method="get"
-        className="grid gap-3 rounded-2xl border border-[#DCE6DF] bg-white p-4 shadow-sm md:grid-cols-[1.5fr_1fr_1fr_auto]"
+        className="grid gap-3 rounded-2xl border border-[#DCE6DF] bg-white p-4 shadow-sm md:grid-cols-[1.4fr_1fr_1fr_1fr_auto]"
       >
         {quarter && <input type="hidden" name="quarter" value={quarter} />}
+        <div>
+          <label htmlFor="faculty" className="mb-1.5 block text-xs font-semibold text-[#334A3C]">
+            Fakultas / Unit
+          </label>
+          <select
+            id="faculty"
+            name="faculty"
+            defaultValue={faculty ?? ""}
+            className="w-full rounded-xl border border-[#DCE6DF] bg-[#F8FBF8] px-3 py-2.5 text-sm text-[#17231D] outline-none focus:border-[#7FB493] focus:ring-2 focus:ring-[#7FB493]/15"
+          >
+            <option value="">Semua fakultas / unit</option>
+            {(faculties ?? []).map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.code ? `${item.code} — ` : ""}{item.name}
+              </option>
+            ))}
+          </select>
+        </div>
         <div>
           <label htmlFor="q" className="mb-1.5 block text-xs font-semibold text-[#334A3C]">
             Cari indikator
@@ -157,7 +186,7 @@ export default async function IndikatorListPage({
           >
             Filter
           </button>
-          {(q || category || status || quarter) && (
+          {(q || category || status || quarter || faculty) && (
             <Link
               href="/admin/indikator"
               className="rounded-xl border border-[#DCE6DF] px-4 py-2.5 text-sm font-semibold text-[#64736A] hover:bg-[#F5F8F5]"
