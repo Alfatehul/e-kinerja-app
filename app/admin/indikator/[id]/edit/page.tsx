@@ -77,13 +77,13 @@ export default async function EditIndikatorPage({
     const { error } = await supabase
       .from("indicators")
       .update({
-        code: formData.get("code") as string,
         name: formData.get("name") as string,
         description: formData.get("description") as string,
         category: formData.get("category") as string,
-        target: Number(formData.get("target")),
+        target: String(formData.get("target") ?? "").trim()
+          ? Number(formData.get("target"))
+          : null,
         unit: formData.get("unit") as string,
-        weight: Number(formData.get("weight")),
         period: formData.get("period") as string,
         quarter: formData.get("quarter") as string,
         deadline: formData.get("deadline") as string,
@@ -156,18 +156,15 @@ export default async function EditIndikatorPage({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* KODE */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Kode Indikator
               </label>
 
               <input
-                name="code"
-                required
                 defaultValue={indicator.code}
-                placeholder="Contoh: IKU-01"
-                className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg outline-none transition focus:border-[#1B2A4B] focus:ring-2 focus:ring-[#1B2A4B]/10"
+                readOnly
+                className="w-full h-10 px-3 text-sm border border-gray-200 rounded-lg bg-gray-50 text-gray-500 outline-none"
               />
             </div>
 
@@ -207,11 +204,11 @@ export default async function EditIndikatorPage({
         <div className="p-6 border-b border-gray-100">
           <div className="mb-5">
             <h2 className="text-base font-semibold text-gray-800">
-              Target & Penilaian
+              Target dan Periode
             </h2>
 
             <p className="text-xs text-gray-500 mt-1">
-              Tentukan kategori, target, bobot, dan periode indikator.
+              Tentukan kategori, target, satuan, dan periode indikator.
             </p>
           </div>
 
@@ -269,30 +266,9 @@ export default async function EditIndikatorPage({
               <input
                 name="target"
                 type="number"
-                required
                 defaultValue={indicator.target}
                 className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg outline-none focus:border-[#1B2A4B] focus:ring-2 focus:ring-[#1B2A4B]/10"
               />
-            </div>
-
-            {/* BOBOT */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Bobot (%)
-              </label>
-
-              <div className="relative">
-                <input
-                  name="weight"
-                  type="number"
-                  defaultValue={indicator.weight}
-                  className="w-full h-10 px-3 pr-10 text-sm border border-gray-300 rounded-lg outline-none focus:border-[#1B2A4B] focus:ring-2 focus:ring-[#1B2A4B]/10"
-                />
-
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
-                  %
-                </span>
-              </div>
             </div>
 
             {/* PERIODE */}

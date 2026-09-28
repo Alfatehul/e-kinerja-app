@@ -98,13 +98,13 @@ export default async function EditIndikatorPage({
     const { error } = await supabase
       .from("indicators")
       .update({
-        code: formData.get("code") as string,
         name: formData.get("name") as string,
         description: formData.get("description") as string,
         category: formData.get("category") as string,
-        target: Number(formData.get("target")),
+        target: String(formData.get("target") ?? "").trim()
+          ? Number(formData.get("target"))
+          : null,
         unit: formData.get("unit") as string,
-        weight: Number(formData.get("weight")),
         period: formData.get("period") as string,
         deadline: formData.get("deadline") as string,
       })
@@ -197,10 +197,9 @@ export default async function EditIndikatorPage({
               </label>
 
               <input
-                name="code"
-                required
                 defaultValue={indicator.code}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#1B2A4B] focus:ring-2 focus:ring-[#1B2A4B]/10"
+                readOnly
+                className="w-full border border-gray-200 rounded-lg bg-gray-50 px-3 py-2.5 text-sm text-gray-500 outline-none"
               />
             </div>
 
@@ -234,15 +233,15 @@ export default async function EditIndikatorPage({
           </div>
         </div>
 
-        {/* Target & Bobot */}
+        {/* Target */}
         <div className="p-6 border-b border-gray-100">
           <div className="mb-5">
             <h2 className="text-base font-semibold text-gray-800">
-              Target dan Penilaian
+              Target Indikator
             </h2>
 
             <p className="text-xs text-gray-500 mt-1">
-              Tentukan target, satuan, bobot, dan periode indikator.
+              Tentukan target, satuan, dan periode indikator.
             </p>
           </div>
 
@@ -289,22 +288,7 @@ export default async function EditIndikatorPage({
               <input
                 name="target"
                 type="number"
-                required
                 defaultValue={indicator.target}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#1B2A4B] focus:ring-2 focus:ring-[#1B2A4B]/10"
-              />
-            </div>
-
-            {/* Bobot */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Bobot (%)
-              </label>
-
-              <input
-                name="weight"
-                type="number"
-                defaultValue={indicator.weight}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#1B2A4B] focus:ring-2 focus:ring-[#1B2A4B]/10"
               />
             </div>

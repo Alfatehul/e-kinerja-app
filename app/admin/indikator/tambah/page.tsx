@@ -53,16 +53,32 @@ export default async function TambahIndikatorPage() {
 
     const selectedFaculties = formData.getAll("faculties") as string[];
 
+    const { data: existingIndicators, error: codeQueryError } = await supabase
+      .from("indicators")
+      .select("code");
+
+    if (codeQueryError) {
+      throw new Error(codeQueryError.message);
+    }
+
+    const nextCodeNumber =
+      (existingIndicators ?? []).reduce((highest, indicator) => {
+        const match = /^IND-(\d+)$/i.exec(indicator.code ?? "");
+        return match ? Math.max(highest, Number(match[1])) : highest;
+      }, 0) + 1;
+    const code = `IND-${String(nextCodeNumber).padStart(3, "0")}`;
+
     const { data: newIndicator, error } = await supabase
       .from("indicators")
       .insert({
-        code: formData.get("code") as string,
+        code,
         name: formData.get("name") as string,
         description: formData.get("description") as string,
         category: formData.get("category") as string,
-        target: Number(formData.get("target")),
+        target: String(formData.get("target") ?? "").trim()
+          ? Number(formData.get("target"))
+          : null,
         unit: formData.get("unit") as string,
-        weight: Number(formData.get("weight")),
         period: formData.get("period") as string,
         quarter: formData.get("quarter") as string,
         deadline: formData.get("deadline") as string,
@@ -120,21 +136,6 @@ export default async function TambahIndikatorPage() {
         </div>
 
         <div className="p-6 flex flex-col gap-5">
-          {/* KODE */}
-          <div>
-            <label className="block text-sm font-medium text-[#374151] mb-1.5">
-              Kode Indikator
-              <span className="text-red-500 ml-1">*</span>
-            </label>
-
-            <input
-              name="code"
-              required
-              className="w-full border border-[#D1D5DB] rounded-lg px-3 py-2.5 text-sm text-[#1F2937] outline-none transition focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/10"
-              placeholder="Contoh: IND-011"
-            />
-          </div>
-
           {/* NAMA */}
           <div>
             <label className="block text-sm font-medium text-[#374151] mb-1.5">
@@ -204,35 +205,18 @@ export default async function TambahIndikatorPage() {
             </div>
           </div>
 
-          {/* TARGET + BOBOT */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <label className="block text-sm font-medium text-[#374151] mb-1.5">
-                Target
-                <span className="text-red-500 ml-1">*</span>
-              </label>
+          {/* TARGET */}
+          <div>
+            <label className="block text-sm font-medium text-[#374151] mb-1.5">
+              Target
+            </label>
 
-              <input
-                name="target"
-                type="number"
-                required
-                className="w-full border border-[#D1D5DB] rounded-lg px-3 py-2.5 text-sm text-[#1F2937] outline-none transition focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/10"
-                placeholder="Contoh: 100"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-[#374151] mb-1.5">
-                Bobot (%)
-              </label>
-
-              <input
-                name="weight"
-                type="number"
-                defaultValue={5}
-                className="w-full border border-[#D1D5DB] rounded-lg px-3 py-2.5 text-sm text-[#1F2937] outline-none transition focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/10"
-              />
-            </div>
+            <input
+              name="target"
+              type="number"
+              className="w-full border border-[#D1D5DB] rounded-lg px-3 py-2.5 text-sm text-[#1F2937] outline-none transition focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/10"
+              placeholder="Contoh: 100"
+            />
           </div>
 
           {/* PERIODE + TRIWULAN + DEADLINE */}
