@@ -8,5 +8,11 @@ export default function DeleteIndicatorButton({ id }: { id: string }) {
     await deleteIndicator(id);
   }
 
-  return <ConfirmActionButton onConfirm={handleDelete} message="Indikator ini beserta seluruh data terkait akan dihapus permanen. Lanjutkan?" className="text-red-600 text-xs font-semibold hover:underline" />;
+  return (
+    <ConfirmActionButton
+      onConfirm={handleDelete}
+      message="Indikator ini beserta seluruh data terkait akan dihapus permanen. Lanjutkan?"
+      className="text-red-600 text-xs font-semibold hover:underline"
+    />
+  );
 }
