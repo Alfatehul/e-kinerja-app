@@ -90,7 +90,7 @@ export default function FormModal({
               <XMarkIcon className="h-5 w-5" />
             </button>
             <div
-              className={`form-modal-content min-h-0 overflow-y-auto ${showTitle ? "p-3 sm:p-5" : "p-1 sm:p-3"}`}
+              className={`form-modal-content min-h-0 overflow-y-auto text-left ${showTitle ? "p-3 sm:p-5" : "p-1 sm:p-3"}`}
             >
               {children}
             </div>

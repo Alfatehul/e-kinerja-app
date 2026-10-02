@@ -72,14 +72,19 @@ export default async function PengisianDetailPage({
     assignment.status,
   );
   const today = getTodayJakarta();
-  const pct = assignment.indicators.target
-    ? Math.min(
-        100,
-        Math.round(
-          (assignment.realization / assignment.indicators.target) * 1000,
-        ) / 10,
-      )
-    : 0;
+  const pct =
+    assignment.indicators.target == null
+      ? assignment.realization > 0
+        ? 100
+        : 0
+      : assignment.indicators.target > 0
+        ? Math.min(
+            100,
+            Math.round(
+              (assignment.realization / assignment.indicators.target) * 1000,
+            ) / 10,
+          )
+        : 0;
 
   async function handleAdd(formData: FormData) {
     "use server";
@@ -123,22 +128,22 @@ export default async function PengisianDetailPage({
 
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <div className="min-w-0 rounded-xl border border-[#DCE6DF] bg-white p-3 sm:rounded-2xl sm:p-4">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-[#849289] sm:text-xs">Target</p>
-          <p className="mt-1.5 break-words text-base font-bold leading-tight text-[#334A3C] sm:text-lg">
+          <p className="text-xs font-semibold text-[#849289] sm:text-sm">Target</p>
+          <p className="mt-1.5 break-words text-base font-bold leading-snug text-[#334A3C] sm:text-lg">
             {assignment.indicators.target ?? "-"}{" "}
             <span className="text-xs font-semibold text-[#64736A] sm:text-sm">{assignment.indicators.unit}</span>
           </p>
         </div>
         <div className="min-w-0 rounded-xl border border-[#B9D7C1] bg-[#F1F8F3] p-3 sm:rounded-2xl sm:p-4">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-[#64736A] sm:text-xs">Realisasi</p>
-          <p className="mt-1.5 break-words text-base font-bold leading-tight text-[#0B5B35] sm:text-lg">
+          <p className="text-xs font-semibold text-[#64736A] sm:text-sm">Realisasi</p>
+          <p className="mt-1.5 break-words text-base font-bold leading-snug text-[#0B5B35] sm:text-lg">
             {assignment.realization ?? 0}{" "}
             <span className="text-xs font-semibold text-[#527160] sm:text-sm">{assignment.realization_unit ?? assignment.indicators.unit ?? ""}</span>
           </p>
         </div>
         <div className="min-w-0 rounded-xl border border-[#DCE6DF] bg-white p-3 sm:rounded-2xl sm:p-4">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-[#849289] sm:text-xs">Capaian</p>
-          <p className="mt-1.5 text-base font-bold leading-tight text-[#334A3C] sm:text-lg">{pct}%</p>
+          <p className="text-xs font-semibold text-[#849289] sm:text-sm">Capaian</p>
+          <p className="mt-1.5 text-base font-bold leading-snug text-[#334A3C] sm:text-lg">{pct}%</p>
         </div>
       </div>
 
@@ -155,12 +160,12 @@ export default async function PengisianDetailPage({
           className="flex flex-col gap-4 rounded-2xl border border-[#DCE6DF] bg-white p-4 sm:p-5"
         >
           <div className="border-b border-[#EDF2EE] pb-3">
-            <h3 className="text-sm font-bold text-[#17231D]">Tambah realisasi</h3>
-            <p className="mt-1 text-xs leading-5 text-[#849289]">Isi jumlah, satuan, dan tanggal realisasi.</p>
+            <h3 className="text-base font-bold text-[#17231D]">Tambah realisasi</h3>
+            <p className="mt-1 text-sm leading-5 text-[#849289]">Masukkan jumlah, satuan, dan tanggal realisasi.</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-[#334A3C]">Jumlah realisasi</label>
+              <label className="mb-1.5 block text-sm font-semibold text-[#334A3C]">Jumlah realisasi</label>
               <input
                 name="amount"
                 type="number"
@@ -170,7 +175,7 @@ export default async function PengisianDetailPage({
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-[#334A3C]">Satuan realisasi</label>
+              <label className="mb-1.5 block text-sm font-semibold text-[#334A3C]">Satuan realisasi</label>
               <select
                 name="realization_unit"
                 required
@@ -194,7 +199,7 @@ export default async function PengisianDetailPage({
               </select>
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-[#334A3C]">Tanggal</label>
+              <label className="mb-1.5 block text-sm font-semibold text-[#334A3C]">Tanggal realisasi</label>
               <input
                 name="date"
                 type="date"
@@ -214,8 +219,8 @@ export default async function PengisianDetailPage({
       >
         {returnTo && <input type="hidden" name="return_path" value={returnTo} />}
         <div className="flex-1">
-          <label className="mb-1.5 block text-xs font-semibold text-[#334A3C]">
-            Link Dokumen Pendukung <span className="text-red-600">*</span>
+          <label className="mb-1.5 block text-sm font-semibold text-[#334A3C]">
+            Tautan dokumen pendukung <span className="text-red-600">*</span>
           </label>
           <input
             name="document_link"
@@ -226,12 +231,12 @@ export default async function PengisianDetailPage({
             required
           />
         </div>
-        <SubmitButton label="Simpan link" loadingLabel="Menyimpan..." className="px-4 py-2.5" />
+        <SubmitButton label="Simpan tautan" loadingLabel="Menyimpan..." className="px-4 py-2.5" />
       </form>
 
       <div className="overflow-hidden rounded-2xl border border-[#DCE6DF] bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-[#DCE6DF] bg-[#F8FBF8] px-4 py-3">
-          <h3 className="text-sm font-bold text-[#17231D]">Riwayat realisasi</h3>
+          <h3 className="text-base font-bold text-[#17231D]">Riwayat realisasi</h3>
           <span className="text-xs text-[#849289]">{logs?.length ?? 0} entri</span>
         </div>
         {logs?.length === 0 && (

@@ -14,7 +14,7 @@ type Assignment = {
   indicators: {
     code: string;
     name: string;
-    target: number;
+    target: number | null;
     unit: string | null;
     quarter: string | null;
   } | null;
@@ -97,6 +97,8 @@ export default async function PengisianPage({
           })}
         </div>
       </div>
+      {quarter && (
+        <>
       <form method="get" className="grid gap-3 rounded-2xl border border-[#DCE6DF] bg-white p-4 shadow-sm md:grid-cols-[1.5fr_1fr_auto]">
         {quarter && <input type="hidden" name="quarter" value={quarter} />}
         <div>
@@ -132,11 +134,28 @@ export default async function PengisianPage({
                 <th className="px-5 py-4 font-bold">Realisasi</th>
                 <th className="px-5 py-4 font-bold">Status</th>
                 <th className="px-5 py-4 font-bold">Dokumen</th>
+                <th className="px-5 py-4 font-bold">Capaian</th>
                 <th className="px-5 py-4 text-right font-bold">Aksi</th>
               </tr>
             </thead>
             <tbody>
-              {rows?.map((assignment, index) => (
+              {rows?.map((assignment, index) => {
+                const target = assignment.indicators?.target;
+                const realization = assignment.realization ?? 0;
+                const achievement = !assignment.indicators
+                  ? null
+                  : target == null
+                    ? realization > 0
+                      ? 100
+                      : 0
+                    : target > 0
+                      ? Math.min(
+                          100,
+                          Math.round((realization / target) * 1000) / 10,
+                        )
+                      : 0;
+
+                return (
                 <tr key={assignment.id} className="border-t border-[#E8EFEA] transition-colors hover:bg-[#FAFCFA]">
                   <td className="px-5 py-4 text-center text-[#849289]">{index + 1}</td>
                   <td className="px-5 py-4 font-bold text-[#0B5B35]">{assignment.indicators?.code ?? "-"}</td>
@@ -146,6 +165,9 @@ export default async function PengisianPage({
                   <td className="px-5 py-4"><StatusBadge status={assignment.status ?? "Draft"} /></td>
                   <td className="px-5 py-4">
                     {assignment.document_link ? <a href={assignment.document_link} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#0B5B35] hover:underline">Buka link</a> : <span className="text-xs text-[#849289]">Belum ada</span>}
+                  </td>
+                  <td className="px-5 py-4 font-medium text-[#52645A]">
+                    {achievement == null ? "-" : `${achievement}%`}
                   </td>
                   <td className="px-5 py-4 text-right">
                     <FormModal
@@ -162,12 +184,15 @@ export default async function PengisianPage({
                     </FormModal>
                   </td>
                 </tr>
-              ))}
-              {rows?.length === 0 && <tr><td colSpan={8} className="px-5 py-12 text-center text-[#64736A]">Tidak ada indikator yang sesuai dengan filter.</td></tr>}
+              );
+              })}
+              {rows?.length === 0 && <tr><td colSpan={9} className="px-5 py-12 text-center text-[#64736A]">Tidak ada indikator yang sesuai dengan filter.</td></tr>}
             </tbody>
           </table>
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 }
