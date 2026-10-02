@@ -35,7 +35,7 @@ export async function createThreadForFaculty(formData: FormData) {
 
   if (error) throw new Error(error.message);
   revalidatePath("/admin/helpdesk");
-  redirect(`/admin/helpdesk/${data.id}`);
+  redirect(`/admin/helpdesk/${data.id}?notice=` + encodeURIComponent("Percakapan Helpdesk berhasil dibuat."));
 }
 
 export async function deleteThread(threadId: string) {
@@ -48,5 +48,5 @@ export async function deleteThread(threadId: string) {
 
   if (error) throw new Error(error.message);
   revalidatePath("/admin/helpdesk");
-  redirect("/admin/helpdesk");
+  redirect("/admin/helpdesk?notice=" + encodeURIComponent("Percakapan Helpdesk berhasil dihapus."));
 }

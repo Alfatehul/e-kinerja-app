@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 async function recomputeRealization(assignmentId: string) {
@@ -47,6 +48,7 @@ export async function addRealization(assignmentId: string, formData: FormData) {
   }
 
   revalidatePath(`/fakultas/pengisian/${assignmentId}`);
+  redirect(`/fakultas/pengisian/${assignmentId}?notice=` + encodeURIComponent("Realisasi berhasil ditambahkan."));
 }
 
 export async function deleteRealization(assignmentId: string, logId: string) {
@@ -62,6 +64,19 @@ export async function deleteRealization(assignmentId: string, logId: string) {
 
 export async function submitForVerification(assignmentId: string) {
   const supabase = await createClient();
+  const { data: assignment, error: assignmentError } = await supabase
+    .from("indicator_assignments")
+    .select("document_link")
+    .eq("id", assignmentId)
+    .single();
+
+  if (assignmentError) throw new Error(assignmentError.message);
+  if (!assignment.document_link?.trim()) {
+    throw new Error(
+      "Link dokumen pendukung wajib diisi sebelum mengajukan verifikasi.",
+    );
+  }
+
   const { error } = await supabase
     .from("indicator_assignments")
     .update({ status: "Diajukan" })
@@ -69,6 +84,7 @@ export async function submitForVerification(assignmentId: string) {
   if (error) throw new Error(error.message);
   revalidatePath(`/fakultas/pengisian/${assignmentId}`);
   revalidatePath("/fakultas/pengisian");
+  redirect(`/fakultas/pengisian/${assignmentId}?notice=` + encodeURIComponent("Indikator berhasil diajukan untuk verifikasi."));
 }
 
 export async function cancelSubmission(assignmentId: string) {
@@ -83,15 +99,22 @@ export async function cancelSubmission(assignmentId: string) {
 
   revalidatePath(`/fakultas/pengisian/${assignmentId}`);
   revalidatePath("/fakultas/pengisian");
+  redirect(`/fakultas/pengisian/${assignmentId}?notice=` + encodeURIComponent("Pengajuan berhasil dibatalkan."));
 }
 
 export async function updateDocumentLink(assignmentId: string, link: string) {
+  const documentLink = link.trim();
+  if (!documentLink) {
+    throw new Error("Link dokumen pendukung wajib diisi.");
+  }
+
   const supabase = await createClient();
   const { error } = await supabase
     .from("indicator_assignments")
-    .update({ document_link: link || null })
+    .update({ document_link: documentLink })
     .eq("id", assignmentId);
   if (error) throw new Error(error.message);
   revalidatePath(`/fakultas/pengisian/${assignmentId}`);
   revalidatePath("/fakultas/pengisian");
+  redirect(`/fakultas/pengisian/${assignmentId}?notice=` + encodeURIComponent("Link dokumen pendukung berhasil disimpan."));
 }

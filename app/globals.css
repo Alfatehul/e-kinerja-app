@@ -91,6 +91,189 @@ textarea:focus {
   box-shadow: 0 0 0 3px rgb(126 180 147 / 15%);
 }
 
+.form-modal-content > :first-child > :first-child:has(h1, h2),
+.form-modal-content > :first-child:has(> h1, > h2),
+.form-modal-content > form > :first-child:has(h1, h2) {
+  display: none;
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #101820;
+  --foreground: #f1f5f9;
+  --surface: #202e3a;
+  --muted: #b2c0cc;
+  --line: #3a4b59;
+  --brand: #86d6a2;
+  --brand-dark: #c0f0ce;
+  --gold: #f0cd78;
+}
+
+.dark body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.dark aside[class*="bg-[#EAF3ED]"] {
+  background-color: #090d0b !important;
+  color: #e8f0eb;
+}
+
+.dark header {
+  border-color: #34424d !important;
+  background-color: #111a22 !important;
+}
+
+.dark aside [class~="bg-white/60"],
+.dark aside [class~="bg-white/55"] {
+  background-color: #141a17 !important;
+}
+
+.dark aside [class~="text-[#1F4B35]"],
+.dark aside [class~="text-[#5F796A]"],
+.dark aside [class~="text-[#6E8B78]"] {
+  color: #cbd8d0 !important;
+}
+
+.dark aside a[class*="bg-white/85"] {
+  border-color: #46564b !important;
+  background-color: #202b24 !important;
+  color: #f1f5f9 !important;
+}
+
+.dark aside a:hover {
+  border-color: #3a4940 !important;
+  background-color: #1b241f !important;
+  color: #f1f5f9 !important;
+}
+
+.dark :is(
+  [class~="hover:text-[#294438]"],
+  [class~="hover:text-[#0B5B35]"],
+  [class~="hover:text-[#073B25]"],
+  [class~="hover:text-[#1F4B35]"],
+  [class~="hover:text-[#334A3C]"]
+):hover {
+  color: #f1f5f9 !important;
+}
+
+.dark :is(
+  [class~="hover:bg-white"],
+  [class~="hover:bg-white/65"],
+  [class~="hover:bg-[#EAF3ED]"],
+  [class~="hover:bg-[#F3F5F2]"],
+  [class~="hover:bg-[#F8FBF8]"],
+  [class~="hover:bg-[#FCFDFC]"],
+  [class~="hover:bg-[#EEF5F0]"],
+  [class~="hover:bg-[#F5F8F5]"],
+  [class~="hover:bg-[#FAF8F3]"],
+  [class~="hover:bg-red-50"],
+  [class~="hover:bg-black/5"]
+):hover {
+  background-color: #263541 !important;
+}
+
+.dark [class*="hover:text-"]:hover {
+  color: #f1f5f9 !important;
+}
+
+.dark .group:hover [class*="group-hover:text-"] {
+  color: #f1f5f9 !important;
+}
+
+.dark :is(
+  [class~="bg-white"],
+  [class~="bg-white/60"],
+  [class~="bg-white/55"],
+  [class~="bg-[#F5F7F5]"],
+  [class~="bg-[#F8FBF8]"],
+  [class~="bg-[#FAFCFA]"],
+  [class~="bg-[#F5F8F5]"],
+  [class~="bg-[#F3F8F4]"],
+  [class~="bg-[#F1F6F2]"]
+) {
+  background-color: #202e3a !important;
+}
+
+.dark :is(
+  [class~="bg-[#F5F7F5]"],
+  [class~="bg-[#F8FBF8]"],
+  [class~="bg-[#F6F4EF]"]
+) {
+  background-color: #17232d !important;
+}
+
+.dark :is(
+  [class~="text-[#17231D]"],
+  [class~="text-[#1F2937]"],
+  [class~="text-[#1F3B2D]"],
+  [class~="text-[#294438]"],
+  [class~="text-[#334A3C]"],
+  [class~="text-[#374151]"]
+) {
+  color: #f1f5f9 !important;
+}
+
+.dark :is(
+  [class~="text-[#44534B]"],
+  [class~="text-[#496056]"],
+  [class~="text-[#52645A]"],
+  [class~="text-[#5F796A]"],
+  [class~="text-[#64736A]"],
+  [class~="text-[#6E8476]"],
+  [class~="text-[#6E8B78]"],
+  [class~="text-[#718078]"],
+  [class~="text-[#80998A]"],
+  [class~="text-[#849289]"],
+  [class~="text-[#9AAA9F]"]
+) {
+  color: #b2c0cc !important;
+}
+
+.dark :is(
+  [class~="border-[#DCE6DF]"],
+  [class~="border-[#D4E3D8]"],
+  [class~="border-[#EDF2EE]"],
+  [class~="border-[#E8EFEA]"],
+  [class~="border-[#D7E2DA]"],
+  [class~="divide-[#EDF2EE]"],
+  [class~="divide-[#E8EFEA]"]
+) {
+  border-color: #34443a !important;
+}
+
+.dark .form-input,
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.dark select,
+.dark textarea {
+  border-color: #526575;
+  background-color: #17232d;
+  color: #f1f5f9;
+}
+
+.dark .form-input::placeholder,
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #8fa197;
+}
+
+.dark .form-input:focus,
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: #86d6a2;
+  background-color: #202e3a;
+}
+
+.dark .sidebar-scrollbar {
+  scrollbar-color: #52695a transparent;
+}
+
+.dark ::selection {
+  background: #d7b96c;
+  color: #17231d;
+}
+
 @keyframes ticker-scroll {
   from {
     transform: translateX(100%);

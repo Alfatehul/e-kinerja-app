@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import SubmitButton from "@/components/SubmitButton";
 
 type Proposal = {
   id: string;
@@ -46,6 +47,6 @@ export default function TorForm({ action, proposals, initial }: { action: (data:
     <div><label className="mb-2 block text-sm font-semibold">Rincian Anggaran</label><textarea name="rincian_anggaran" value={budget.rincian_anggaran} onChange={(e) => setBudget({ ...budget, rincian_anggaran: e.target.value })} className="form-input min-h-[80px]" /></div>
     {fields.map(([name, label, required]) => <div key={name}><label className="mb-2 block text-sm font-semibold">{label}</label><textarea name={name} required={required} value={values[name]} onChange={(e) => setValues({ ...values, [name]: e.target.value })} className="form-input min-h-[80px]" /></div>)}
     <div><label className="mb-2 block text-sm font-semibold">Dokumen Pendukung <span className="font-normal text-[#718078]">(opsional)</span></label><input name="document" type="file" accept=".pdf,.doc,.docx,.xls,.xlsx" className="block w-full rounded-lg border border-[#DCE6DF] px-3 py-2 text-sm" /></div>
-    <button type="submit" className="self-start rounded-xl bg-[#0B5B35] px-5 py-3 text-sm font-bold text-white">Simpan sebagai draft</button>
+    <SubmitButton label="Simpan sebagai draft" loadingLabel="Menyimpan draft..." className="self-start px-5 py-3" />
   </form>;
 }

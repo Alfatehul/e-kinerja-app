@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { notifyFacultyAdmin } from "@/lib/notifications";
 
@@ -37,4 +38,5 @@ export async function verifyAssignment(
 
   revalidatePath("/admin/monitoring");
   revalidatePath(`/admin/monitoring/${id}`);
+  redirect(`/admin/monitoring/${id}?notice=` + encodeURIComponent(action === "approve" ? "Indikator berhasil diverifikasi." : "Pengajuan indikator berhasil ditolak."));
 }

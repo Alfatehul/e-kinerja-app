@@ -2,6 +2,9 @@
 
 import { useRef, useState } from "react";
 import type { ReactNode } from "react";
+import { useFormStatus } from "react-dom";
+import { useToast } from "./ToastProvider";
+import LoadingSpinner from "./LoadingSpinner";
 
 export default function ConfirmSubmitButton({
   children = "Hapus",
@@ -14,6 +17,13 @@ export default function ConfirmSubmitButton({
 }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [open, setOpen] = useState(false);
+  const { info } = useToast();
+  const { pending } = useFormStatus();
+
+  function submitConfirmed() {
+    info("Permintaan sedang diproses.", { title: "Mohon tunggu" });
+    formRef.current?.requestSubmit();
+  }
 
   return (
     <>
@@ -30,15 +40,23 @@ export default function ConfirmSubmitButton({
             <h2 className="text-base font-bold text-[#1B2A4B]">Konfirmasi penghapusan</h2>
             <p className="mt-2 text-sm leading-6 text-[#5B5A55]">{message}</p>
             <div className="mt-5 flex justify-end gap-3">
-              <button type="button" onClick={() => setOpen(false)} className="rounded-xl border border-[#E1DDCF] px-4 py-2 text-sm font-semibold text-[#5B5A55]">
+              <button type="button" disabled={pending} onClick={() => setOpen(false)} className="rounded-xl border border-[#E1DDCF] px-4 py-2 text-sm font-semibold text-[#5B5A55] disabled:opacity-60">
                 Batal
               </button>
               <button
                 type="button"
-                onClick={() => formRef.current?.requestSubmit()}
-                className="rounded-xl bg-[#B42318] px-4 py-2 text-sm font-bold text-white"
+                onClick={submitConfirmed}
+                disabled={pending}
+                className="rounded-xl bg-[#B42318] px-4 py-2 text-sm font-bold text-white disabled:opacity-60"
               >
-                Ya, hapus
+                {pending ? (
+                  <span className="inline-flex items-center gap-2">
+                    <LoadingSpinner size="sm" color="white" />
+                    Menghapus...
+                  </span>
+                ) : (
+                  "Ya, hapus"
+                )}
               </button>
             </div>
           </div>

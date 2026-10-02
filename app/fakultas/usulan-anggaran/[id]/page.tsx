@@ -1,9 +1,11 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { submitProposal } from "../actions";
 import StatusBadge from "@/components/StatusBadge";
 import DeleteProposalButton from "@/components/DeleteProposalButton";
+import SubmitButton from "@/components/SubmitButton";
+import FormModal from "@/components/FormModal";
+import EditUsulanPage from "./edit/page";
 
 export default async function UsulanDetailPage({
   params,
@@ -54,12 +56,13 @@ export default async function UsulanDetailPage({
         </div>
         {editable && (
           <div className="flex gap-2">
-            <Link
-              href={`/fakultas/usulan-anggaran/${id}/edit`}
-              className="rounded-xl border border-[#B9D7C1] px-4 py-2 text-sm font-bold text-[#0B5B35] transition hover:bg-[#F0F8F2]"
+            <FormModal
+              label="Edit"
+              title="Edit usulan anggaran"
+              className="rounded-xl border border-[#B9D7C1] bg-white px-4 py-2 text-sm font-bold text-[#0B5B35] transition hover:bg-[#F0F8F2]"
             >
-              Edit
-            </Link>
+              <EditUsulanPage params={Promise.resolve({ id })} />
+            </FormModal>
             <DeleteProposalButton id={id} />
           </div>
         )}
@@ -201,12 +204,7 @@ export default async function UsulanDetailPage({
 
       {editable && (
         <form action={handleSubmit} className="flex justify-end">
-          <button
-            type="submit"
-            className="rounded-xl bg-[#0B5B35] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#073B25]"
-          >
-            Ajukan ke Biro AUPK
-          </button>
+          <SubmitButton label="Ajukan ke Biro AUPK" loadingLabel="Mengajukan..." className="px-5 py-3" />
         </form>
       )}
     </div>

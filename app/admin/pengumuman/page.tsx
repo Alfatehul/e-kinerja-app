@@ -1,7 +1,8 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { togglePin, deleteAnnouncement } from "./actions";
 import ConfirmSubmitButton from "@/components/ConfirmSubmitButton";
+import FormModal from "@/components/FormModal";
+import TambahPengumumanPage from "./tambah/page";
 
 export default async function PengumumanAdminPage() {
   const supabase = await createClient();
@@ -19,9 +20,9 @@ export default async function PengumumanAdminPage() {
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#17231D]">Pengumuman</h1>
           <p className="mt-2 text-sm leading-6 text-[#64736A]">Kelola informasi penting untuk Fakultas / Unit.</p>
         </div>
-        <Link href="/admin/pengumuman/tambah" className="inline-flex items-center justify-center rounded-xl bg-[#0B5B35] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#073B25]">
-          + Buat pengumuman
-        </Link>
+        <FormModal label="+ Buat pengumuman" title="Buat pengumuman">
+          <TambahPengumumanPage />
+        </FormModal>
       </div>
 
       {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">Gagal memuat pengumuman: {error.message}</div>}

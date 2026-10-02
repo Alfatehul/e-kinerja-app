@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import DeleteIndicatorButton from "@/components/DeleteIndicatorButton";
+import IndicatorCreateModal from "@/components/IndicatorCreateModal";
+import FormModal from "@/components/FormModal";
+import TambahIndikatorPage from "./tambah/page";
+import EditIndikatorPage from "./[id]/edit/page";
 
 export default async function IndikatorListPage({
   searchParams,
@@ -53,12 +57,9 @@ export default async function IndikatorListPage({
             Kelola indikator kinerja, target capaian, dan periode pelaporan.
           </p>
         </div>
-        <Link
-          href="/admin/indikator/tambah"
-          className="inline-flex items-center justify-center rounded-xl bg-[#0B5B35] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#073B25]"
-        >
-          + Tambah Indikator
-        </Link>
+        <IndicatorCreateModal>
+          <TambahIndikatorPage />
+        </IndicatorCreateModal>
       </div>
 
       <div>
@@ -244,12 +245,13 @@ export default async function IndikatorListPage({
                 </td>
                 <td className="px-5 py-4">
                   <div className="flex justify-end gap-3">
-                    <Link
-                      href={`/admin/indikator/${ind.id}/edit`}
+                    <FormModal
+                      label="Edit"
+                      title={`Edit indikator ${ind.name}`}
                       className="rounded-lg border border-[#B9D7C1] px-3 py-1.5 text-xs font-bold text-[#0B5B35] transition hover:bg-[#F0F8F2]"
                     >
-                      Edit
-                    </Link>
+                      <EditIndikatorPage params={Promise.resolve({ id: ind.id })} />
+                    </FormModal>
                     <DeleteIndicatorButton id={ind.id} />
                   </div>
                 </td>

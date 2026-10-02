@@ -1,6 +1,7 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import SubmitButton from "@/components/SubmitButton";
 
 const categories = [
   "Pendidikan",
@@ -105,7 +106,7 @@ export default async function EditIndikatorPage({
       );
     }
 
-    redirect("/admin/indikator");
+    redirect("/admin/indikator?notice=updated&modal=closed");
   }
 
   return (
@@ -392,12 +393,11 @@ export default async function EditIndikatorPage({
             Batal
           </Link>
 
-          <button
-            type="submit"
-            className="px-5 py-2.5 text-sm font-medium text-white bg-[#1B2A4B] rounded-lg hover:bg-[#14213D] transition shadow-sm"
-          >
-            Simpan Perubahan
-          </button>
+          <SubmitButton
+            label="Simpan Perubahan"
+            loadingLabel="Menyimpan perubahan..."
+            className="rounded-lg px-5 py-2.5"
+          />
         </div>
       </form>
     </div>

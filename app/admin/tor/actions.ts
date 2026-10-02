@@ -9,8 +9,9 @@ export async function verifyTor(id: string, status: "Disetujui" | "Ditolak" | "P
   if (error) throw new Error(error.message);
   await supabase.from("budget_history").insert({ entity_type: "tor", entity_id: id, event: `Status diubah menjadi ${status}`, by: session!.user.id });
   revalidatePath("/admin/tor"); revalidatePath(`/admin/tor/${id}`);
+  redirect(`/admin/tor/${id}?notice=` + encodeURIComponent("Status TOR berhasil diperbarui."));
 }
 export async function deleteTorAdmin(id: string) {
   const supabase = await createClient(); const { error } = await supabase.from("budget_tors").delete().eq("id", id);
-  if (error) throw new Error(error.message); redirect("/admin/tor");
+  if (error) throw new Error(error.message); redirect("/admin/tor?notice=" + encodeURIComponent("TOR berhasil dihapus."));
 }

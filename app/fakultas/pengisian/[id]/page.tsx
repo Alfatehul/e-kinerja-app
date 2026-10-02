@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import {
   addRealization,
@@ -9,6 +8,9 @@ import {
 import DeleteRealizationButton from "@/components/DeleteRealizationButton";
 import { updateDocumentLink } from "../actions";
 import StatusBadge from "@/components/StatusBadge";
+import SubmitButton from "@/components/SubmitButton";
+import FormModal from "@/components/FormModal";
+import EditLogPage from "./log/[logId]/edit/page";
 
 export default async function PengisianDetailPage({
   params,
@@ -145,12 +147,7 @@ export default async function PengisianDetailPage({
               className="form-input resize-y"
             />
           </div>
-          <button
-            type="submit"
-            className="self-start rounded-xl bg-[#0B5B35] px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#073B25]"
-          >
-            + Tambah Realisasi
-          </button>
+          <SubmitButton label="+ Tambah Realisasi" loadingLabel="Menambahkan..." className="self-start px-5 py-2.5" />
         </form>
       )}
 
@@ -159,21 +156,19 @@ export default async function PengisianDetailPage({
         className="flex flex-col gap-4 rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:flex-row sm:items-end sm:p-6"
       >
         <div className="flex-1">
-          <label className="mb-2 block text-sm font-semibold text-[#334A3C]">Link Dokumen Pendukung <span className="font-normal text-[#849289]">(opsional)</span></label>
+          <label className="mb-2 block text-sm font-semibold text-[#334A3C]">
+            Link Dokumen Pendukung <span className="text-red-600">*</span>
+          </label>
           <input
             name="document_link"
             type="url"
             defaultValue={assignment.document_link ?? ""}
             placeholder="https://drive.google.com/..."
             className="form-input"
+            required
           />
         </div>
-        <button
-          type="submit"
-          className="rounded-xl bg-[#0B5B35] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#073B25]"
-        >
-          Simpan Link
-        </button>
+        <SubmitButton label="Simpan Link" loadingLabel="Menyimpan link..." className="px-4 py-2.5" />
       </form>
 
       <div className="overflow-hidden rounded-2xl border border-[#DCE6DF] bg-white shadow-sm">
@@ -198,12 +193,13 @@ export default async function PengisianDetailPage({
             </div>
             {editable && (
               <div className="flex gap-3">
-                <Link
-                  href={`/fakultas/pengisian/${id}/log/${l.id}/edit`}
+                <FormModal
+                  label="Edit"
+                  title="Edit entri realisasi"
                   className="text-xs font-bold text-[#0B5B35] hover:underline"
                 >
-                  Edit
-                </Link>
+                  <EditLogPage params={Promise.resolve({ id, logId: l.id })} />
+                </FormModal>
                 <DeleteRealizationButton assignmentId={id} logId={l.id} />
               </div>
             )}
@@ -214,22 +210,12 @@ export default async function PengisianDetailPage({
       <div className="flex justify-end gap-3">
         {assignment.status === "Diajukan" && (
           <form action={handleCancelSubmission}>
-            <button
-              type="submit"
-              className="rounded-xl border border-[#D5E1D8] bg-white px-5 py-3 text-sm font-bold text-[#52645A] shadow-sm hover:bg-[#F4F8F5]"
-            >
-              Batal Ajukan
-            </button>
+            <SubmitButton label="Batal Ajukan" loadingLabel="Membatalkan..." variant="secondary" className="px-5 py-3" />
           </form>
         )}
         {editable && (
           <form action={handleSubmit}>
-            <button
-              type="submit"
-              className="rounded-xl bg-[#0B5B35] px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#073B25]"
-            >
-              Ajukan Verifikasi
-            </button>
+            <SubmitButton label="Ajukan Verifikasi" loadingLabel="Mengajukan..." className="px-5 py-3" />
           </form>
         )}
       </div>

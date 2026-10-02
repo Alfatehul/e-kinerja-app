@@ -1,7 +1,8 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { deleteMemo, toggleMemoPin } from "./actions";
 import ConfirmSubmitButton from "@/components/ConfirmSubmitButton";
+import FormModal from "@/components/FormModal";
+import TambahMemoPage from "./tambah/page";
 
 type Memo = {
   id: string;
@@ -28,9 +29,9 @@ export default async function AdminMemoPage() {
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#17231D]">Memo</h1>
           <p className="mt-2 text-sm text-[#64736A]">Buat dan kelola memo resmi untuk fakultas dan unit kerja.</p>
         </div>
-        <Link href="/admin/memo/tambah" className="inline-flex items-center justify-center rounded-xl bg-[#0B5B35] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#073B25]">
-          + Buat memo
-        </Link>
+        <FormModal label="+ Buat memo" title="Buat memo">
+          <TambahMemoPage />
+        </FormModal>
       </div>
 
       {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">Gagal memuat memo: {error.message}</div>}

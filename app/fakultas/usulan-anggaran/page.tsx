@@ -3,6 +3,8 @@ import { getCurrentProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import StatusBadge from "@/components/StatusBadge";
 import TableActionLink from "@/components/TableActionLink";
+import FormModal from "@/components/FormModal";
+import TambahUsulanPage from "./tambah/page";
 
 export default async function UsulanAnggaranFakultasPage({
   searchParams,
@@ -31,12 +33,9 @@ export default async function UsulanAnggaranFakultasPage({
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#17231D]">Usulan Anggaran</h1>
           <p className="mt-2 text-sm text-[#64736A]">Ajukan dan pantau status kebutuhan anggaran unit Anda.</p>
         </div>
-        <Link
-          href="/fakultas/usulan-anggaran/tambah"
-          className="inline-flex items-center justify-center rounded-xl bg-[#0B5B35] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#073B25]"
-        >
-          + Usulan Baru
-        </Link>
+        <FormModal label="+ Usulan Baru" title="Usulan anggaran baru">
+          <TambahUsulanPage />
+        </FormModal>
       </div>
       <form method="get" className="grid gap-3 rounded-2xl border border-[#DCE6DF] bg-white p-4 shadow-sm md:grid-cols-[1.5fr_1fr_auto]">
         <div>

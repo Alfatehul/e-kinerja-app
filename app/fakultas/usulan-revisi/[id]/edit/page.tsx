@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { updateRevision } from "../../actions";
+import SubmitButton from "@/components/SubmitButton";
 
 export default async function EditRevisiPage({
   params,
@@ -77,12 +78,7 @@ export default async function EditRevisiPage({
             className="w-full border border-[#E1DDCF] rounded-md p-2 text-sm min-h-[60px]"
           />
         </div>
-        <button
-          type="submit"
-          className="bg-[#1B2A4B] text-white text-sm px-4 py-2 rounded-md self-start"
-        >
-          Simpan & Ajukan Ulang
-        </button>
+        <SubmitButton label="Simpan & Ajukan Ulang" loadingLabel="Mengajukan ulang..." className="self-start rounded-md px-4 py-2" />
       </form>
     </div>
   );

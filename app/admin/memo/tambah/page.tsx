@@ -1,5 +1,6 @@
 import { createMemo } from "../actions";
 import { createClient } from "@/lib/supabase/server";
+import SubmitButton from "@/components/SubmitButton";
 
 export default async function TambahMemoPage() {
   const { data: faculties } = await (await createClient())
@@ -43,7 +44,7 @@ export default async function TambahMemoPage() {
         </div>
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <a href="/admin/memo" className="rounded-xl border border-[#DCE6DF] px-4 py-2.5 text-center text-sm font-semibold text-[#64736A] hover:bg-[#F5F8F5]">Batal</a>
-          <button type="submit" className="rounded-xl bg-[#0B5B35] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#073B25]">Terbitkan memo</button>
+          <SubmitButton label="Terbitkan memo" loadingLabel="Menerbitkan..." className="px-5 py-2.5" />
         </div>
       </form>
     </div>

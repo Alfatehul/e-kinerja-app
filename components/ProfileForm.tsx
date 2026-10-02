@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { updateOwnProfile } from "@/lib/profile-actions";
+import SubmitButton from "@/components/SubmitButton";
+import { useToast } from "@/components/ToastProvider";
 
 export default function ProfileForm({
   fullName,
@@ -16,6 +18,7 @@ export default function ProfileForm({
 }) {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
 
   async function submit(formData: FormData) {
     setMessage(null);
@@ -23,8 +26,11 @@ export default function ProfileForm({
     try {
       await updateOwnProfile(formData);
       setMessage("Profil berhasil diperbarui.");
+      toast.success("Profil berhasil diperbarui.");
     } catch (actionError) {
-      setError(actionError instanceof Error ? actionError.message : "Gagal memperbarui profil.");
+      const errorMessage = actionError instanceof Error ? actionError.message : "Gagal memperbarui profil.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   }
 
@@ -66,9 +72,7 @@ export default function ProfileForm({
         </label>
         {message && <p className="mt-4 rounded-xl bg-[#EAF3ED] px-3 py-2 text-sm font-semibold text-[#0B5B35]">{message}</p>}
         {error && <p className="mt-4 rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{error}</p>}
-        <button type="submit" className="mt-5 rounded-xl bg-[#0B5B35] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#084728]">
-          Simpan perubahan
-        </button>
+        <SubmitButton label="Simpan perubahan" loadingLabel="Menyimpan..." className="mt-5 px-4 py-2.5" />
       </section>
     </form>
   );

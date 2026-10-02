@@ -1,5 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import SubmitButton from "@/components/SubmitButton";
 
 const categories = [
   "Pendidikan",
@@ -135,7 +136,7 @@ export default async function EditIndikatorPage({
       }
     }
 
-    redirect("/admin/indikator");
+    redirect("/admin/indikator?notice=updated");
   }
 
   const status = indicator.status ?? "Aktif";
@@ -412,12 +413,11 @@ export default async function EditIndikatorPage({
             Pastikan data sudah benar sebelum menyimpan perubahan.
           </p>
 
-          <button
-            type="submit"
-            className="bg-[#1B2A4B] hover:bg-[#14213D] text-white text-sm font-medium px-5 py-2.5 rounded-lg transition shadow-sm"
-          >
-            Simpan Perubahan
-          </button>
+          <SubmitButton
+            label="Simpan Perubahan"
+            loadingLabel="Menyimpan perubahan..."
+            className="rounded-lg px-5 py-2.5"
+          />
         </div>
       </form>
     </div>

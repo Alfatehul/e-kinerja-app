@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
+import SubmitButton from "@/components/SubmitButton";
 
 const categories = [
   "Pendidikan",
@@ -99,26 +100,11 @@ export default async function TambahIndikatorPage() {
       await supabase.from("indicator_assignments").insert(assignments);
     }
 
-    redirect("/admin/indikator");
+    redirect("/admin/indikator?notice=created&modal=closed");
   }
 
   return (
     <div className="mx-auto w-full max-w-4xl pb-10">
-      {/* HEADER */}
-      <div className="mb-8 text-center">
-        <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-[#0B5B35]">
-          Manajemen Kinerja
-        </p>
-        <h1 className="text-2xl font-bold tracking-tight text-[#17231D]">
-          Tambah Indikator
-        </h1>
-
-        <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#64736A]">
-          Tambahkan indikator kinerja baru dan tentukan fakultas atau unit yang
-          wajib mengisi indikator tersebut.
-        </p>
-      </div>
-
       {/* FORM */}
       <form
         action={createIndicator}
@@ -296,7 +282,9 @@ export default async function TambahIndikatorPage() {
                         className="h-4 w-4 accent-[#16A34A]"
                       />
                     </span>
-                    <span className="font-semibold text-[#14532D]">{f.code}</span>
+                    <span className="font-semibold text-[#14532D]">
+                      {f.code}
+                    </span>
                     <span className="text-[#374151]">{f.name}</span>
                   </label>
                 ))}
@@ -312,12 +300,11 @@ export default async function TambahIndikatorPage() {
 
         {/* FOOTER */}
         <div className="flex justify-end border-t border-[#DCE6DF] bg-[#F8FBF8] px-6 py-4">
-          <button
-            type="submit"
-            className="cursor-pointer rounded-lg bg-[#14532D] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#166534]"
-          >
-            Simpan Indikator
-          </button>
+          <SubmitButton
+            label="Simpan Indikator"
+            loadingLabel="Menyimpan indikator..."
+            className="cursor-pointer rounded-lg px-5 py-2.5"
+          />
         </div>
       </form>
     </div>

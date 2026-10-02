@@ -1,5 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import SubmitButton from "@/components/SubmitButton";
 
 async function recomputeRealization(assignmentId: string) {
   const supabase = await createClient();
@@ -44,7 +45,7 @@ export default async function EditLogPage({
     if (error) throw new Error(error.message);
 
     await recomputeRealization(id);
-    redirect(`/fakultas/pengisian/${id}`);
+    redirect(`/fakultas/pengisian/${id}?notice=` + encodeURIComponent("Realisasi berhasil diperbarui.") + "&modal=closed");
   }
 
   return (
@@ -85,12 +86,7 @@ export default async function EditLogPage({
             className="w-full border border-[#E1DDCF] rounded-md p-2 text-sm"
           />
         </div>
-        <button
-          type="submit"
-          className="bg-[#1B2A4B] text-white text-sm px-4 py-2 rounded-md self-start"
-        >
-          Simpan Perubahan
-        </button>
+        <SubmitButton label="Simpan Perubahan" loadingLabel="Menyimpan..." className="self-start rounded-md px-4 py-2" />
       </form>
     </div>
   );

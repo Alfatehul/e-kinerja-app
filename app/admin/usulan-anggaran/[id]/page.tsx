@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { verifyProposal } from "../actions";
 import StatusBadge from "@/components/StatusBadge";
 import DeleteProposalAdminButton from "@/components/DeleteProposalAdminButton";
+import SubmitButton from "@/components/SubmitButton";
 
 export default async function UsulanDetailAdminPage({
   params,
@@ -251,24 +252,26 @@ export default async function UsulanDetailAdminPage({
               className="form-input min-h-[100px] resize-y"
             />
             <div className="flex flex-wrap gap-3">
-              <button
+              <SubmitButton
                 formAction={approve}
-                className="rounded-xl bg-[#0B5B35] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#073B25]"
-              >
-                Setujui
-              </button>
-              <button
+                label="Setujui"
+                loadingLabel="Menyetujui..."
+                className="px-5 py-2.5"
+              />
+              <SubmitButton
                 formAction={requestFix}
-                className="rounded-xl bg-amber-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-amber-700"
-              >
-                Perlu Perbaikan
-              </button>
-              <button
+                label="Perlu Perbaikan"
+                loadingLabel="Memproses..."
+                variant="gold"
+                className="px-5 py-2.5"
+              />
+              <SubmitButton
                 formAction={reject}
-                className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-red-700"
-              >
-                Tolak
-              </button>
+                label="Tolak"
+                loadingLabel="Menolak..."
+                variant="danger"
+                className="px-5 py-2.5"
+              />
             </div>
           </form>
         </section>

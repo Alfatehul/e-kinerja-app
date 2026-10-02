@@ -43,7 +43,7 @@ export async function createTor(formData: FormData) {
   if (error) throw new Error(error.message);
   await saveDocument(formData, data.id, session.profile.faculty_id, supabase);
   await supabase.from("budget_history").insert({ entity_type: "tor", entity_id: data.id, event: "TOR dibuat sebagai draft", by: session.user.id });
-  redirect("/fakultas/tor");
+  redirect("/fakultas/tor?notice=" + encodeURIComponent("TOR berhasil disimpan sebagai draft.") + "&modal=closed");
 }
 
 export async function updateTor(id: string, formData: FormData) {
@@ -54,14 +54,14 @@ export async function updateTor(id: string, formData: FormData) {
   if (error) throw new Error(error.message);
   const { data: tor } = await supabase.from("budget_tors").select("faculty_id").eq("id", id).single();
   if (tor) await saveDocument(formData, id, tor.faculty_id, supabase);
-  redirect(`/fakultas/tor/${id}`);
+  redirect(`/fakultas/tor/${id}?notice=` + encodeURIComponent("TOR berhasil diperbarui.") + "&modal=closed");
 }
 
 export async function deleteTor(id: string) {
   const supabase = await createClient();
   const { error } = await supabase.from("budget_tors").delete().eq("id", id);
   if (error) throw new Error(error.message);
-  redirect("/fakultas/tor");
+  redirect("/fakultas/tor?notice=" + encodeURIComponent("TOR berhasil dihapus."));
 }
 
 export async function submitTor(id: string) {
@@ -73,4 +73,5 @@ export async function submitTor(id: string) {
   await supabase.from("budget_history").insert({ entity_type: "tor", entity_id: id, event: "TOR diajukan ke Biro AUPK", by: session.user.id });
   revalidatePath(`/fakultas/tor/${id}`);
   revalidatePath("/admin/tor");
+  redirect(`/fakultas/tor/${id}?notice=` + encodeURIComponent("TOR berhasil diajukan."));
 }

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createThread } from "./actions";
+import SubmitButton from "@/components/SubmitButton";
+import FormModal from "@/components/FormModal";
 
 export default async function FakultasHelpdeskPage() {
   const supabase = await createClient();
@@ -16,13 +18,15 @@ export default async function FakultasHelpdeskPage() {
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#17231D]">Helpdesk</h1>
         <p className="mt-2 text-sm text-[#64736A]">Sampaikan pertanyaan atau kendala kepada Admin Biro.</p>
       </div>
-      <form action={createThread} className="rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6">
-        <label htmlFor="title" className="mb-2 block text-sm font-bold text-[#334A3C]">Topik bantuan</label>
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <input id="title" name="title" required placeholder="Contoh: Kendala pengajuan anggaran" className="form-input" />
-          <button type="submit" className="rounded-xl bg-[#0B5B35] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#073B25]">Buat percakapan</button>
-        </div>
-      </form>
+      <div className="flex justify-end">
+        <FormModal label="Buat percakapan" title="Buat percakapan Helpdesk">
+          <form action={createThread} className="mx-auto flex max-w-2xl flex-col gap-5 rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6">
+            <h2 className="text-lg font-bold text-[#17231D]">Topik bantuan</h2>
+            <input id="title" name="title" required placeholder="Contoh: Kendala pengajuan anggaran" className="form-input" />
+            <SubmitButton label="Buat percakapan" loadingLabel="Membuat percakapan..." className="self-start px-5 py-2.5" />
+          </form>
+        </FormModal>
+      </div>
       {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">Gagal memuat helpdesk: {error.message}</div>}
       <div className="flex flex-col gap-3">
         {threads?.map((thread) => (

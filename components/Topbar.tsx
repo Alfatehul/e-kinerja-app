@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import LogoutButton from "@/components/LogoutButton";
 import NotificationBell from "@/components/NotificationBell";
+import ThemeToggle from "@/components/ThemeToggle";
 import type { Notification } from "@/lib/notifications";
 
 const pageNames: Record<string, string> = {
@@ -110,6 +111,7 @@ export default function Topbar({
             Dashboard
           </Link>
           <NotificationBell userId={userId} initialNotifications={initialNotifications} />
+          <ThemeToggle />
           <div className="mx-1 hidden h-8 w-px bg-[#E5EEE8] sm:block" />
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#DCEDE1] text-xs font-bold text-[#0B5B35] shadow-sm">

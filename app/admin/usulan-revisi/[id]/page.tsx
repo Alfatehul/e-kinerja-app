@@ -4,6 +4,7 @@ import { verifyRevision } from "../actions";
 import StatusBadge from "@/components/StatusBadge";
 import DeleteRevisionAdminButton from "@/components/DeleteRevisionAdminButton";
 import DocumentUploader from "@/components/DocumentUploader";
+import SubmitButton from "@/components/SubmitButton";
 // ...
 
 export default async function RevisiDetailAdminPage({
@@ -37,6 +38,12 @@ export default async function RevisiDetailAdminPage({
 
   const nilaiSebelum = revision.before_volume * revision.before_harga_satuan;
   const nilaiSesudah = revision.after_volume * revision.after_harga_satuan;
+  const revisionFaculty = Array.isArray(revision.faculties)
+    ? revision.faculties[0]
+    : revision.faculties;
+  const proposal = Array.isArray(revision.budget_proposals)
+    ? revision.budget_proposals[0]
+    : revision.budget_proposals;
   const canReview =
     revision.status === "Diajukan" || revision.status === "Diverifikasi";
 
@@ -61,8 +68,8 @@ export default async function RevisiDetailAdminPage({
     <div className="max-w-2xl">
       <h1 className="font-serif text-xl font-semibold">{revision.number}</h1>
       <p className="text-sm text-[#5B5A55] mb-2">
-        {(revision as any).faculties.name} · Terkait:{" "}
-        {(revision as any).budget_proposals?.number}
+        {revisionFaculty?.name ?? "Fakultas / Unit"} · Terkait:{" "}
+        {proposal?.number ?? "-"}
       </p>
       <div className="mb-4">
         <StatusBadge status={revision.status} />
@@ -125,24 +132,26 @@ export default async function RevisiDetailAdminPage({
               className="border border-[#E1DDCF] rounded-md p-2 text-sm min-h-[60px]"
             />
             <div className="flex gap-2 flex-wrap">
-              <button
+              <SubmitButton
                 formAction={approve}
-                className="bg-green-700 text-white text-sm px-4 py-2 rounded-md"
-              >
-                Setujui
-              </button>
-              <button
+                label="Setujui"
+                loadingLabel="Menyetujui..."
+                className="rounded-md px-4 py-2"
+              />
+              <SubmitButton
                 formAction={requestFix}
-                className="bg-amber-600 text-white text-sm px-4 py-2 rounded-md"
-              >
-                Perlu Perbaikan
-              </button>
-              <button
+                label="Perlu Perbaikan"
+                loadingLabel="Memproses..."
+                variant="gold"
+                className="rounded-md px-4 py-2"
+              />
+              <SubmitButton
                 formAction={reject}
-                className="bg-red-600 text-white text-sm px-4 py-2 rounded-md"
-              >
-                Tolak
-              </button>
+                label="Tolak"
+                loadingLabel="Menolak..."
+                variant="danger"
+                className="rounded-md px-4 py-2"
+              />
             </div>
           </form>
         </div>

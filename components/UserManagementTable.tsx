@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { updateUserPassword, updateUserProfile } from "@/app/admin/users/actions";
+import SubmitButton from "@/components/SubmitButton";
+import FormModal from "@/components/FormModal";
 
 type User = {
   id: string;
@@ -22,7 +24,6 @@ export default function UserManagementTable({
 }) {
   const [query, setQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
-  const [editingId, setEditingId] = useState<string | null>(null);
   const [passwordUser, setPasswordUser] = useState<User | null>(null);
 
   const filteredUsers = useMemo(() => {
@@ -70,7 +71,6 @@ export default function UserManagementTable({
           <tbody className="divide-y divide-[#E1DDCF]">
             {filteredUsers.map((user) => {
               const faculty = Array.isArray(user.faculties) ? user.faculties[0] : user.faculties;
-              const isEditing = editingId === user.id;
               return (
                 <tr key={user.id} className="align-top">
                   <td className="px-5 py-4">
@@ -78,38 +78,43 @@ export default function UserManagementTable({
                     <p className="mt-1 text-xs text-[#849289]">{user.id}</p>
                   </td>
                   <td className="px-5 py-4">
-                    {isEditing ? (
-                      <select name="role" form={`user-${user.id}`} defaultValue={user.role} className="rounded-lg border border-[#D7E2DA] px-2 py-1 text-xs">
-                        <option value="admin_biro">Admin Biro</option>
-                        <option value="admin_fakultas">Admin Fakultas</option>
-                      </select>
-                    ) : (
-                      <span className="rounded-full bg-[#EAF3ED] px-3 py-1 text-xs font-bold text-[#0B5B35]">
-                        {user.role === "admin_biro" ? "Admin Biro" : "Admin Fakultas"}
-                      </span>
-                    )}
+                    <span className="rounded-full bg-[#EAF3ED] px-3 py-1 text-xs font-bold text-[#0B5B35]">
+                      {user.role === "admin_biro" ? "Admin Biro" : "Admin Fakultas"}
+                    </span>
                   </td>
                   <td className="px-5 py-4">
-                    {isEditing ? (
-                      <select name="faculty_id" form={`user-${user.id}`} defaultValue={user.faculty_id ?? ""} className="rounded-lg border border-[#D7E2DA] px-2 py-1 text-xs">
-                        <option value="">Tidak terikat</option>
-                        {faculties.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
-                      </select>
-                    ) : faculty?.name ?? "Universitas / Biro"}
+                    {faculty?.name ?? "Universitas / Biro"}
                   </td>
                   <td className="px-5 py-4 text-right">
-                    {isEditing ? (
-                      <form id={`user-${user.id}`} action={updateUserProfile} className="inline-flex gap-2">
-                        <input type="hidden" name="user_id" value={user.id} />
-                        <button type="submit" onClick={() => setEditingId(null)} className="text-xs font-bold text-[#0B5B35] hover:underline">Simpan</button>
-                        <button type="button" onClick={() => setEditingId(null)} className="text-xs font-semibold text-[#64736A] hover:underline">Batal</button>
-                      </form>
-                    ) : (
-                      <div className="inline-flex items-center gap-3">
-                        <button type="button" onClick={() => setEditingId(user.id)} className="text-xs font-bold text-[#1B2A4B] hover:underline">Edit akses</button>
-                        <button type="button" onClick={() => setPasswordUser(user)} className="text-xs font-bold text-[#0B5B35] hover:underline">Ubah password</button>
-                      </div>
-                    )}
+                    <div className="inline-flex items-center gap-3">
+                      <FormModal
+                        label="Edit akses"
+                        title={`Edit akses ${user.full_name || "pengguna"}`}
+                        className="text-xs font-bold text-[#1B2A4B] hover:underline"
+                      >
+                        <form action={updateUserProfile} className="mx-auto flex max-w-md flex-col gap-4 rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6">
+                          <h2 className="text-lg font-bold text-[#17231D]">Edit akses pengguna</h2>
+                          <p className="text-sm text-[#64736A]">{user.full_name || "Tanpa nama"}</p>
+                          <input type="hidden" name="user_id" value={user.id} />
+                          <label className="block text-sm font-semibold text-[#334A3C]">
+                            Peran
+                            <select name="role" defaultValue={user.role} className="form-input mt-1">
+                              <option value="admin_biro">Admin Biro</option>
+                              <option value="admin_fakultas">Admin Fakultas</option>
+                            </select>
+                          </label>
+                          <label className="block text-sm font-semibold text-[#334A3C]">
+                            Fakultas / Unit
+                            <select name="faculty_id" defaultValue={user.faculty_id ?? ""} className="form-input mt-1">
+                              <option value="">Tidak terikat</option>
+                              {faculties.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+                            </select>
+                          </label>
+                          <SubmitButton label="Simpan akses" loadingLabel="Menyimpan..." className="self-start px-4 py-2.5" />
+                        </form>
+                      </FormModal>
+                      <button type="button" onClick={() => setPasswordUser(user)} className="text-xs font-bold text-[#0B5B35] hover:underline">Ubah password</button>
+                    </div>
                   </td>
                 </tr>
               );
@@ -125,7 +130,7 @@ export default function UserManagementTable({
             <p className="mt-1 text-sm text-[#64736A]">
               Atur password baru untuk {passwordUser.full_name || "pengguna ini"}.
             </p>
-            <form action={updateUserPassword} onSubmit={() => setPasswordUser(null)} className="mt-5 space-y-4">
+            <form action={updateUserPassword} className="mt-5 space-y-4">
               <input type="hidden" name="user_id" value={passwordUser.id} />
               <label className="block text-sm font-semibold text-[#1B2A4B]">
                 Password baru
@@ -138,7 +143,7 @@ export default function UserManagementTable({
               <p className="text-xs text-[#849289]">Minimal 8 karakter.</p>
               <div className="flex justify-end gap-3">
                 <button type="button" onClick={() => setPasswordUser(null)} className="rounded-xl border border-[#E1DDCF] px-4 py-2 text-sm font-semibold text-[#64736A]">Batal</button>
-                <button type="submit" className="rounded-xl bg-[#0B5B35] px-4 py-2 text-sm font-bold text-white">Simpan password</button>
+                <SubmitButton label="Simpan password" loadingLabel="Menyimpan..." className="px-4 py-2" />
               </div>
             </form>
           </div>

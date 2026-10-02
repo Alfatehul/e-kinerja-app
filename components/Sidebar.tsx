@@ -8,7 +8,6 @@ import {
   BuildingOffice2Icon,
   ChartBarIcon,
   ClipboardDocumentCheckIcon,
-  ClockIcon,
   DocumentChartBarIcon,
   EnvelopeOpenIcon,
   ChatBubbleLeftRightIcon,
@@ -32,7 +31,6 @@ const heroIcons = {
   Memo: EnvelopeOpenIcon,
   Helpdesk: ChatBubbleLeftRightIcon,
   Laporan: DocumentChartBarIcon,
-  "Audit Log": ClockIcon,
   "Manajemen User": UsersIcon,
   Profil: UserCircleIcon,
 };
@@ -153,17 +151,6 @@ const navBiro = [
         <path d="M14 3v5h5" />
         <path d="M9 13h6" />
         <path d="M9 17h4" />
-      </svg>
-    ),
-  },
-  {
-    section: "Pelaporan",
-    href: "/admin/audit-log",
-    label: "Audit Log",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <circle cx="12" cy="12" r="9" />
-        <path d="M12 7v5l3 2" />
       </svg>
     ),
   },

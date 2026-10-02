@@ -41,6 +41,7 @@ export async function verifyProposal(
 
   revalidatePath("/admin/usulan-anggaran");
   revalidatePath(`/admin/usulan-anggaran/${id}`);
+  redirect(`/admin/usulan-anggaran/${id}?notice=` + encodeURIComponent("Status usulan anggaran berhasil diperbarui."));
 }
 
 export async function deleteProposalAdmin(id: string) {
@@ -50,5 +51,5 @@ export async function deleteProposalAdmin(id: string) {
     .delete()
     .eq("id", id);
   if (error) throw new Error(error.message);
-  redirect("/admin/usulan-anggaran");
+  redirect("/admin/usulan-anggaran?notice=" + encodeURIComponent("Usulan anggaran berhasil dihapus."));
 }

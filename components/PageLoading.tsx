@@ -3,7 +3,9 @@ export default function PageLoading() {
     <div
       aria-label="Memuat halaman"
       aria-live="polite"
-      className="mx-auto flex w-full max-w-5xl animate-pulse flex-col gap-6 pb-10"
+      aria-busy="true"
+      role="status"
+      className="mx-auto flex w-full max-w-5xl flex-col gap-6 pb-10 motion-safe:animate-[pulse_2.4s_ease-in-out_infinite]"
     >
       <div className="space-y-3">
         <div className="h-3 w-32 rounded-full bg-[#DCE6DF]" />

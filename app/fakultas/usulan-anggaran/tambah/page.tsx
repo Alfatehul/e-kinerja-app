@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createProposal } from "../actions";
+import SubmitButton from "@/components/SubmitButton";
 
 export default function TambahUsulanPage() {
   return (
@@ -166,7 +167,7 @@ export default function TambahUsulanPage() {
         </div>
         <div className="flex flex-col-reverse gap-3 border-t border-[#EDF2EE] pt-5 sm:flex-row sm:justify-end">
           <Link href="/fakultas/usulan-anggaran" className="rounded-xl border border-[#DCE6DF] px-5 py-3 text-center text-sm font-semibold text-[#64736A] transition hover:bg-[#F5F8F5]">Batal</Link>
-          <button type="submit" className="rounded-xl bg-[#0B5B35] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#073B25]">Simpan sebagai draft</button>
+          <SubmitButton label="Simpan sebagai draft" loadingLabel="Menyimpan draft..." className="px-5 py-3" />
         </div>
       </form>
     </div>

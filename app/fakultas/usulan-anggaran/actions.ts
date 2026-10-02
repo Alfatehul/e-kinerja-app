@@ -69,7 +69,7 @@ export async function createProposal(formData: FormData) {
     by: session!.user.id,
   });
 
-  redirect("/fakultas/usulan-anggaran");
+  redirect("/fakultas/usulan-anggaran?notice=" + encodeURIComponent("Usulan anggaran berhasil disimpan sebagai draft.") + "&modal=closed");
 }
 
 export async function updateProposal(id: string, formData: FormData) {
@@ -100,7 +100,7 @@ export async function updateProposal(id: string, formData: FormData) {
     })
     .eq("id", id);
   if (error) throw new Error(error.message);
-  redirect(`/fakultas/usulan-anggaran/${id}`);
+  redirect(`/fakultas/usulan-anggaran/${id}?notice=` + encodeURIComponent("Usulan anggaran berhasil diperbarui.") + "&modal=closed");
 }
 
 export async function deleteProposal(id: string) {
@@ -110,7 +110,7 @@ export async function deleteProposal(id: string) {
     .delete()
     .eq("id", id);
   if (error) throw new Error(error.message);
-  redirect("/fakultas/usulan-anggaran");
+  redirect("/fakultas/usulan-anggaran?notice=" + encodeURIComponent("Usulan anggaran berhasil dihapus."));
 }
 
 export async function submitProposal(id: string) {
@@ -146,4 +146,5 @@ export async function submitProposal(id: string) {
   });
 
   revalidatePath(`/fakultas/usulan-anggaran/${id}`);
+  redirect(`/fakultas/usulan-anggaran/${id}?notice=` + encodeURIComponent("Usulan anggaran berhasil diajukan."));
 }

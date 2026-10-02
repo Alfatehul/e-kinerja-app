@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createRevision } from "@/app/fakultas/usulan-revisi/actions";
+import SubmitButton from "@/components/SubmitButton";
 
 type Proposal = {
   id: string;
@@ -148,7 +149,7 @@ export default function RevisionForm({ proposals }: { proposals: Proposal[] }) {
 
       <div className="flex flex-col-reverse gap-3 border-t border-[#EDF2EE] pt-5 sm:flex-row sm:justify-end">
         <Link href="/fakultas/usulan-revisi" className="rounded-xl border border-[#DCE6DF] px-5 py-3 text-center text-sm font-semibold text-[#64736A] transition hover:bg-[#F5F8F5]">Batal</Link>
-        <button type="submit" className="rounded-xl bg-[#0B5B35] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#073B25]">Ajukan revisi</button>
+        <SubmitButton label="Ajukan revisi" loadingLabel="Mengajukan revisi..." className="px-5 py-3" />
       </div>
     </form>
   );

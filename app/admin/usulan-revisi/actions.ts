@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth";
 import { notifyFacultyAdmin } from "@/lib/notifications";
-import { redirect } from "next/dist/client/components/redirect";
+import { redirect } from "next/navigation";
 
 export async function verifyRevision(
   id: string,
@@ -41,6 +41,7 @@ export async function verifyRevision(
 
   revalidatePath("/admin/usulan-revisi");
   revalidatePath(`/admin/usulan-revisi/${id}`);
+  redirect(`/admin/usulan-revisi/${id}?notice=` + encodeURIComponent("Status usulan revisi berhasil diperbarui."));
 }
 
 export async function deleteRevisionAdmin(id: string) {
@@ -50,5 +51,5 @@ export async function deleteRevisionAdmin(id: string) {
     .delete()
     .eq("id", id);
   if (error) throw new Error(error.message);
-  redirect("/admin/usulan-revisi");
+  redirect("/admin/usulan-revisi?notice=" + encodeURIComponent("Usulan revisi berhasil dihapus."));
 }

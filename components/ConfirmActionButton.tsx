@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useToast } from "./ToastProvider";
+import LoadingSpinner from "./LoadingSpinner";
 
 export default function ConfirmActionButton({
   onConfirm,
@@ -13,12 +15,35 @@ export default function ConfirmActionButton({
 }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const { success, error } = useToast();
 
   async function confirmAction() {
     setBusy(true);
     try {
       await onConfirm();
       setOpen(false);
+      success("Data berhasil dihapus.");
+    } catch (caughtError) {
+      const digest =
+        typeof caughtError === "object" &&
+        caughtError !== null &&
+        "digest" in caughtError &&
+        typeof caughtError.digest === "string"
+          ? caughtError.digest
+          : "";
+      const isRedirect =
+        (caughtError instanceof Error &&
+          caughtError.message.includes("NEXT_REDIRECT")) ||
+        digest.startsWith("NEXT_REDIRECT");
+      if (isRedirect) {
+        setOpen(false);
+        return;
+      }
+      error(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Data gagal dihapus. Silakan coba lagi.",
+      );
     } finally {
       setBusy(false);
     }
@@ -26,7 +51,7 @@ export default function ConfirmActionButton({
 
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} className={className}>
+      <button type="button" disabled={busy} onClick={() => setOpen(true)} className={className}>
         Hapus
       </button>
       {open && (
@@ -55,7 +80,14 @@ export default function ConfirmActionButton({
                 onClick={() => void confirmAction()}
                 className="rounded-xl bg-[#B42318] px-4 py-2 text-sm font-bold text-white disabled:opacity-60"
               >
-                {busy ? "Menghapus..." : "Ya, hapus"}
+                {busy ? (
+                  <span className="inline-flex items-center gap-2">
+                    <LoadingSpinner size="sm" color="white" />
+                    Menghapus...
+                  </span>
+                ) : (
+                  "Ya, hapus"
+                )}
               </button>
             </div>
           </div>

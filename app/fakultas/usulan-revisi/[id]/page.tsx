@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import StatusBadge from "@/components/StatusBadge";
-import Link from "next/link";
 import DocumentUploader from "@/components/DocumentUploader";
+import FormModal from "@/components/FormModal";
+import EditRevisiPage from "./edit/page";
 
 export default async function RevisiDetailPage({
   params,
@@ -18,6 +19,13 @@ export default async function RevisiDetailPage({
     .eq("id", id)
     .single();
   if (!revision) notFound();
+  const relatedProposals = revision.budget_proposals as
+    | { number: string }
+    | { number: string }[]
+    | null;
+  const relatedProposal = Array.isArray(relatedProposals)
+    ? relatedProposals[0]
+    : relatedProposals;
 
   // ...di dalam komponen, setelah query proposal:
   const { data: documents } = await supabase
@@ -42,16 +50,17 @@ export default async function RevisiDetailPage({
         <h1 className="font-serif text-xl font-semibold">{revision.number}</h1>
         {(revision.status === "Perlu Perbaikan" ||
           revision.status === "Ditolak") && (
-          <Link
-            href={`/fakultas/usulan-revisi/${id}/edit`}
+          <FormModal
+            label="Edit & Ajukan Ulang"
+            title="Edit usulan revisi"
             className="text-[#1B2A4B] text-xs font-semibold hover:underline"
           >
-            Edit & Ajukan Ulang
-          </Link>
+            <EditRevisiPage params={Promise.resolve({ id })} />
+          </FormModal>
         )}
       </div>
       <p className="text-sm text-[#5B5A55] mb-2">
-        Terkait: {(revision as any).budget_proposals?.number}
+        Terkait: {relatedProposal?.number ?? "-"}
       </p>
       <div className="mb-4">
         <StatusBadge status={revision.status} />

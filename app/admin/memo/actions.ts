@@ -43,7 +43,7 @@ export async function createMemo(formData: FormData) {
   await Promise.all((faculties ?? []).map((faculty) =>
     notifyFacultyAdmin(faculty.id, `Memo baru: ${title}`),
   ));
-  redirect("/admin/memo");
+  redirect("/admin/memo?notice=" + encodeURIComponent("Memo berhasil diterbitkan.") + "&modal=closed");
 }
 
 export async function toggleMemoPin(id: string, pinned: boolean) {
@@ -52,6 +52,7 @@ export async function toggleMemoPin(id: string, pinned: boolean) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin/memo");
   revalidatePath("/fakultas/memo");
+  redirect("/admin/memo?notice=" + encodeURIComponent(pinned ? "Memo berhasil disematkan." : "Sematan memo berhasil dilepas."));
 }
 
 export async function deleteMemo(id: string) {
@@ -60,4 +61,5 @@ export async function deleteMemo(id: string) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin/memo");
   revalidatePath("/fakultas/memo");
+  redirect("/admin/memo?notice=" + encodeURIComponent("Memo berhasil dihapus."));
 }

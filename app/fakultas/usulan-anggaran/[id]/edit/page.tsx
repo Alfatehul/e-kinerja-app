@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { updateProposal } from "../../actions";
+import SubmitButton from "@/components/SubmitButton";
 export default async function EditUsulanPage({
   params,
 }: {
@@ -172,9 +173,7 @@ export default async function EditUsulanPage({
           <Link href={`/fakultas/usulan-anggaran/${id}`} className="rounded-xl border border-[#DCE6DF] px-5 py-2.5 text-center text-sm font-semibold text-[#64736A] transition hover:bg-[#F5F8F5]">
             Batal
           </Link>
-          <button type="submit" className="rounded-xl bg-[#0B5B35] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#073B25]">
-            Simpan Perubahan
-          </button>
+          <SubmitButton label="Simpan Perubahan" loadingLabel="Menyimpan perubahan..." className="px-5 py-2.5" />
         </div>
       </form>
     </div>

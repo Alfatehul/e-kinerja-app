@@ -2,6 +2,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createThreadForFaculty, deleteThread } from "./actions";
 import ConfirmSubmitButton from "@/components/ConfirmSubmitButton";
+import SubmitButton from "@/components/SubmitButton";
+import FormModal from "@/components/FormModal";
 
 export default async function AdminHelpdeskPage() {
   const supabase = await createClient();
@@ -20,20 +22,22 @@ export default async function AdminHelpdeskPage() {
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6">
       <div><p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#0B5B35]">Komunikasi</p><h1 className="mt-1 text-2xl font-bold tracking-tight text-[#17231D]">Helpdesk</h1><p className="mt-2 text-sm text-[#64736A]">Kelola pertanyaan dan kendala dari Fakultas / Unit.</p></div>
-      <form action={createThreadForFaculty} className="rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6">
-        <h2 className="text-base font-bold text-[#17231D]">Mulai percakapan</h2>
-        <p className="mt-1 text-xs text-[#849289]">Pilih Fakultas / Unit yang ingin dihubungi.</p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
-          <input name="title" required placeholder="Topik bantuan" className="form-input" />
-          <select name="faculty_id" required defaultValue="" className="form-input">
-            <option value="" disabled>Pilih Fakultas / Unit</option>
-            {faculties?.map((faculty) => (
-              <option key={faculty.id} value={faculty.id}>{faculty.name}</option>
-            ))}
-          </select>
-          <button type="submit" className="rounded-xl bg-[#0B5B35] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#073B25]">Buat chat</button>
-        </div>
-      </form>
+      <div className="flex justify-end">
+        <FormModal label="Mulai percakapan" title="Buat percakapan Helpdesk">
+          <form action={createThreadForFaculty} className="mx-auto flex max-w-2xl flex-col gap-5 rounded-2xl border border-[#DCE6DF] bg-white p-5 shadow-sm sm:p-6">
+            <h2 className="text-base font-bold text-[#17231D]">Mulai percakapan</h2>
+            <p className="text-xs text-[#849289]">Pilih Fakultas / Unit yang ingin dihubungi.</p>
+            <input name="title" required placeholder="Topik bantuan" className="form-input" />
+            <select name="faculty_id" required defaultValue="" className="form-input">
+              <option value="" disabled>Pilih Fakultas / Unit</option>
+              {faculties?.map((faculty) => (
+                <option key={faculty.id} value={faculty.id}>{faculty.name}</option>
+              ))}
+            </select>
+            <SubmitButton label="Buat chat" loadingLabel="Membuat chat..." className="self-start px-5 py-2.5" />
+          </form>
+        </FormModal>
+      </div>
       {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">Gagal memuat helpdesk: {error.message}</div>}
       <div className="flex flex-col gap-3">
         {threads?.map((thread) => {

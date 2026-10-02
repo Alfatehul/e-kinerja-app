@@ -24,7 +24,7 @@ export async function createAnnouncement(formData: FormData) {
   await Promise.all((faculties ?? []).map((faculty) =>
     notifyFacultyAdmin(faculty.id, `Pengumuman baru: ${title}`),
   ));
-  redirect("/admin/pengumuman");
+  redirect("/admin/pengumuman?notice=" + encodeURIComponent("Pengumuman berhasil diterbitkan.") + "&modal=closed");
 }
 
 export async function togglePin(id: string, pinned: boolean) {
@@ -35,6 +35,7 @@ export async function togglePin(id: string, pinned: boolean) {
     .eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/pengumuman");
+  redirect("/admin/pengumuman?notice=" + encodeURIComponent(pinned ? "Pengumuman berhasil disematkan." : "Sematan pengumuman berhasil dilepas."));
 }
 
 export async function deleteAnnouncement(id: string) {
@@ -42,4 +43,5 @@ export async function deleteAnnouncement(id: string) {
   const { error } = await supabase.from("announcements").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/pengumuman");
+  redirect("/admin/pengumuman?notice=" + encodeURIComponent("Pengumuman berhasil dihapus."));
 }

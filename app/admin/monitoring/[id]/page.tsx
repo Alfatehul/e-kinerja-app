@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { verifyAssignment } from "../actions";
 import StatusBadge from "@/components/StatusBadge";
+import SubmitButton from "@/components/SubmitButton";
 
 function formatDate(value: string | null) {
   if (!value) return "-";
@@ -138,9 +139,9 @@ export default async function MonitoringDetailPage({
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#789182]">Tindakan verifikasi</p>
               <h2 className="mt-1 text-lg font-bold text-[#34463B]">Periksa pengajuan</h2>
               <p className="mt-2 text-sm leading-6 text-[#64736A]">Pastikan realisasi dan dokumen pendukung sudah sesuai sebelum memproses data.</p>
-              <form action={approve} className="mt-5"><button type="submit" className="w-full rounded-xl bg-[#527160] px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#3E5F4D]">Setujui &amp; verifikasi</button></form>
+              <form action={approve} className="mt-5"><SubmitButton label="Setujui & verifikasi" loadingLabel="Memverifikasi..." className="w-full px-4 py-3" /></form>
               <div className="my-4 flex items-center gap-3 text-[10px] font-bold uppercase tracking-wider text-[#A0AAA3]"><span className="h-px flex-1 bg-[#E5EEE8]" />atau<span className="h-px flex-1 bg-[#E5EEE8]" /></div>
-              <form action={reject} className="space-y-3"><textarea name="note" required placeholder="Tuliskan alasan penolakan..." className="min-h-24 w-full resize-y rounded-xl border border-[#DCE6DF] px-3 py-2.5 text-sm outline-none focus:border-[#C49A45]" /><button type="submit" className="w-full rounded-xl border border-[#D9B4AF] bg-[#FFF7F6] px-4 py-3 text-sm font-bold text-[#86615D] transition hover:bg-[#FBEDEA]">Tolak pengajuan</button></form>
+              <form action={reject} className="space-y-3"><textarea name="note" required placeholder="Tuliskan alasan penolakan..." className="min-h-24 w-full resize-y rounded-xl border border-[#DCE6DF] px-3 py-2.5 text-sm outline-none focus:border-[#C49A45]" /><SubmitButton label="Tolak pengajuan" loadingLabel="Memproses penolakan..." variant="secondary" className="w-full border-[#D9B4AF] bg-[#FFF7F6] px-4 py-3 text-[#86615D] hover:bg-[#FBEDEA]" /></form>
             </section>
           ) : (
             <section className="rounded-2xl border border-[#DCE6DF] bg-[#F8FBF8] p-5"><p className="text-sm font-bold text-[#34463B]">Verifikasi selesai</p><p className="mt-2 text-sm leading-6 text-[#64736A]">Data ini sudah diproses dengan status <strong>{assignment.status}</strong>.</p></section>

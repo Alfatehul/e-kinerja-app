@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -30,6 +31,7 @@ export async function updateUserProfile(formData: FormData) {
 
   if (error) throw new Error(error.message);
   revalidatePath("/admin/users");
+  redirect("/admin/users?notice=" + encodeURIComponent("Akses pengguna berhasil diperbarui.") + "&modal=closed");
 }
 
 export async function updateUserPassword(formData: FormData) {
@@ -57,4 +59,5 @@ export async function updateUserPassword(formData: FormData) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/admin/users");
+  redirect("/admin/users?notice=" + encodeURIComponent("Password pengguna berhasil diperbarui."));
 }

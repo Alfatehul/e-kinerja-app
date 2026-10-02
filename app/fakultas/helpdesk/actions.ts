@@ -23,7 +23,7 @@ export async function createThread(formData: FormData) {
 
   if (error) throw new Error(error.message);
   revalidatePath("/fakultas/helpdesk");
-  redirect(`/fakultas/helpdesk/${data.id}`);
+  redirect(`/fakultas/helpdesk/${data.id}?notice=` + encodeURIComponent("Percakapan Helpdesk berhasil dibuat."));
 }
 
 export async function sendHelpdeskMessage(

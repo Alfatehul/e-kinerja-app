@@ -116,7 +116,7 @@ export async function createRevision(formData: FormData) {
     by: session!.user.id,
   });
 
-  redirect("/fakultas/usulan-revisi");
+  redirect("/fakultas/usulan-revisi?notice=" + encodeURIComponent("Usulan revisi berhasil diajukan.") + "&modal=closed");
 }
 
 export async function updateRevision(id: string, formData: FormData) {
@@ -134,5 +134,5 @@ export async function updateRevision(id: string, formData: FormData) {
     })
     .eq("id", id);
   if (error) throw new Error(error.message);
-  redirect(`/fakultas/usulan-revisi/${id}`);
+  redirect(`/fakultas/usulan-revisi/${id}?notice=` + encodeURIComponent("Usulan revisi berhasil diperbarui dan diajukan.") + "&modal=closed");
 }
