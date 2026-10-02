@@ -2,10 +2,13 @@ import Link from "next/link";
 import { getCurrentProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import StatusBadge from "@/components/StatusBadge";
+import FormModal from "@/components/FormModal";
+import PengisianDetailPage from "./[id]/page";
 
 type Assignment = {
   id: string;
   realization: number;
+  realization_unit: string | null;
   status: string;
   document_link: string | null;
   indicators: {
@@ -139,13 +142,23 @@ export default async function PengisianPage({
                   <td className="px-5 py-4 font-bold text-[#0B5B35]">{assignment.indicators?.code ?? "-"}</td>
                   <td className="max-w-xs px-5 py-4 font-semibold text-[#334A3C]">{assignment.indicators?.name ?? "-"}</td>
                   <td className="px-5 py-4 text-[#52645A]">{assignment.indicators ? `${assignment.indicators.target} ${assignment.indicators.unit ?? ""}` : "-"}</td>
-                  <td className="px-5 py-4 font-medium text-[#52645A]">{assignment.indicators ? `${assignment.realization ?? 0} ${assignment.indicators.unit ?? ""}` : "-"}</td>
+                  <td className="px-5 py-4 font-medium text-[#52645A]">{assignment.indicators ? `${assignment.realization ?? 0} ${assignment.realization_unit ?? assignment.indicators.unit ?? ""}` : "-"}</td>
                   <td className="px-5 py-4"><StatusBadge status={assignment.status ?? "Draft"} /></td>
                   <td className="px-5 py-4">
                     {assignment.document_link ? <a href={assignment.document_link} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#0B5B35] hover:underline">Buka link</a> : <span className="text-xs text-[#849289]">Belum ada</span>}
                   </td>
                   <td className="px-5 py-4 text-right">
-                    <Link href={`/fakultas/pengisian/${assignment.id}`} className="inline-flex rounded-lg border border-[#B9D7C1] px-3 py-1.5 text-xs font-bold text-[#0B5B35] hover:bg-[#F0F8F2]">Kelola realisasi</Link>
+                    <FormModal
+                      label="Kelola realisasi"
+                      title={`Kelola realisasi ${assignment.indicators?.name ?? ""}`}
+                      className="inline-flex rounded-lg border border-[#B9D7C1] px-3 py-1.5 text-xs font-bold text-[#0B5B35] transition hover:bg-[#F0F8F2]"
+                      dialogClassName="max-w-3xl"
+                    >
+                      <PengisianDetailPage
+                        params={Promise.resolve({ id: assignment.id })}
+                        returnTo="/fakultas/pengisian"
+                      />
+                    </FormModal>
                   </td>
                 </tr>
               ))}

@@ -5,6 +5,7 @@ import IndicatorReport, {
 
 type ReportAssignment = {
   realization: number | null;
+  realization_unit: string | null;
   document_link: string | null;
   indicators: IndicatorData | IndicatorData[] | null;
   faculties:
@@ -27,7 +28,7 @@ export default async function AdminReportPage() {
       supabase
         .from("indicator_assignments")
         .select(
-          "realization, document_link, faculties(id, name), indicators(code, name, quarter, target, unit)",
+          "realization, realization_unit, document_link, faculties(id, name), indicators(code, name, quarter, target, unit)",
         ),
       supabase.from("faculties").select("id, name").order("name"),
     ],
@@ -49,7 +50,7 @@ export default async function AdminReportPage() {
               quarter: indicator.quarter,
               target: Number(indicator.target ?? 0),
               realization: Number(assignment.realization ?? 0),
-              unit: indicator.unit ?? "",
+              unit: assignment.realization_unit ?? indicator.unit ?? "",
               documentLink: assignment.document_link ?? null,
             },
           ]

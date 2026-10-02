@@ -17,8 +17,10 @@ async function recomputeRealization(assignmentId: string) {
 
 export default async function EditLogPage({
   params,
+  returnTo = "",
 }: {
   params: Promise<{ id: string; logId: string }>;
+  returnTo?: string;
 }) {
   const { id, logId } = await params;
   const supabase = await createClient();
@@ -38,14 +40,19 @@ export default async function EditLogPage({
       .update({
         amount: Number(formData.get("amount")),
         date: formData.get("date") as string,
-        note: formData.get("note") as string,
       })
       .eq("id", logId);
 
     if (error) throw new Error(error.message);
 
     await recomputeRealization(id);
-    redirect(`/fakultas/pengisian/${id}?notice=` + encodeURIComponent("Realisasi berhasil diperbarui.") + "&modal=closed");
+    const returnPath =
+      formData.get("return_path") === "/fakultas/pengisian"
+        ? "/fakultas/pengisian"
+        : `/fakultas/pengisian/${id}`;
+    redirect(
+      `${returnPath}?notice=${encodeURIComponent("Realisasi berhasil diperbarui.")}&modal=closed`,
+    );
   }
 
   return (
@@ -57,6 +64,9 @@ export default async function EditLogPage({
         action={updateLog}
         className="bg-white border border-[#E1DDCF] rounded-lg p-6 flex flex-col gap-4"
       >
+        {returnTo && (
+          <input type="hidden" name="return_path" value={returnTo} />
+        )}
         <div>
           <label className="block text-sm font-semibold mb-1">Jumlah</label>
           <input
@@ -75,14 +85,6 @@ export default async function EditLogPage({
             type="date"
             required
             defaultValue={log.date}
-            className="w-full border border-[#E1DDCF] rounded-md p-2 text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-semibold mb-1">Keterangan</label>
-          <textarea
-            name="note"
-            defaultValue={log.note ?? ""}
             className="w-full border border-[#E1DDCF] rounded-md p-2 text-sm"
           />
         </div>

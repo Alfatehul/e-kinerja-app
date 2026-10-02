@@ -20,17 +20,45 @@ async function recomputeRealization(assignmentId: string) {
     .eq("id", assignmentId);
 }
 
+function getReturnPath(assignmentId: string, returnPath: unknown) {
+  const detailPath = `/fakultas/pengisian/${assignmentId}`;
+
+  return returnPath === "/fakultas/pengisian" || returnPath === detailPath
+    ? returnPath
+    : detailPath;
+}
+
+function getTodayJakarta() {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jakarta",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
 export async function addRealization(assignmentId: string, formData: FormData) {
   const supabase = await createClient();
+
+  const submittedDate = String(formData.get("date") ?? "").trim();
+  const realizationUnit = String(formData.get("realization_unit") ?? "").trim();
+  if (!realizationUnit) {
+    throw new Error("Satuan realisasi wajib diisi.");
+  }
 
   const { error } = await supabase.from("realization_log").insert({
     assignment_id: assignmentId,
     amount: Number(formData.get("amount")),
-    date: formData.get("date") as string,
-    note: formData.get("note") as string,
+    date: submittedDate || getTodayJakarta(),
   });
 
   if (error) throw new Error(error.message);
+
+  const { error: unitError } = await supabase
+    .from("indicator_assignments")
+    .update({ realization_unit: realizationUnit })
+    .eq("id", assignmentId);
+  if (unitError) throw new Error(unitError.message);
 
   await recomputeRealization(assignmentId);
 
@@ -48,7 +76,10 @@ export async function addRealization(assignmentId: string, formData: FormData) {
   }
 
   revalidatePath(`/fakultas/pengisian/${assignmentId}`);
-  redirect(`/fakultas/pengisian/${assignmentId}?notice=` + encodeURIComponent("Realisasi berhasil ditambahkan."));
+  revalidatePath("/fakultas/pengisian");
+  redirect(
+    `${getReturnPath(assignmentId, formData.get("return_path"))}?notice=${encodeURIComponent("Realisasi berhasil ditambahkan.")}&modal=closed`,
+  );
 }
 
 export async function deleteRealization(assignmentId: string, logId: string) {
@@ -59,10 +90,14 @@ export async function deleteRealization(assignmentId: string, logId: string) {
     .eq("id", logId);
   if (error) throw new Error(error.message);
   await recomputeRealization(assignmentId);
+  revalidatePath("/fakultas/pengisian");
   revalidatePath(`/fakultas/pengisian/${assignmentId}`);
 }
 
-export async function submitForVerification(assignmentId: string) {
+export async function submitForVerification(
+  assignmentId: string,
+  returnPath?: string,
+) {
   const supabase = await createClient();
   const { data: assignment, error: assignmentError } = await supabase
     .from("indicator_assignments")
@@ -84,10 +119,15 @@ export async function submitForVerification(assignmentId: string) {
   if (error) throw new Error(error.message);
   revalidatePath(`/fakultas/pengisian/${assignmentId}`);
   revalidatePath("/fakultas/pengisian");
-  redirect(`/fakultas/pengisian/${assignmentId}?notice=` + encodeURIComponent("Indikator berhasil diajukan untuk verifikasi."));
+  redirect(
+    `${getReturnPath(assignmentId, returnPath)}?notice=${encodeURIComponent("Indikator berhasil diajukan untuk verifikasi.")}&modal=closed`,
+  );
 }
 
-export async function cancelSubmission(assignmentId: string) {
+export async function cancelSubmission(
+  assignmentId: string,
+  returnPath?: string,
+) {
   const supabase = await createClient();
   const { error } = await supabase
     .from("indicator_assignments")
@@ -99,10 +139,16 @@ export async function cancelSubmission(assignmentId: string) {
 
   revalidatePath(`/fakultas/pengisian/${assignmentId}`);
   revalidatePath("/fakultas/pengisian");
-  redirect(`/fakultas/pengisian/${assignmentId}?notice=` + encodeURIComponent("Pengajuan berhasil dibatalkan."));
+  redirect(
+    `${getReturnPath(assignmentId, returnPath)}?notice=${encodeURIComponent("Pengajuan berhasil dibatalkan.")}&modal=closed`,
+  );
 }
 
-export async function updateDocumentLink(assignmentId: string, link: string) {
+export async function updateDocumentLink(
+  assignmentId: string,
+  link: string,
+  returnPath?: string,
+) {
   const documentLink = link.trim();
   if (!documentLink) {
     throw new Error("Link dokumen pendukung wajib diisi.");
@@ -116,5 +162,9 @@ export async function updateDocumentLink(assignmentId: string, link: string) {
   if (error) throw new Error(error.message);
   revalidatePath(`/fakultas/pengisian/${assignmentId}`);
   revalidatePath("/fakultas/pengisian");
-  redirect(`/fakultas/pengisian/${assignmentId}?notice=` + encodeURIComponent("Link dokumen pendukung berhasil disimpan."));
+  const destination =
+    getReturnPath(assignmentId, returnPath);
+  redirect(
+    `${destination}?notice=${encodeURIComponent("Link dokumen pendukung berhasil disimpan.")}&modal=closed`,
+  );
 }

@@ -150,6 +150,7 @@ export default async function MonitoringPage({
               indicators: { code: string; name: string; target: number; unit: string };
               faculties: { name: string };
               realization: number;
+              realization_unit: string | null;
             }) => (
               <tr key={a.id} className="border-t border-[#E8EFEA] transition-colors hover:bg-[#FAFCFA]">
                 <td className="px-5 py-4">
@@ -163,7 +164,7 @@ export default async function MonitoringPage({
                   {a.indicators.target} {a.indicators.unit}
                 </td>
                 <td className="px-5 py-4 font-medium text-[#334A3C]">
-                  {a.realization} {a.indicators.unit}
+                  {a.realization} {a.realization_unit ?? a.indicators.unit ?? ""}
                 </td>
                 <td className="px-5 py-4 text-right">
                   <Link

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import DeleteIndicatorButton from "@/components/DeleteIndicatorButton";
 import IndicatorCreateModal from "@/components/IndicatorCreateModal";
 import FormModal from "@/components/FormModal";
+import IndicatorFacultyFilter from "@/components/IndicatorFacultyFilter";
 import TambahIndikatorPage from "./tambah/page";
 import EditIndikatorPage from "./[id]/edit/page";
 
@@ -114,29 +115,18 @@ export default async function IndikatorListPage({
         </div>
       </div>
 
+      {quarter && (
+      <>
       <form
         method="get"
         className="grid gap-3 rounded-2xl border border-[#DCE6DF] bg-white p-4 shadow-sm md:grid-cols-[1.4fr_1fr_1fr_1fr_auto]"
       >
-        {quarter && <input type="hidden" name="quarter" value={quarter} />}
-        <div>
-          <label htmlFor="faculty" className="mb-1.5 block text-xs font-semibold text-[#334A3C]">
-            Fakultas / Unit
-          </label>
-          <select
-            id="faculty"
-            name="faculty"
-            defaultValue={faculty ?? ""}
-            className="w-full rounded-xl border border-[#DCE6DF] bg-[#F8FBF8] px-3 py-2.5 text-sm text-[#17231D] outline-none focus:border-[#7FB493] focus:ring-2 focus:ring-[#7FB493]/15"
-          >
-            <option value="">Semua fakultas / unit</option>
-            {(faculties ?? []).map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.code ? `${item.code} — ` : ""}{item.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <input type="hidden" name="quarter" value={quarter} />
+        {faculty && <input type="hidden" name="faculty" value={faculty} />}
+        <IndicatorFacultyFilter
+          faculties={faculties ?? []}
+          selectedFaculty={faculty ?? ""}
+        />
         <div>
           <label htmlFor="q" className="mb-1.5 block text-xs font-semibold text-[#334A3C]">
             Cari indikator
@@ -268,6 +258,8 @@ export default async function IndikatorListPage({
         </table>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }

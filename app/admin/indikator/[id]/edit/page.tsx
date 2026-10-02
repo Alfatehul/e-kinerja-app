@@ -73,7 +73,28 @@ export default async function EditIndikatorPage({
 
     const supabase = await createClient();
 
-    const selectedFaculties = formData.getAll("faculties") as string[];
+    const selectedFaculties = [
+      ...new Set(
+        formData
+          .getAll("faculties")
+          .filter((value): value is string => typeof value === "string"),
+      ),
+    ];
+
+    const {
+      data: currentAssignments,
+      error: currentAssignmentsError,
+    } = await supabase
+      .from("indicator_assignments")
+      .select("faculty_id")
+      .eq("indicator_id", id);
+
+    if (currentAssignmentsError) {
+      throw new Error(currentAssignmentsError.message);
+    }
+
+    const currentFacultyIds =
+      currentAssignments?.map((assignment) => assignment.faculty_id) ?? [];
 
     const { error } = await supabase
       .from("indicators")
@@ -96,14 +117,31 @@ export default async function EditIndikatorPage({
     const newFacultyIds = selectedFaculties.filter(
       (fid) => !currentFacultyIds.includes(fid),
     );
+    const removedFacultyIds = currentFacultyIds.filter(
+      (fid) => !selectedFaculties.includes(fid),
+    );
+
+    if (removedFacultyIds.length > 0) {
+      const { error: removalError } = await supabase
+        .from("indicator_assignments")
+        .delete()
+        .eq("indicator_id", id)
+        .in("faculty_id", removedFacultyIds);
+
+      if (removalError) throw new Error(removalError.message);
+    }
 
     if (newFacultyIds.length > 0) {
-      await supabase.from("indicator_assignments").insert(
-        newFacultyIds.map((facultyId) => ({
-          indicator_id: id,
-          faculty_id: facultyId,
-        })),
-      );
+      const { error: assignmentError } = await supabase
+        .from("indicator_assignments")
+        .insert(
+          newFacultyIds.map((facultyId) => ({
+            indicator_id: id,
+            faculty_id: facultyId,
+          })),
+        );
+
+      if (assignmentError) throw new Error(assignmentError.message);
     }
 
     redirect("/admin/indikator?notice=updated&modal=closed");
@@ -351,7 +389,6 @@ export default async function EditIndikatorPage({
                     name="faculties"
                     value={faculty.id}
                     defaultChecked={already}
-                    disabled={already}
                     className="w-4 h-4 accent-[#1B2A4B]"
                   />
 
@@ -377,9 +414,9 @@ export default async function EditIndikatorPage({
 
           <div className="mt-4 p-3 rounded-lg bg-amber-50 border border-amber-100">
             <p className="text-xs leading-relaxed text-amber-800">
-              Fakultas yang sudah ditugaskan tidak dapat dilepas dari halaman
-              ini agar data yang sudah diisi tidak hilang. Centang fakultas baru
-              untuk menambahkan penugasan.
+              Lepas centang fakultas untuk menghapus penugasannya. Data capaian
+              dan dokumen yang sudah diisi oleh fakultas tersebut juga akan
+              dihapus saat perubahan disimpan.
             </p>
           </div>
         </div>

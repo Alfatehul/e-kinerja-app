@@ -5,6 +5,7 @@ import StatusBadge from "@/components/StatusBadge";
 type Assignment = {
   id: string;
   realization: number;
+  realization_unit: string | null;
   status: string;
   indicators: {
     code: string;
@@ -191,7 +192,7 @@ export default async function FakultasIndikatorPage({
                     <td className="px-5 py-4 font-bold text-[#0B5B35]">{assignment.indicators.code}</td>
                     <td className="max-w-xs px-5 py-4 font-semibold text-[#334A3C]">{assignment.indicators.name}</td>
                     <td className="px-5 py-4 text-[#52645A]">{target} {assignment.indicators.unit}</td>
-                    <td className="px-5 py-4 text-[#52645A]">{assignment.realization} {assignment.indicators.unit}</td>
+                    <td className="px-5 py-4 text-[#52645A]">{assignment.realization} {assignment.realization_unit ?? assignment.indicators.unit ?? ""}</td>
                     <td className="px-5 py-4 font-bold text-[#0B5B35]">{pct}%</td>
                     <td className="px-5 py-4 text-[#64736A]">{assignment.indicators.deadline}</td>
                     <td className="px-5 py-4"><StatusBadge status={assignment.status} /></td>

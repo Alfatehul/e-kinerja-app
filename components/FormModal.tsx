@@ -9,11 +9,13 @@ export default function FormModal({
   label,
   title,
   className,
+  dialogClassName,
 }: {
   children: ReactNode;
   label: string;
   title: string;
   className?: string;
+  dialogClassName?: string;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -59,7 +61,7 @@ export default function FormModal({
       </button>
       {visible && (
         <div
-          className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-[#17231D]/45 p-3 backdrop-blur-sm sm:p-6"
+          className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-[#17231D]/45 p-3 backdrop-blur-sm sm:p-6"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) setOpen(false);
           }}
@@ -68,7 +70,7 @@ export default function FormModal({
             role="dialog"
             aria-modal="true"
             aria-label={title}
-            className="relative my-auto w-full max-w-5xl rounded-2xl bg-[#F5F7F5] shadow-2xl"
+            className={`relative my-auto flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl bg-[#F5F7F5] shadow-2xl ${dialogClassName ?? "max-w-3xl"}`}
           >
             <button
               type="button"
@@ -78,7 +80,7 @@ export default function FormModal({
             >
               <XMarkIcon className="h-5 w-5" />
             </button>
-            <div className="form-modal-content max-h-[90vh] overflow-y-auto p-1 sm:p-3">
+            <div className="form-modal-content min-h-0 overflow-y-auto p-1 sm:p-3">
               {children}
             </div>
           </section>

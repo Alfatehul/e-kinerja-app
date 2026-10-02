@@ -85,7 +85,7 @@ export default async function MonitoringDetailPage({
         </div>
         <div className="grid divide-y divide-[#E8EFEA] sm:grid-cols-3 sm:divide-x sm:divide-y-0">
           <div className="px-5 py-5 sm:px-8"><p className="text-xs font-semibold uppercase tracking-wide text-[#849289]">Target</p><p className="mt-2 text-2xl font-bold text-[#34463B]">{target} <span className="text-sm font-medium text-[#849289]">{indicator?.unit ?? ""}</span></p></div>
-          <div className="px-5 py-5 sm:px-8"><p className="text-xs font-semibold uppercase tracking-wide text-[#849289]">Realisasi</p><p className="mt-2 text-2xl font-bold text-[#527160]">{realization} <span className="text-sm font-medium text-[#849289]">{indicator?.unit ?? ""}</span></p></div>
+          <div className="px-5 py-5 sm:px-8"><p className="text-xs font-semibold uppercase tracking-wide text-[#849289]">Realisasi</p><p className="mt-2 text-2xl font-bold text-[#527160]">{realization} <span className="text-sm font-medium text-[#849289]">{assignment.realization_unit ?? indicator?.unit ?? ""}</span></p></div>
           <div className="px-5 py-5 sm:px-8"><p className="text-xs font-semibold uppercase tracking-wide text-[#849289]">Capaian</p><p className="mt-2 text-2xl font-bold text-[#806F43]">{pct}%</p></div>
         </div>
       </section>
@@ -115,7 +115,7 @@ export default async function MonitoringDetailPage({
                 {logs.map((log, index) => (
                   <div key={log.id} className="flex gap-4 px-5 py-4 sm:px-6">
                     <div className="flex flex-col items-center"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EEF5F0] text-xs font-bold text-[#527160]">{index + 1}</span>{index < logs.length - 1 && <span className="mt-2 h-full w-px bg-[#DCE6DF]" />}</div>
-                    <div className="min-w-0 pb-1"><p className="font-bold text-[#34463B]">+{log.amount} {indicator?.unit ?? ""}</p><p className="mt-1 text-xs font-semibold text-[#789182]">{formatDate(log.date)}</p>{log.note && <p className="mt-2 text-sm leading-6 text-[#64736A]">{log.note}</p>}</div>
+                    <div className="min-w-0 pb-1"><p className="font-bold text-[#34463B]">+{log.amount} {assignment.realization_unit ?? indicator?.unit ?? ""}</p><p className="mt-1 text-xs font-semibold text-[#789182]">{formatDate(log.date)}</p>{log.note && <p className="mt-2 text-sm leading-6 text-[#64736A]">{log.note}</p>}</div>
                   </div>
                 ))}
               </div>

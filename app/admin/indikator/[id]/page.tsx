@@ -93,7 +93,28 @@ export default async function EditIndikatorPage({
 
     const supabase = await createClient();
 
-    const selectedFaculties = formData.getAll("faculties") as string[];
+    const selectedFaculties = [
+      ...new Set(
+        formData
+          .getAll("faculties")
+          .filter((value): value is string => typeof value === "string"),
+      ),
+    ];
+
+    const {
+      data: currentAssignments,
+      error: currentAssignmentsError,
+    } = await supabase
+      .from("indicator_assignments")
+      .select("faculty_id")
+      .eq("indicator_id", id);
+
+    if (currentAssignmentsError) {
+      throw new Error(currentAssignmentsError.message);
+    }
+
+    const currentFacultyIds =
+      currentAssignments?.map((assignment) => assignment.faculty_id) ?? [];
 
     // Update indikator
     const { error } = await supabase
@@ -119,6 +140,21 @@ export default async function EditIndikatorPage({
     const newFacultyIds = selectedFaculties.filter(
       (facultyId) => !currentFacultyIds.includes(facultyId),
     );
+    const removedFacultyIds = currentFacultyIds.filter(
+      (facultyId) => !selectedFaculties.includes(facultyId),
+    );
+
+    if (removedFacultyIds.length > 0) {
+      const { error: removalError } = await supabase
+        .from("indicator_assignments")
+        .delete()
+        .eq("indicator_id", id)
+        .in("faculty_id", removedFacultyIds);
+
+      if (removalError) {
+        throw new Error(removalError.message);
+      }
+    }
 
     // Tambahkan penugasan baru
     if (newFacultyIds.length > 0) {
@@ -359,7 +395,6 @@ export default async function EditIndikatorPage({
                     name="faculties"
                     value={faculty.id}
                     defaultChecked={already}
-                    disabled={already}
                     className="w-4 h-4 accent-[#1B2A4B]"
                   />
 
@@ -400,9 +435,9 @@ export default async function EditIndikatorPage({
 
           <div className="mt-4 rounded-lg bg-amber-50 border border-amber-100 p-3">
             <p className="text-xs text-amber-800">
-              Fakultas yang sudah ditugaskan tidak dapat dilepas dari halaman
-              ini agar data yang sudah diisi tidak hilang. Centang fakultas baru
-              untuk menambahkan penugasan.
+              Lepas centang fakultas untuk menghapus penugasannya. Data capaian
+              dan dokumen yang sudah diisi oleh fakultas tersebut juga akan
+              dihapus saat perubahan disimpan.
             </p>
           </div>
         </div>
