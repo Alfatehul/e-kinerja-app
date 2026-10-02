@@ -10,12 +10,14 @@ export default function FormModal({
   title,
   className,
   dialogClassName,
+  showTitle = false,
 }: {
   children: ReactNode;
   label: string;
   title: string;
   className?: string;
   dialogClassName?: string;
+  showTitle?: boolean;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -72,6 +74,13 @@ export default function FormModal({
             aria-label={title}
             className={`relative my-auto flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl bg-[#F5F7F5] shadow-2xl ${dialogClassName ?? "max-w-3xl"}`}
           >
+            {showTitle && (
+              <div className="shrink-0 border-b border-[#DCE6DF] bg-white px-5 py-4">
+                <h2 className="pr-10 text-base font-bold leading-snug text-[#17231D] sm:text-lg">
+                  {title}
+                </h2>
+              </div>
+            )}
             <button
               type="button"
               onClick={() => setOpen(false)}
@@ -80,7 +89,9 @@ export default function FormModal({
             >
               <XMarkIcon className="h-5 w-5" />
             </button>
-            <div className="form-modal-content min-h-0 overflow-y-auto p-1 sm:p-3">
+            <div
+              className={`form-modal-content min-h-0 overflow-y-auto ${showTitle ? "p-3 sm:p-5" : "p-1 sm:p-3"}`}
+            >
               {children}
             </div>
           </section>

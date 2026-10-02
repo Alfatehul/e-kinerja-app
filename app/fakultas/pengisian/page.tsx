@@ -150,9 +150,10 @@ export default async function PengisianPage({
                   <td className="px-5 py-4 text-right">
                     <FormModal
                       label="Kelola realisasi"
-                      title={`Kelola realisasi ${assignment.indicators?.name ?? ""}`}
+                      title="Kelola realisasi"
                       className="inline-flex rounded-lg border border-[#B9D7C1] px-3 py-1.5 text-xs font-bold text-[#0B5B35] transition hover:bg-[#F0F8F2]"
                       dialogClassName="max-w-3xl"
+                      showTitle
                     >
                       <PengisianDetailPage
                         params={Promise.resolve({ id: assignment.id })}
