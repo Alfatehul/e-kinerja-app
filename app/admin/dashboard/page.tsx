@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import DashboardCharts from "@/components/DashboardCharts";
+import FacultyAchievementRanking, {
+  type FacultyAchievement,
+} from "@/components/FacultyAchievementRanking";
 import {
   DashboardPanel,
   DashboardStatCard,
@@ -12,7 +15,7 @@ import DashboardAnnouncements, {
 
 type Indicator = {
   id: string;
-  target: number;
+  target: number | null;
   deadline: string | null;
   code: string;
   name: string;
@@ -34,6 +37,7 @@ export default async function AdminDashboardPage() {
     { data: proposals },
     { data: revisions },
     { data: announcements },
+    { data: facultyAchievements, error: facultyAchievementsError },
   ] = await Promise.all([
     supabase.from("indicators").select("id, target, deadline, code, name"),
     supabase
@@ -54,12 +58,24 @@ export default async function AdminDashboardPage() {
       .order("pinned", { ascending: false })
       .order("publish_date", { ascending: false })
       .limit(4),
+    supabase.rpc("get_faculty_achievement_summary"),
   ]);
+  if (facultyAchievementsError) {
+    throw new Error(
+      `Gagal memuat ringkasan capaian fakultas: ${facultyAchievementsError.message}`,
+    );
+  }
 
   const indicatorData = (indicators ?? []) as Indicator[];
   const assignmentData = (assignments ?? []) as Assignment[];
-  const pct = (realization: number, target: number) =>
-    target ? Math.min(100, Math.round((realization / target) * 1000) / 10) : 0;
+  const pct = (realization: number, target: number | null) =>
+    target == null
+      ? realization > 0
+        ? 100
+        : 0
+      : target > 0
+        ? Math.min(100, Math.round((realization / target) * 1000) / 10)
+        : 0;
   const totalIndicators = indicatorData.length;
   const avgCapaian =
     assignmentData.length > 0
@@ -69,7 +85,7 @@ export default async function AdminDashboardPage() {
               (item) => item.id === assignment.indicator_id,
             );
             return (
-              total + pct(assignment.realization ?? 0, indicator?.target ?? 0)
+              total + pct(assignment.realization ?? 0, indicator?.target ?? null)
             );
           }, 0) /
             assignmentData.length) *
@@ -111,7 +127,7 @@ export default async function AdminDashboardPage() {
                 (item) => item.id === assignment.indicator_id,
               );
               return (
-                total + pct(assignment.realization ?? 0, indicator?.target ?? 0)
+                total + pct(assignment.realization ?? 0, indicator?.target ?? null)
               );
             }, 0) /
               related.length) *
@@ -120,6 +136,8 @@ export default async function AdminDashboardPage() {
         : 0;
     return { name: faculty.code ?? faculty.name.slice(0, 8), capaian: average };
   });
+  const facultyAchievementData =
+    (facultyAchievements ?? []) as FacultyAchievement[];
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-6">
@@ -173,6 +191,7 @@ export default async function AdminDashboardPage() {
       />
 
       <DashboardCharts data={facultyPerf} />
+      <FacultyAchievementRanking achievements={facultyAchievementData} />
 
       <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
         <DashboardPanel

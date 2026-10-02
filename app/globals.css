@@ -97,6 +97,27 @@ textarea:focus {
   display: none;
 }
 
+@keyframes achievement-bar-enter {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.achievement-bar {
+  transform-origin: left;
+  animation: achievement-bar-enter 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .achievement-bar {
+    animation: none;
+  }
+}
+
 .dark {
   color-scheme: dark;
   --background: #101820;

@@ -156,35 +156,35 @@ export default async function PengisianPage({
                       : 0;
 
                 return (
-                <tr key={assignment.id} className="border-t border-[#E8EFEA] transition-colors hover:bg-[#FAFCFA]">
-                  <td className="px-5 py-4 text-center text-[#849289]">{index + 1}</td>
-                  <td className="px-5 py-4 font-bold text-[#0B5B35]">{assignment.indicators?.code ?? "-"}</td>
-                  <td className="max-w-xs px-5 py-4 font-semibold text-[#334A3C]">{assignment.indicators?.name ?? "-"}</td>
-                  <td className="px-5 py-4 text-[#52645A]">{assignment.indicators ? `${assignment.indicators.target} ${assignment.indicators.unit ?? ""}` : "-"}</td>
-                  <td className="px-5 py-4 font-medium text-[#52645A]">{assignment.indicators ? `${assignment.realization ?? 0} ${assignment.realization_unit ?? assignment.indicators.unit ?? ""}` : "-"}</td>
-                  <td className="px-5 py-4"><StatusBadge status={assignment.status ?? "Draft"} /></td>
-                  <td className="px-5 py-4">
-                    {assignment.document_link ? <a href={assignment.document_link} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#0B5B35] hover:underline">Buka link</a> : <span className="text-xs text-[#849289]">Belum ada</span>}
-                  </td>
-                  <td className="px-5 py-4 font-medium text-[#52645A]">
-                    {achievement == null ? "-" : `${achievement}%`}
-                  </td>
-                  <td className="px-5 py-4 text-right">
-                    <FormModal
-                      label="Kelola realisasi"
-                      title="Kelola realisasi"
-                      className="inline-flex rounded-lg border border-[#B9D7C1] px-3 py-1.5 text-xs font-bold text-[#0B5B35] transition hover:bg-[#F0F8F2]"
-                      dialogClassName="max-w-3xl"
-                      showTitle
-                    >
-                      <PengisianDetailPage
-                        params={Promise.resolve({ id: assignment.id })}
-                        returnTo="/fakultas/pengisian"
-                      />
-                    </FormModal>
-                  </td>
-                </tr>
-              );
+                  <tr key={assignment.id} className="border-t border-[#E8EFEA] transition-colors hover:bg-[#FAFCFA]">
+                    <td className="px-5 py-4 text-center text-[#849289]">{index + 1}</td>
+                    <td className="px-5 py-4 font-bold text-[#0B5B35]">{assignment.indicators?.code ?? "-"}</td>
+                    <td className="max-w-xs px-5 py-4 font-semibold text-[#334A3C]">{assignment.indicators?.name ?? "-"}</td>
+                    <td className="px-5 py-4 text-[#52645A]">{assignment.indicators ? `${assignment.indicators.target} ${assignment.indicators.unit ?? ""}` : "-"}</td>
+                    <td className="px-5 py-4 font-medium text-[#52645A]">{assignment.indicators ? `${assignment.realization ?? 0} ${assignment.realization_unit ?? assignment.indicators.unit ?? ""}` : "-"}</td>
+                    <td className="px-5 py-4"><StatusBadge status={assignment.status ?? "Draft"} /></td>
+                    <td className="px-5 py-4">
+                      {assignment.document_link ? <a href={assignment.document_link} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#0B5B35] hover:underline">Buka link</a> : <span className="text-xs text-[#849289]">Belum ada</span>}
+                    </td>
+                    <td className="px-5 py-4 font-medium text-[#52645A]">
+                      {achievement == null ? "-" : `${achievement}%`}
+                    </td>
+                    <td className="px-5 py-4 text-right">
+                      <FormModal
+                        label="Kelola realisasi"
+                        title="Kelola realisasi"
+                        className="inline-flex rounded-lg border border-[#B9D7C1] px-3 py-1.5 text-xs font-bold text-[#0B5B35] transition hover:bg-[#F0F8F2]"
+                        dialogClassName="max-w-3xl"
+                        showTitle
+                      >
+                        <PengisianDetailPage
+                          params={Promise.resolve({ id: assignment.id })}
+                          returnTo="/fakultas/pengisian"
+                        />
+                      </FormModal>
+                    </td>
+                  </tr>
+                );
               })}
               {rows?.length === 0 && <tr><td colSpan={9} className="px-5 py-12 text-center text-[#64736A]">Tidak ada indikator yang sesuai dengan filter.</td></tr>}
             </tbody>

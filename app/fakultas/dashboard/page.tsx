@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -6,6 +7,9 @@ import {
   DashboardStatCard,
   EmptyDashboardState,
 } from "@/components/DashboardCard";
+import FacultyAchievementRanking, {
+  type FacultyAchievement,
+} from "@/components/FacultyAchievementRanking";
 import DashboardAnnouncements, {
   type DashboardAnnouncement,
 } from "@/components/DashboardAnnouncements";
@@ -17,7 +21,7 @@ type Assignment = {
   indicators: {
     code: string;
     name: string;
-    target: number;
+    target: number | null;
     unit: string | null;
     deadline: string | null;
   } | null;
@@ -25,12 +29,16 @@ type Assignment = {
 
 export default async function FakultasDashboardPage() {
   const session = await getCurrentProfile();
+  if (!session) redirect("/login");
+  if (session.profile.role !== "admin_fakultas") redirect("/admin/dashboard");
+
   const supabase = await createClient();
   const [
     { data: assignments },
     { data: proposals },
     { data: revisions },
     { data: announcements },
+    { data: achievements, error: achievementsError },
   ] = await Promise.all([
     supabase
       .from("indicator_assignments")
@@ -47,7 +55,11 @@ export default async function FakultasDashboardPage() {
       .eq("faculty_id", session!.profile.faculty_id)
       .order("created_at", { ascending: false }),
     supabase.from("announcements").select("id, title, body, publish_date, pinned").order("pinned", { ascending: false }).order("publish_date", { ascending: false }).limit(4),
+    supabase.rpc("get_faculty_achievement_summary"),
   ]);
+  if (achievementsError) {
+    throw new Error(`Gagal memuat ringkasan capaian fakultas: ${achievementsError.message}`);
+  }
 
   const assignmentData = (assignments ?? []).map((assignment) => ({
     ...assignment,
@@ -55,12 +67,18 @@ export default async function FakultasDashboardPage() {
       ? assignment.indicators[0] ?? null
       : assignment.indicators,
   })) as Assignment[];
-  const pct = (realization: number, target: number) =>
-    target ? Math.min(100, Math.round((realization / target) * 1000) / 10) : 0;
+  const pct = (realization: number, target: number | null) =>
+    target == null
+      ? realization > 0
+        ? 100
+        : 0
+      : target > 0
+        ? Math.min(100, Math.round((realization / target) * 1000) / 10)
+        : 0;
   const average =
     assignmentData.length > 0
       ? Math.round(
-          (assignmentData.reduce((total, assignment) => total + pct(assignment.realization ?? 0, assignment.indicators?.target ?? 0), 0) /
+          (assignmentData.reduce((total, assignment) => total + pct(assignment.realization ?? 0, assignment.indicators?.target ?? null), 0) /
             assignmentData.length) *
             10,
         ) / 10
@@ -84,6 +102,7 @@ export default async function FakultasDashboardPage() {
     .sort((a, b) => a.days - b.days)
     .slice(0, 5);
   const completed = assignmentData.filter((assignment) => ["Selesai", "Diverifikasi"].includes(assignment.status)).length;
+  const facultyAchievements = (achievements ?? []) as FacultyAchievement[];
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-6">
@@ -105,6 +124,8 @@ export default async function FakultasDashboardPage() {
         announcements={(announcements ?? []) as DashboardAnnouncement[]}
         href="/fakultas/pengumuman"
       />
+
+      <FacultyAchievementRanking achievements={facultyAchievements} />
 
       <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
         <DashboardPanel title="Progres indikator" description="Ringkasan status indikator unit Anda" href="/fakultas/indikator">
