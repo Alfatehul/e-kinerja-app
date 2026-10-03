@@ -23,9 +23,28 @@ async function recomputeRealization(assignmentId: string) {
 function getReturnPath(assignmentId: string, returnPath: unknown) {
   const detailPath = `/fakultas/pengisian/${assignmentId}`;
 
-  return returnPath === "/fakultas/pengisian" || returnPath === detailPath
+  return returnPath === "/fakultas/pengisian" ||
+    returnPath === detailPath ||
+    (typeof returnPath === "string" &&
+      /^\/fakultas\/pengisian\?quarter=[1-4]$/.test(returnPath))
     ? returnPath
     : detailPath;
+}
+
+function withNotice(
+  destination: string,
+  notice: string,
+  modalId?: string,
+) {
+  const params = new URLSearchParams({ notice });
+  params.set("modal", modalId ?? "closed");
+  return `${destination}${destination.includes("?") ? "&" : "?"}${params}`;
+}
+
+function withError(destination: string, error: string, modalId?: string) {
+  const params = new URLSearchParams({ error });
+  params.set("modal", modalId ?? "closed");
+  return `${destination}${destination.includes("?") ? "&" : "?"}${params}`;
 }
 
 function getTodayJakarta() {
@@ -37,7 +56,10 @@ function getTodayJakarta() {
   }).format(new Date());
 }
 
-export async function addRealization(assignmentId: string, formData: FormData) {
+export async function addRealization(
+  assignmentId: string,
+  formData: FormData,
+) {
   const supabase = await createClient();
 
   const submittedDate = String(formData.get("date") ?? "").trim();
@@ -78,7 +100,11 @@ export async function addRealization(assignmentId: string, formData: FormData) {
   revalidatePath(`/fakultas/pengisian/${assignmentId}`);
   revalidatePath("/fakultas/pengisian");
   redirect(
-    `${getReturnPath(assignmentId, formData.get("return_path"))}?notice=${encodeURIComponent("Realisasi berhasil ditambahkan.")}&modal=closed`,
+    withNotice(
+      getReturnPath(assignmentId, formData.get("return_path")),
+      "Realisasi berhasil ditambahkan.",
+      String(formData.get("modal_id") ?? "") || undefined,
+    ),
   );
 }
 
@@ -97,6 +123,7 @@ export async function deleteRealization(assignmentId: string, logId: string) {
 export async function submitForVerification(
   assignmentId: string,
   returnPath?: string,
+  modalId?: string,
 ) {
   const supabase = await createClient();
   const { data: assignment, error: assignmentError } = await supabase
@@ -107,8 +134,12 @@ export async function submitForVerification(
 
   if (assignmentError) throw new Error(assignmentError.message);
   if (!assignment.document_link?.trim()) {
-    throw new Error(
-      "Link dokumen pendukung wajib diisi sebelum mengajukan verifikasi.",
+    redirect(
+      withError(
+        getReturnPath(assignmentId, returnPath),
+        "Link dokumen pendukung wajib diisi sebelum mengajukan verifikasi.",
+        modalId,
+      ),
     );
   }
 
@@ -120,13 +151,18 @@ export async function submitForVerification(
   revalidatePath(`/fakultas/pengisian/${assignmentId}`);
   revalidatePath("/fakultas/pengisian");
   redirect(
-    `${getReturnPath(assignmentId, returnPath)}?notice=${encodeURIComponent("Indikator berhasil diajukan untuk verifikasi.")}&modal=closed`,
+    withNotice(
+      getReturnPath(assignmentId, returnPath),
+      "Indikator berhasil diajukan untuk verifikasi.",
+      modalId,
+    ),
   );
 }
 
 export async function cancelSubmission(
   assignmentId: string,
   returnPath?: string,
+  modalId?: string,
 ) {
   const supabase = await createClient();
   const { error } = await supabase
@@ -140,7 +176,11 @@ export async function cancelSubmission(
   revalidatePath(`/fakultas/pengisian/${assignmentId}`);
   revalidatePath("/fakultas/pengisian");
   redirect(
-    `${getReturnPath(assignmentId, returnPath)}?notice=${encodeURIComponent("Pengajuan berhasil dibatalkan.")}&modal=closed`,
+    withNotice(
+      getReturnPath(assignmentId, returnPath),
+      "Pengajuan berhasil dibatalkan.",
+      modalId,
+    ),
   );
 }
 
@@ -148,23 +188,21 @@ export async function updateDocumentLink(
   assignmentId: string,
   link: string,
   returnPath?: string,
+  modalId?: string,
 ) {
   const documentLink = link.trim();
-  if (!documentLink) {
-    throw new Error("Link dokumen pendukung wajib diisi.");
-  }
-
   const supabase = await createClient();
   const { error } = await supabase
     .from("indicator_assignments")
-    .update({ document_link: documentLink })
+    .update({ document_link: documentLink || null })
     .eq("id", assignmentId);
   if (error) throw new Error(error.message);
   revalidatePath(`/fakultas/pengisian/${assignmentId}`);
   revalidatePath("/fakultas/pengisian");
   const destination =
     getReturnPath(assignmentId, returnPath);
-  redirect(
-    `${destination}?notice=${encodeURIComponent("Link dokumen pendukung berhasil disimpan.")}&modal=closed`,
-  );
+  const notice = documentLink
+    ? "Link dokumen pendukung berhasil disimpan."
+    : "Link dokumen pendukung berhasil dihapus.";
+  redirect(withNotice(destination, notice, modalId));
 }

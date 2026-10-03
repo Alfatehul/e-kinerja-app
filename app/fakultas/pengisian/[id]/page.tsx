@@ -47,9 +47,11 @@ function getTodayJakarta() {
 export default async function PengisianDetailPage({
   params,
   returnTo = "",
+  modalId,
 }: {
   params: Promise<{ id: string }>;
   returnTo?: string;
+  modalId?: string;
 }) {
   const { id } = await params;
   const supabase = await createClient();
@@ -94,17 +96,35 @@ export default async function PengisianDetailPage({
     "use server";
     await updateDocumentLink(
       id,
-      formData.get("document_link") as string,
+      String(formData.get("document_link") ?? ""),
       formData.get("return_path") as string,
+      String(formData.get("modal_id") ?? "") || undefined,
+    );
+  }
+  async function handleLinkDelete(formData: FormData) {
+    "use server";
+    await updateDocumentLink(
+      id,
+      "",
+      formData.get("return_path") as string,
+      String(formData.get("modal_id") ?? "") || undefined,
     );
   }
   async function handleSubmit(formData: FormData) {
     "use server";
-    await submitForVerification(id, formData.get("return_path") as string);
+    await submitForVerification(
+      id,
+      formData.get("return_path") as string,
+      String(formData.get("modal_id") ?? "") || undefined,
+    );
   }
   async function handleCancelSubmission(formData: FormData) {
     "use server";
-    await cancelSubmission(id, formData.get("return_path") as string);
+    await cancelSubmission(
+      id,
+      formData.get("return_path") as string,
+      String(formData.get("modal_id") ?? "") || undefined,
+    );
   }
 
   return (
@@ -209,18 +229,20 @@ export default async function PengisianDetailPage({
             </div>
           </div>
           {returnTo && <input type="hidden" name="return_path" value={returnTo} />}
+          {modalId && <input type="hidden" name="modal_id" value={modalId} />}
           <SubmitButton label="Tambah realisasi" loadingLabel="Menyimpan..." className="self-start px-4 py-2.5" />
         </form>
       )}
 
       <form
         action={handleLinkSave}
-        className="flex flex-col gap-3 rounded-2xl border border-[#DCE6DF] bg-white p-4 sm:flex-row sm:items-end sm:p-5"
+        className="flex flex-col gap-3 rounded-2xl border border-[#DCE6DF] bg-white p-4 sm:p-5"
       >
         {returnTo && <input type="hidden" name="return_path" value={returnTo} />}
+        {modalId && <input type="hidden" name="modal_id" value={modalId} />}
         <div className="flex-1">
           <label className="mb-1.5 block text-sm font-semibold text-[#334A3C]">
-            Tautan dokumen pendukung <span className="text-red-600">*</span>
+            Tautan dokumen pendukung
           </label>
           <input
             name="document_link"
@@ -228,10 +250,23 @@ export default async function PengisianDetailPage({
             defaultValue={assignment.document_link ?? ""}
             placeholder="https://drive.google.com/..."
             className="form-input"
-            required
           />
+          <p className="mt-1.5 text-xs text-[#849289]">
+            Tautan wajib diisi saat mengajukan verifikasi. Pilih Hapus tautan untuk menghapus dokumen pendukung.
+          </p>
         </div>
-        <SubmitButton label="Simpan tautan" loadingLabel="Menyimpan..." className="px-4 py-2.5" />
+        <div className="flex flex-wrap gap-2">
+          <SubmitButton label="Simpan tautan" loadingLabel="Menyimpan..." className="px-4 py-2.5" />
+          {assignment.document_link && (
+            <SubmitButton
+              label="Hapus tautan"
+              loadingLabel="Menghapus..."
+              variant="danger"
+              formAction={handleLinkDelete}
+              className="px-4 py-2.5"
+            />
+          )}
+        </div>
       </form>
 
       <div className="overflow-hidden rounded-2xl border border-[#DCE6DF] bg-white shadow-sm">
@@ -276,12 +311,14 @@ export default async function PengisianDetailPage({
         {assignment.status === "Diajukan" && (
           <form action={handleCancelSubmission}>
             {returnTo && <input type="hidden" name="return_path" value={returnTo} />}
+            {modalId && <input type="hidden" name="modal_id" value={modalId} />}
             <SubmitButton label="Batal Ajukan" loadingLabel="Membatalkan..." variant="secondary" className="px-5 py-3" />
           </form>
         )}
         {editable && (
           <form action={handleSubmit}>
             {returnTo && <input type="hidden" name="return_path" value={returnTo} />}
+            {modalId && <input type="hidden" name="modal_id" value={modalId} />}
             <SubmitButton label="Ajukan Verifikasi" loadingLabel="Mengajukan..." className="px-5 py-3" />
           </form>
         )}

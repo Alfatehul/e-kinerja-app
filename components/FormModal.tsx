@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
@@ -11,6 +11,7 @@ export default function FormModal({
   className,
   dialogClassName,
   showTitle = false,
+  modalId,
 }: {
   children: ReactNode;
   label: string;
@@ -18,17 +19,31 @@ export default function FormModal({
   className?: string;
   dialogClassName?: string;
   showTitle?: boolean;
+  modalId?: string;
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
-  const visible = open && searchParams.get("modal") !== "closed";
+  const visible =
+    (open || (!!modalId && searchParams.get("modal") === modalId)) &&
+    searchParams.get("modal") !== "closed";
+
+  const hideModal = useCallback(() => {
+    setOpen(false);
+    if (modalId && searchParams.get("modal") === modalId) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("modal");
+      router.replace(`${pathname}${params.size ? `?${params.toString()}` : ""}`, {
+        scroll: false,
+      });
+    }
+  }, [modalId, pathname, router, searchParams]);
 
   useEffect(() => {
     if (!visible) return;
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") hideModal();
     }
     document.addEventListener("keydown", handleKeyDown);
     document.body.style.overflow = "hidden";
@@ -36,10 +51,16 @@ export default function FormModal({
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
     };
-  }, [visible]);
+  }, [hideModal, visible]);
 
   function showModal() {
     setOpen(true);
+    if (modalId) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("modal", modalId);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      return;
+    }
     if (searchParams.get("modal") === "closed") {
       const params = new URLSearchParams(searchParams.toString());
       params.delete("modal");
@@ -65,7 +86,7 @@ export default function FormModal({
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-[#17231D]/45 p-3 backdrop-blur-sm sm:p-6"
           onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setOpen(false);
+            if (event.target === event.currentTarget) hideModal();
           }}
         >
           <section
@@ -83,7 +104,7 @@ export default function FormModal({
             )}
             <button
               type="button"
-              onClick={() => setOpen(false)}
+              onClick={hideModal}
               aria-label={`Tutup ${title.toLowerCase()}`}
               className="absolute right-4 top-4 z-10 rounded-lg border border-[#DCE6DF] bg-white p-2 text-[#64736A] transition hover:bg-[#F5F8F5]"
             >

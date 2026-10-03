@@ -1,4 +1,5 @@
 import { DashboardPanel, EmptyDashboardState } from "@/components/DashboardCard";
+import { getAchievementColor } from "@/lib/achievement-colors";
 
 export type FacultyAchievement = {
   faculty_id: string;
@@ -23,12 +24,7 @@ export default function FacultyAchievementRanking({
         <ol className="grid gap-x-8 gap-y-5 md:grid-cols-2">
           {achievements.map((faculty, index) => {
             const achievement = Number(faculty.average_capaian);
-            const barColor =
-              achievement >= 80
-                ? "bg-[#3F6E52]"
-                : achievement >= 50
-                  ? "bg-[#B8862E]"
-                  : "bg-[#A6323A]";
+            const color = getAchievementColor(achievement);
 
             return (
               <li key={faculty.faculty_id} className="min-w-0">
@@ -46,7 +42,7 @@ export default function FacultyAchievementRanking({
                       </p>
                     </div>
                   </div>
-                  <span className="shrink-0 text-sm font-bold text-[#17231D]">
+                  <span className={`shrink-0 text-sm font-bold ${color.text}`}>
                     {achievement}%
                   </span>
                 </div>
@@ -59,7 +55,7 @@ export default function FacultyAchievementRanking({
                   aria-valuenow={achievement}
                 >
                   <div
-                    className={`achievement-bar h-full rounded-full ${barColor}`}
+                    className={`achievement-bar h-full rounded-full ${color.bar}`}
                     style={{
                       width: `${Math.min(100, Math.max(0, achievement))}%`,
                       animationDelay: `${Math.min(index, 8) * 40}ms`,

@@ -194,6 +194,11 @@ textarea:focus {
   background-color: #263541 !important;
 }
 
+.dark table tbody tr:hover,
+.dark table tbody tr:hover > td {
+  background-color: #263541 !important;
+}
+
 .dark [class*="hover:text-"]:hover {
   color: #f1f5f9 !important;
 }

@@ -51,7 +51,7 @@ export default function IndicatorCreateModal({
       <button
         type="button"
         onClick={showModal}
-        className="inline-flex items-center justify-center rounded-xl bg-[#0B5B35] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#073B25]"
+        className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700"
       >
         + Tambah Indikator
       </button>

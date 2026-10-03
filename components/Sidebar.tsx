@@ -367,7 +367,7 @@ export default function Sidebar({
             <div key={item.href}>
               {index === 0 || item.section !== items[index - 1].section ? (
                 <div
-                  className={`${index === 0 ? "" : "mt-6"} mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#80998A]`}
+                  className={`${index === 0 ? "" : "mt-6"} mb-2 px-3 text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#527160]`}
                 >
                   {item.section}
                 </div>

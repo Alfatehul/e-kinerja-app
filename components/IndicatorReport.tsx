@@ -6,10 +6,11 @@ import * as XLSX from "xlsx";
 
 export type IndicatorReportRow = {
   name: string;
+  description: string | null;
   facultyName: string;
   period: string;
   quarter: string | null;
-  target: number;
+  target: number | null;
   realization: number;
   unit: string;
   documentLink?: string | null;
@@ -26,9 +27,13 @@ const formatNumber = (value: number) =>
   new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(value);
 
 function achievement(row: IndicatorReportRow) {
-  return row.target > 0
-    ? Math.min(100, Math.round((row.realization / row.target) * 1000) / 10)
-    : 0;
+  return row.target == null
+    ? row.realization > 0
+      ? 100
+      : 0
+    : row.target > 0
+      ? Math.min(100, Math.round((row.realization / row.target) * 1000) / 10)
+      : 0;
 }
 
 export default function IndicatorReport({
@@ -87,11 +92,12 @@ export default function IndicatorReport({
     const pageHeight = doc.internal.pageSize.getHeight();
     const columns = [
       { label: "No", width: 12 },
-      { label: "Indikator", width: 90 },
-      { label: "Fakultas / Unit", width: 48 },
-      { label: "Target", width: 38 },
-      { label: "Realisasi", width: 38 },
-      { label: "Dokumen Pendukung", width: 43 },
+      { label: "Indikator", width: 48 },
+      { label: "Fakultas / Unit", width: 42 },
+      { label: "Target", width: 30 },
+      { label: "Realisasi", width: 30 },
+      { label: "Deskripsi", width: 58 },
+      { label: "Dokumen Pendukung", width: 42 },
     ];
     const lineHeight = 4;
     const padding = 2;
@@ -144,8 +150,11 @@ export default function IndicatorReport({
           String(index + 1),
           row.name,
           row.facultyName,
-          row.target > 0 ? `${formatNumber(row.target)} ${row.unit}` : "-",
+          row.target != null && row.target > 0
+            ? `${formatNumber(row.target)} ${row.unit}`
+            : "-",
           `${formatNumber(row.realization)} ${row.unit}`,
+          row.description || "-",
           row.documentLink ? "Tersedia" : "-",
       ];
       const wrapped = values.map((value, columnIndex) =>
@@ -202,18 +211,22 @@ export default function IndicatorReport({
       [`Fakultas / Unit: ${selectedFaculty}`],
       [`Triwulan: ${selectedQuarter}`],
       [],
-      ["No", "Indikator", "Target", "Realisasi", "Dokumen Pendukung"],
+      ["No", "Indikator", "Target", "Realisasi", "Deskripsi", "Dokumen Pendukung"],
       ...filteredRows.map((row, index) => [
         index + 1,
         row.name,
-        row.target > 0 ? `${formatNumber(row.target)} ${row.unit}` : "-",
+        row.target != null && row.target > 0
+          ? `${formatNumber(row.target)} ${row.unit}`
+          : "-",
         `${formatNumber(row.realization)} ${row.unit}`,
+        row.description || "-",
         row.documentLink ? "Ada" : "-",
       ]),
     ]);
     worksheet["!cols"] = [
       { wch: 6 },
-      { wch: 42 },
+      { wch: 32 },
+      { wch: 48 },
       { wch: 18 },
       { wch: 20 },
       { wch: 18 },
@@ -318,6 +331,7 @@ export default function IndicatorReport({
                 <th className="p-3">Fakultas / Unit</th>
                 <th className="p-3">Target</th>
                 <th className="p-3">Realisasi</th>
+                <th className="p-3">Deskripsi</th>
                 <th className="p-3">Dokumen Pendukung</th>
                 <th className="p-3">Capaian</th>
               </tr>
@@ -332,11 +346,14 @@ export default function IndicatorReport({
                   <td className="p-3">{row.name}</td>
                   <td className="p-3">{row.facultyName}</td>
                   <td className="p-3">
-                    {row.target > 0 ? `${formatNumber(row.target)} ${row.unit}` : "-"}
+                    {row.target != null && row.target > 0
+                      ? `${formatNumber(row.target)} ${row.unit}`
+                      : "-"}
                   </td>
                   <td className="p-3">
                     {formatNumber(row.realization)} {row.unit}
                   </td>
+                  <td className="p-3">{row.description || "-"}</td>
                   <td className="p-3">
                     {row.documentLink ? (
                       <a href={row.documentLink} target="_blank" rel="noreferrer" className="font-semibold text-[#0B5B35] underline">
@@ -351,7 +368,7 @@ export default function IndicatorReport({
               ))}
               {filteredRows.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-[#64736A]">
+                  <td colSpan={8} className="p-8 text-center text-[#64736A]">
                     Tidak ada data untuk filter yang dipilih.
                   </td>
                 </tr>

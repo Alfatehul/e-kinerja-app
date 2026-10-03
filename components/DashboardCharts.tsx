@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { getAchievementColor } from "@/lib/achievement-colors";
 
 export default function DashboardCharts({
   data,
@@ -51,13 +52,7 @@ export default function DashboardCharts({
             {data.map((d, i) => (
               <Cell
                 key={i}
-                fill={
-                  d.capaian >= 80
-                    ? "#3F6E52"
-                    : d.capaian >= 50
-                      ? "#B8862E"
-                      : "#A6323A"
-                }
+                fill={getAchievementColor(d.capaian).chart}
               />
             ))}
           </Bar>

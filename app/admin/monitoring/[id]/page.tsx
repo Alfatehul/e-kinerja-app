@@ -41,9 +41,16 @@ export default async function MonitoringDetailPage({
   const faculty = Array.isArray(assignment.faculties)
     ? assignment.faculties[0]
     : assignment.faculties;
-  const target = Number(indicator?.target ?? 0);
+  const target = indicator?.target == null ? null : Number(indicator.target);
   const realization = Number(assignment.realization ?? 0);
-  const pct = target > 0 ? Math.min(100, Math.round((realization / target) * 1000) / 10) : 0;
+  const pct =
+    target == null
+      ? realization > 0
+        ? 100
+        : 0
+      : target > 0
+        ? Math.min(100, Math.round((realization / target) * 1000) / 10)
+        : 0;
 
   async function approve() {
     "use server";
@@ -84,7 +91,7 @@ export default async function MonitoringDetailPage({
           </div>
         </div>
         <div className="grid divide-y divide-[#E8EFEA] sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-          <div className="px-5 py-5 sm:px-8"><p className="text-xs font-semibold uppercase tracking-wide text-[#849289]">Target</p><p className="mt-2 text-2xl font-bold text-[#34463B]">{target} <span className="text-sm font-medium text-[#849289]">{indicator?.unit ?? ""}</span></p></div>
+          <div className="px-5 py-5 sm:px-8"><p className="text-xs font-semibold uppercase tracking-wide text-[#849289]">Target</p><p className="mt-2 text-2xl font-bold text-[#34463B]">{target ?? "-"} <span className="text-sm font-medium text-[#849289]">{indicator?.unit ?? ""}</span></p></div>
           <div className="px-5 py-5 sm:px-8"><p className="text-xs font-semibold uppercase tracking-wide text-[#849289]">Realisasi</p><p className="mt-2 text-2xl font-bold text-[#527160]">{realization} <span className="text-sm font-medium text-[#849289]">{assignment.realization_unit ?? indicator?.unit ?? ""}</span></p></div>
           <div className="px-5 py-5 sm:px-8"><p className="text-xs font-semibold uppercase tracking-wide text-[#849289]">Capaian</p><p className="mt-2 text-2xl font-bold text-[#806F43]">{pct}%</p></div>
         </div>
@@ -98,7 +105,7 @@ export default async function MonitoringDetailPage({
               <span className="text-2xl font-bold text-[#806F43]">{pct}%</span>
             </div>
             <div className="mt-5 h-3 overflow-hidden rounded-full bg-[#E8EFEA]"><div className="h-full rounded-full bg-gradient-to-r from-[#9AB7A3] to-[#C49A45]" style={{ width: `${pct}%` }} /></div>
-            <div className="mt-3 flex justify-between text-xs text-[#849289]"><span>0</span><span>{target} {indicator?.unit ?? ""}</span></div>
+            <div className="mt-3 flex justify-between text-xs text-[#849289]"><span>0</span><span>{target ?? "-"} {indicator?.unit ?? ""}</span></div>
           </section>
 
           {assignment.status === "Ditolak" && assignment.note && (

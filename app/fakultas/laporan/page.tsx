@@ -8,7 +8,7 @@ type ReportAssignment = {
   document_link: string | null;
   indicators: IndicatorData | IndicatorData[] | null;
 };
-type IndicatorData = { code: string; name: string; quarter: string | null; target: number; unit: string | null };
+type IndicatorData = { code: string; name: string; description: string | null; quarter: string | null; target: number | null; unit: string | null };
 
 export default async function FacultyReportPage() {
   const session = await getCurrentProfile();
@@ -16,7 +16,7 @@ export default async function FacultyReportPage() {
   const [{ data: assignments, error }, { data: faculty }] = await Promise.all([
     supabase
       .from("indicator_assignments")
-      .select("realization, status, document_link, indicators(code, name, quarter, target, unit)")
+      .select("realization, status, document_link, indicators(code, name, description, quarter, target, unit)")
       .eq("faculty_id", session!.profile.faculty_id),
     supabase
       .from("faculties")
@@ -29,10 +29,11 @@ export default async function FacultyReportPage() {
     return indicator ? [{
       code: indicator.code ?? "-",
       name: indicator.name ?? "-",
+      description: indicator.description ?? null,
       facultyName: faculty?.name ?? "Fakultas Anda",
       period: "",
       quarter: indicator.quarter,
-      target: Number(indicator.target ?? 0),
+      target: indicator.target == null ? null : Number(indicator.target),
       realization: Number(assignment.realization ?? 0),
       unit: indicator.unit ?? "",
       status: assignment.status ?? "-",

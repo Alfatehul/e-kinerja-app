@@ -37,10 +37,15 @@ function statusClass(status: string | null) {
 }
 
 function achievement(assignment: FacultyAssignment) {
-  const target = assignment.indicators?.target ?? 0;
-  return target > 0
-    ? Math.min(100, Math.round(((assignment.realization ?? 0) / target) * 1000) / 10)
-    : 0;
+  const target = assignment.indicators?.target ?? null;
+  const realization = assignment.realization ?? 0;
+  return target == null
+    ? realization > 0
+      ? 100
+      : 0
+    : target > 0
+      ? Math.min(100, Math.round((realization / target) * 1000) / 10)
+      : 0;
 }
 
 export default function FacultyIndicatorTable({

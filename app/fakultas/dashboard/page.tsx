@@ -13,6 +13,7 @@ import FacultyAchievementRanking, {
 import DashboardAnnouncements, {
   type DashboardAnnouncement,
 } from "@/components/DashboardAnnouncements";
+import { getAchievementColor } from "@/lib/achievement-colors";
 
 type Assignment = {
   id: string;
@@ -83,6 +84,7 @@ export default async function FakultasDashboardPage() {
             10,
         ) / 10
       : 0;
+  const averageColor = getAchievementColor(average);
   const statusCounts = ["Draft", "Diajukan", "Disetujui", "Ditolak"].map((status) => ({
     status,
     count: (proposals ?? []).filter((proposal) => proposal.status === status).length,
@@ -130,10 +132,10 @@ export default async function FakultasDashboardPage() {
       <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
         <DashboardPanel title="Progres indikator" description="Ringkasan status indikator unit Anda" href="/fakultas/indikator">
           <div className="mb-5 flex items-end justify-between">
-            <div><p className="text-4xl font-bold text-[#073B25]">{average}%</p><p className="mt-1 text-xs text-[#849289]">Capaian rata-rata saat ini</p></div>
+            <div><p className={`text-4xl font-bold ${averageColor.text}`}>{average}%</p><p className="mt-1 text-xs text-[#849289]">Capaian rata-rata saat ini</p></div>
             <span className="rounded-full bg-[#EAF3ED] px-3 py-1.5 text-xs font-bold text-[#0B5B35]">{completed}/{assignmentData.length} selesai</span>
           </div>
-          <div className="h-3 overflow-hidden rounded-full bg-[#E8EFEA]"><div className="h-full rounded-full bg-[#C49A45] transition-all" style={{ width: `${average}%` }} /></div>
+          <div className="h-3 overflow-hidden rounded-full bg-[#E8EFEA]"><div className={`h-full rounded-full ${averageColor.bar} transition-all`} style={{ width: `${average}%` }} /></div>
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {["Draft", "Diajukan", "Disetujui", "Ditolak"].map((status) => {
               const count = assignmentData.filter((assignment) => assignment.status === status).length;
