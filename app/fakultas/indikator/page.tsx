@@ -1,6 +1,7 @@
 import { getCurrentProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import StatusBadge from "@/components/StatusBadge";
+import QuarterCardLink from "@/components/QuarterCardLink";
 
 type Assignment = {
   id: string;
@@ -95,7 +96,7 @@ export default async function FakultasIndikatorPage({
             if (status) hrefParams.set("status", status);
             hrefParams.set("quarter", item.value);
             return (
-              <a
+              <QuarterCardLink
                 key={item.value}
                 href={`/fakultas/indikator?${hrefParams.toString()}`}
                 className={`rounded-2xl border border-[#DCE6DF] p-4 transition hover:-translate-y-0.5 hover:border-[#B9D7C1] hover:shadow-sm ${quarter === item.value ? "ring-2 ring-[#8FB49A] ring-offset-2" : "bg-white"}`}
@@ -107,7 +108,7 @@ export default async function FakultasIndikatorPage({
                 <p className="mt-1 text-[11px] text-[#849289]">{item.months}</p>
                 <p className="mt-3 text-2xl font-bold text-[#17231D]">{count}</p>
                 <p className="text-[11px] text-[#849289]">indikator</p>
-              </a>
+              </QuarterCardLink>
             );
           })}
         </div>

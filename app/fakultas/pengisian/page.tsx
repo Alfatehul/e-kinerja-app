@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import StatusBadge from "@/components/StatusBadge";
 import FormModal from "@/components/FormModal";
 import PengisianFilters from "@/components/PengisianFilters";
+import QuarterCardLink from "@/components/QuarterCardLink";
 import PengisianDetailPage from "./[id]/page";
 
 type Assignment = {
@@ -110,7 +111,7 @@ export default async function PengisianPage({
               if (status) params.set("status", status);
               params.set("quarter", item.value);
               return (
-                <Link
+                <QuarterCardLink
                   key={item.value}
                   href={`/fakultas/pengisian?${params.toString()}`}
                   className="flex min-h-0 flex-col justify-between border-2 border-[#CBD8CE] bg-white p-5 shadow-md transition hover:-translate-y-0.5 hover:border-[#9AB7A3] hover:shadow-lg sm:p-7"
@@ -141,7 +142,7 @@ export default async function PengisianPage({
                       Buka daftar <span aria-hidden="true">→</span>
                     </p>
                   </div>
-                </Link>
+                </QuarterCardLink>
               );
             })}
           </div>

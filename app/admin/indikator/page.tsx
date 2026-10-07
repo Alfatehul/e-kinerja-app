@@ -5,6 +5,7 @@ import DeleteIndicatorButton from "@/components/DeleteIndicatorButton";
 import IndicatorCreateModal from "@/components/IndicatorCreateModal";
 import FormModal from "@/components/FormModal";
 import AdminIndicatorFilters from "@/components/AdminIndicatorFilters";
+import QuarterCardLink from "@/components/QuarterCardLink";
 import TambahIndikatorPage from "./tambah/page";
 import EditIndikatorPage from "./[id]/edit/page";
 
@@ -128,7 +129,7 @@ export default async function IndikatorListPage({
               if (faculty) params.set("faculty", faculty);
               params.set("quarter", item.value);
               return (
-                <Link
+                <QuarterCardLink
                   key={item.value}
                   href={`/admin/indikator?${params.toString()}`}
                   className="flex min-h-0 flex-col justify-between border-2 border-[#CBD8CE] bg-white p-5 shadow-md transition hover:-translate-y-0.5 hover:border-[#9AB7A3] hover:shadow-lg sm:p-7"
@@ -159,7 +160,7 @@ export default async function IndikatorListPage({
                       Buka daftar <span aria-hidden="true">→</span>
                     </p>
                   </div>
-                </Link>
+                </QuarterCardLink>
               );
             })}
           </div>
@@ -193,7 +194,7 @@ export default async function IndikatorListPage({
                   if (q) params.set("q", q);
                   const count = indicatorsByFaculty.get(item.id)?.size ?? 0;
                   return (
-                    <Link
+                    <QuarterCardLink
                       key={item.id}
                       href={`/admin/indikator?${params.toString()}`}
                       className="flex min-h-48 flex-col justify-between border-2 border-[#CBD8CE] bg-white p-5 shadow-md transition hover:-translate-y-0.5 hover:border-[#9AB7A3] hover:shadow-lg sm:p-7"
@@ -226,7 +227,7 @@ export default async function IndikatorListPage({
                           Buka daftar <span aria-hidden="true">→</span>
                         </span>
                       </div>
-                    </Link>
+                    </QuarterCardLink>
                   );
                 })}
                 {(faculties ?? []).length === 0 && !facultiesError && (
